@@ -2255,6 +2255,11 @@ const App = () => {
   const [toast, setToast] = useState(null);
   const [showChangePw, setShowChangePw] = useState(false);
 
+  const allowed = useMemo(() => {
+    if (!BWP_READY) return [];
+    return Object.keys(BWP.permissions || {}).filter(m => (BWP.permissions[m] || []).includes(role));
+  }, [role]);
+
   useEffect(() => {
     const token = localStorage.getItem('bwp_token');
     if (!token) { setAuthChecked(true); return; }
@@ -2272,6 +2277,8 @@ const App = () => {
       });
   }, []);
 
+  useEffect(() => { if (allowed.length && !allowed.includes(active)) setActive("dashboard"); }, [role, allowed]);
+
   const handleLogin = (user) => {
     setAuthUser(user);
     setRole(user.role_id);
@@ -2286,6 +2293,10 @@ const App = () => {
     setAuthUser(null);
   };
 
+  const pushToast = (m) => { setToast(m); setTimeout(() => setToast(null), 2800); };
+  const goto = (id) => { setActive(id); setDrawer(false); };
+  const mobile = device === "mobile";
+
   if (!authChecked) return (
     <div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', background: 'var(--bg)' }}>
       <div style={{ textAlign: 'center', color: 'var(--ink-3)' }}>
@@ -2296,13 +2307,6 @@ const App = () => {
   );
 
   if (!authUser) return <LoginPage onLogin={handleLogin} />;
-
-  const allowed = useMemo(() => Object.keys(BWP.permissions).filter(m => BWP.permissions[m].includes(role)), [role]);
-  useEffect(() => { if (!allowed.includes(active)) setActive("dashboard"); }, [role]);
-
-  const pushToast = (m) => { setToast(m); setTimeout(() => setToast(null), 2800); };
-  const goto = (id) => { setActive(id); setDrawer(false); };
-  const mobile = device === "mobile";
 
   const shell = (
     <div className={"app" + (mobile ? " mobile-mode" : "")} style={{ position: "relative" }}>
