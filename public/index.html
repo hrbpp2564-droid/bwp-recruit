@@ -908,7 +908,7 @@ const RoleSwitcher = ({ role, setRole }) => {
   );
 };
 
-const Topbar = ({ active, role, setRole, onMenu, mobile, deviceToggle, notifClick, notifCount }) => {
+const Topbar = ({ active, role, setRole, onMenu, mobile, deviceToggle, notifClick, notifCount, authUser, onLogout, onChangePw }) => {
   const [t1, t2] = MODULE_TITLES[active] || ["", ""];
   return (
     <header style={{ height: "var(--topbar-h)", background: "rgba(255,255,255,.92)", backdropFilter: "blur(10px)", borderBottom: "1px solid var(--line)", display: "flex", alignItems: "center", gap: 14, padding: mobile ? "0 14px" : "0 26px", position: "sticky", top: 0, zIndex: 90 }}>
@@ -929,6 +929,12 @@ const Topbar = ({ active, role, setRole, onMenu, mobile, deviceToggle, notifClic
         {notifCount > 0 && <span className="tnum" style={{ position: "absolute", top: -5, right: -5, minWidth: 18, height: 18, padding: "0 4px", borderRadius: 99, background: "var(--red)", color: "#fff", fontSize: 10.5, fontWeight: 700, display: "grid", placeItems: "center", border: "2px solid var(--surface)" }}>{notifCount}</span>}
       </button>
       {!mobile && <RoleSwitcher role={role} setRole={setRole} />}
+      {authUser && !mobile && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+          {onChangePw && <button onClick={onChangePw} title="เปลี่ยนรหัสผ่าน" className="focusable" style={{ width: 36, height: 36, borderRadius: 9, border: '1px solid var(--line)', background: 'var(--surface)', color: 'var(--ink-3)', display: 'grid', placeItems: 'center', cursor: 'pointer' }}><Icon name="settings" size={17} /></button>}
+          <button onClick={onLogout} title="ออกจากระบบ" className="focusable" style={{ width: 36, height: 36, borderRadius: 9, border: '1px solid var(--line)', background: 'var(--surface)', color: 'var(--red)', display: 'grid', placeItems: 'center', cursor: 'pointer' }}><Icon name="logout" size={17} /></button>
+        </div>
+      )}
     </header>
   );
 };
@@ -2065,13 +2071,231 @@ const ModuleRenderer = ({ active, role, goto, openCandidate, pushToast }) => {
   }
 };
 
+/* ============================================================
+   Login Page
+   ============================================================ */
+const LoginPage = ({ onLogin }) => {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [showPw, setShowPw] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'เข้าสู่ระบบไม่สำเร็จ');
+      localStorage.setItem('bwp_token', data.token);
+      localStorage.setItem('bwp_user', JSON.stringify(data.user));
+      onLogin(data.user);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, var(--navy-900) 0%, #132f55 50%, var(--navy-800) 100%)', display: 'grid', placeItems: 'center', padding: 20 }}>
+      <div style={{ position: 'fixed', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
+        <div style={{ position: 'absolute', width: 600, height: 600, borderRadius: '50%', background: 'radial-gradient(circle, rgba(47,111,214,.12), transparent 70%)', top: '-10%', right: '-10%' }} />
+        <div style={{ position: 'absolute', width: 400, height: 400, borderRadius: '50%', background: 'radial-gradient(circle, rgba(47,111,214,.08), transparent 70%)', bottom: '-5%', left: '-5%' }} />
+      </div>
+      <div className="anim-up" style={{ width: 420, maxWidth: '100%', position: 'relative', zIndex: 1 }}>
+        <div style={{ textAlign: 'center', marginBottom: 32 }}>
+          <div style={{ width: 64, height: 64, borderRadius: 18, background: 'linear-gradient(135deg,#2f6fd6,#1d3f70)', display: 'grid', placeItems: 'center', margin: '0 auto 16px', boxShadow: '0 8px 32px rgba(47,111,214,.4)' }}>
+            <span style={{ fontWeight: 800, fontSize: 26, color: '#fff', letterSpacing: '-.02em' }}>BW</span>
+          </div>
+          <h1 style={{ fontSize: 24, fontWeight: 700, color: '#fff', margin: '0 0 6px', letterSpacing: '-.01em' }}>BWP Recruit</h1>
+          <p style={{ fontSize: 14, color: 'var(--ink-on-navy-dim)', margin: 0 }}>ระบบบริหารงานสรรหา — เข้าสู่ระบบ</p>
+        </div>
+
+        <form onSubmit={handleSubmit} style={{ background: 'var(--surface)', borderRadius: 20, padding: '32px 28px', boxShadow: '0 24px 64px rgba(0,0,0,.25)' }}>
+          {error && (
+            <div className="anim-fade" style={{ background: 'var(--red-soft)', border: '1px solid #f0c9c7', borderRadius: 10, padding: '10px 14px', marginBottom: 18, display: 'flex', alignItems: 'center', gap: 10 }}>
+              <Icon name="alert" size={18} style={{ color: 'var(--red)', flexShrink: 0 }} />
+              <span style={{ fontSize: 13, color: 'var(--red)', fontWeight: 600 }}>{error}</span>
+            </div>
+          )}
+
+          <div style={{ marginBottom: 18 }}>
+            <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--ink-2)', marginBottom: 7 }}>ชื่อผู้ใช้ (Username)</label>
+            <div style={{ position: 'relative' }}>
+              <div style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--ink-3)' }}><Icon name="idcard" size={18} /></div>
+              <input type="text" value={username} onChange={e => setUsername(e.target.value)} placeholder="เช่น admin, hr.manager"
+                autoFocus autoComplete="username"
+                style={{ ...inputStyle, paddingLeft: 40 }}
+                onFocus={e => e.target.style.borderColor = 'var(--accent)'} onBlur={e => e.target.style.borderColor = 'var(--line-strong)'} />
+            </div>
+          </div>
+
+          <div style={{ marginBottom: 24 }}>
+            <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--ink-2)', marginBottom: 7 }}>รหัสผ่าน (Password)</label>
+            <div style={{ position: 'relative' }}>
+              <div style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--ink-3)' }}><Icon name="settings" size={18} /></div>
+              <input type={showPw ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} placeholder="กรอกรหัสผ่าน"
+                autoComplete="current-password"
+                style={{ ...inputStyle, paddingLeft: 40, paddingRight: 42 }}
+                onFocus={e => e.target.style.borderColor = 'var(--accent)'} onBlur={e => e.target.style.borderColor = 'var(--line-strong)'} />
+              <button type="button" onClick={() => setShowPw(v => !v)} style={{ position: 'absolute', right: 4, top: '50%', transform: 'translateY(-50%)', width: 34, height: 34, borderRadius: 8, border: 'none', background: 'transparent', color: 'var(--ink-3)', cursor: 'pointer', display: 'grid', placeItems: 'center' }}>
+                <Icon name={showPw ? 'x' : 'eye'} size={17} />
+              </button>
+            </div>
+          </div>
+
+          <button type="submit" disabled={loading} className="focusable"
+            style={{ width: '100%', padding: '12px 20px', borderRadius: 12, border: 'none', background: loading ? 'var(--ink-3)' : 'linear-gradient(135deg, var(--navy-800), var(--accent-700))', color: '#fff', fontSize: 15, fontWeight: 700, cursor: loading ? 'wait' : 'pointer', transition: 'all .2s', boxShadow: '0 4px 16px rgba(47,111,214,.3)' }}
+            onMouseEnter={e => { if (!loading) { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(47,111,214,.4)'; } }}
+            onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 4px 16px rgba(47,111,214,.3)'; }}>
+            {loading ? 'กำลังเข้าสู่ระบบ…' : 'เข้าสู่ระบบ'}
+          </button>
+        </form>
+
+        <div style={{ marginTop: 24, background: 'rgba(255,255,255,.06)', borderRadius: 14, padding: '16px 20px', border: '1px solid rgba(255,255,255,.08)' }}>
+          <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink-on-navy-dim)', marginBottom: 10, letterSpacing: '.04em' }}>บัญชีสำหรับทดสอบ</div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px 16px' }}>
+            {[
+              ['admin', 'BWPadmin@2569', 'ผู้ดูแลระบบ'],
+              ['hr.manager', 'HRm@2569', 'ผจก.ฝ่ายบุคคล'],
+              ['hr.officer', 'HRo@2569', 'จนท.สรรหา'],
+              ['dept.manager', 'DEPm@2569', 'ผจก.แผนก'],
+              ['interviewer', 'IVw@2569', 'ผู้สัมภาษณ์'],
+              ['md', 'MD@2569', 'กรรมการผู้จัดการ'],
+            ].map(([u, p, label]) => (
+              <button key={u} type="button" onClick={() => { setUsername(u); setPassword(p); setError(''); }}
+                style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 10px', borderRadius: 8, border: 'none', background: 'transparent', color: '#fff', cursor: 'pointer', textAlign: 'left', fontSize: 12, transition: 'background .15s' }}
+                onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,.08)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                <span style={{ fontFamily: 'var(--mono)', color: 'var(--accent)', fontWeight: 600 }}>{u}</span>
+                <span style={{ color: 'var(--ink-on-navy-dim)', fontSize: 11 }}>{label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ============================================================
+   Change Password Modal
+   ============================================================ */
+const ChangePasswordModal = ({ open, onClose, pushToast }) => {
+  const [current, setCurrent] = useState('');
+  const [newPw, setNewPw] = useState('');
+  const [confirm, setConfirm] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    if (newPw.length < 6) return setError('รหัสผ่านใหม่ต้องมีอย่างน้อย 6 ตัวอักษร');
+    if (newPw !== confirm) return setError('รหัสผ่านใหม่ไม่ตรงกัน');
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('bwp_token');
+      const res = await fetch('/api/auth/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+        body: JSON.stringify({ current_password: current, new_password: newPw }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      pushToast('เปลี่ยนรหัสผ่านสำเร็จ');
+      setCurrent(''); setNewPw(''); setConfirm('');
+      onClose();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Modal open={open} onClose={onClose} title="เปลี่ยนรหัสผ่าน" icon="settings" width={440}>
+      <form onSubmit={handleSubmit}>
+        {error && <div style={{ background: 'var(--red-soft)', border: '1px solid #f0c9c7', borderRadius: 8, padding: '8px 12px', marginBottom: 14, fontSize: 13, color: 'var(--red)', fontWeight: 600 }}>{error}</div>}
+        <Field label="รหัสผ่านปัจจุบัน" required>
+          <TextInput type="password" value={current} onChange={e => setCurrent(e.target.value)} />
+        </Field>
+        <div style={{ height: 12 }} />
+        <Field label="รหัสผ่านใหม่ (อย่างน้อย 6 ตัวอักษร)" required>
+          <TextInput type="password" value={newPw} onChange={e => setNewPw(e.target.value)} />
+        </Field>
+        <div style={{ height: 12 }} />
+        <Field label="ยืนยันรหัสผ่านใหม่" required>
+          <TextInput type="password" value={confirm} onChange={e => setConfirm(e.target.value)} />
+        </Field>
+        <div style={{ marginTop: 20, display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+          <Btn variant="ghost" onClick={onClose}>ยกเลิก</Btn>
+          <Btn variant="accent" type="submit" icon="check">{loading ? 'กำลังบันทึก…' : 'บันทึก'}</Btn>
+        </div>
+      </form>
+    </Modal>
+  );
+};
+
 const App = () => {
+  const [authUser, setAuthUser] = useState(null);
+  const [authChecked, setAuthChecked] = useState(false);
   const [role, setRole] = useState("hr_manager");
   const [active, setActive] = useState("dashboard");
   const [device, setDevice] = useState("desktop");
   const [drawer, setDrawer] = useState(false);
   const [candidate, setCandidate] = useState(null);
   const [toast, setToast] = useState(null);
+  const [showChangePw, setShowChangePw] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem('bwp_token');
+    if (!token) { setAuthChecked(true); return; }
+    fetch('/api/auth/me', { headers: { Authorization: 'Bearer ' + token } })
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(user => {
+        setAuthUser(user);
+        setRole(user.role_id);
+        setAuthChecked(true);
+      })
+      .catch(() => {
+        localStorage.removeItem('bwp_token');
+        localStorage.removeItem('bwp_user');
+        setAuthChecked(true);
+      });
+  }, []);
+
+  const handleLogin = (user) => {
+    setAuthUser(user);
+    setRole(user.role_id);
+    setActive("dashboard");
+  };
+
+  const handleLogout = async () => {
+    const token = localStorage.getItem('bwp_token');
+    if (token) await fetch('/api/auth/logout', { method: 'POST', headers: { Authorization: 'Bearer ' + token } }).catch(() => {});
+    localStorage.removeItem('bwp_token');
+    localStorage.removeItem('bwp_user');
+    setAuthUser(null);
+  };
+
+  if (!authChecked) return (
+    <div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', background: 'var(--bg)' }}>
+      <div style={{ textAlign: 'center', color: 'var(--ink-3)' }}>
+        <div style={{ width: 48, height: 48, borderRadius: 13, background: 'linear-gradient(135deg,#2f6fd6,#1d3f70)', display: 'grid', placeItems: 'center', margin: '0 auto 14px', color: '#fff', fontWeight: 800, fontSize: 19 }}>BW</div>
+        กำลังตรวจสอบสิทธิ์…
+      </div>
+    </div>
+  );
+
+  if (!authUser) return <LoginPage onLogin={handleLogin} />;
 
   const allowed = useMemo(() => Object.keys(BWP.permissions).filter(m => BWP.permissions[m].includes(role)), [role]);
   useEffect(() => { if (!allowed.includes(active)) setActive("dashboard"); }, [role]);
@@ -2094,7 +2318,8 @@ const App = () => {
       <div style={{ minWidth: 0, display: "flex", flexDirection: "column" }}>
         <Topbar active={active} role={role} setRole={setRole} mobile={mobile} onMenu={() => setDrawer(true)}
           deviceToggle={!mobile && <DeviceToggle device={device} setDevice={setDevice} />}
-          notifClick={() => goto("notifications")} notifCount={2} />
+          notifClick={() => goto("notifications")} notifCount={2}
+          authUser={authUser} onLogout={handleLogout} onChangePw={() => setShowChangePw(true)} />
         {mobile && (
           <div style={{ padding: "10px 14px", borderBottom: "1px solid var(--line)", display: "flex", justifyContent: "space-between", alignItems: "center", background: "var(--surface)" }}>
             <RoleSwitcher role={role} setRole={setRole} />
@@ -2106,6 +2331,7 @@ const App = () => {
         </main>
       </div>
       <CandidateDetail c={candidate} onClose={() => setCandidate(null)} />
+      <ChangePasswordModal open={showChangePw} onClose={() => setShowChangePw(false)} pushToast={pushToast} />
       {toast && <Toast msg={toast} />}
     </div>
   );

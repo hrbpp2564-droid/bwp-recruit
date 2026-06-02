@@ -1,7 +1,76 @@
 const express = require('express');
+const crypto = require('crypto');
 const router = express.Router();
 
 module.exports = function(db) {
+
+  // ---------- Auth ----------
+  function hashPassword(password, salt) {
+    return crypto.scryptSync(password, salt, 64).toString('hex');
+  }
+
+  function generateToken() {
+    return crypto.randomBytes(32).toString('hex');
+  }
+
+  function getSessionUser(req) {
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    if (!token) return null;
+    const session = db.prepare('SELECT s.*, u.username, u.role_id, u.display_name FROM sessions s JOIN users u ON s.user_id = u.id WHERE s.token = ? AND s.expires_at > ?').get(token, new Date().toISOString());
+    return session || null;
+  }
+
+  router.post('/auth/login', (req, res) => {
+    const { username, password } = req.body;
+    if (!username || !password) return res.status(400).json({ error: 'กรุณากรอกชื่อผู้ใช้และรหัสผ่าน' });
+
+    const user = db.prepare('SELECT * FROM users WHERE username = ? AND active = 1').get(username);
+    if (!user) return res.status(401).json({ error: 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง' });
+
+    const hash = hashPassword(password, user.salt);
+    if (hash !== user.password_hash) return res.status(401).json({ error: 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง' });
+
+    const token = generateToken();
+    const now = new Date();
+    const expires = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+    db.prepare('INSERT INTO sessions (token, user_id, created_at, expires_at) VALUES (?, ?, ?, ?)').run(token, user.id, now.toISOString(), expires.toISOString());
+
+    const role = db.prepare('SELECT * FROM roles WHERE id = ?').get(user.role_id);
+    res.json({ token, user: { id: user.id, username: user.username, role_id: user.role_id, display_name: user.display_name, role } });
+  });
+
+  router.get('/auth/me', (req, res) => {
+    const session = getSessionUser(req);
+    if (!session) return res.status(401).json({ error: 'ไม่ได้เข้าสู่ระบบ' });
+    const role = db.prepare('SELECT * FROM roles WHERE id = ?').get(session.role_id);
+    res.json({ id: session.user_id, username: session.username, role_id: session.role_id, display_name: session.display_name, role });
+  });
+
+  router.post('/auth/logout', (req, res) => {
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    if (token) db.prepare('DELETE FROM sessions WHERE token = ?').run(token);
+    res.json({ ok: true });
+  });
+
+  router.post('/auth/change-password', (req, res) => {
+    const session = getSessionUser(req);
+    if (!session) return res.status(401).json({ error: 'ไม่ได้เข้าสู่ระบบ' });
+
+    const { current_password, new_password } = req.body;
+    if (!current_password || !new_password) return res.status(400).json({ error: 'กรุณากรอกข้อมูลให้ครบ' });
+    if (new_password.length < 6) return res.status(400).json({ error: 'รหัสผ่านใหม่ต้องมีอย่างน้อย 6 ตัวอักษร' });
+
+    const user = db.prepare('SELECT * FROM users WHERE id = ?').get(session.user_id);
+    const currentHash = hashPassword(current_password, user.salt);
+    if (currentHash !== user.password_hash) return res.status(400).json({ error: 'รหัสผ่านปัจจุบันไม่ถูกต้อง' });
+
+    const newSalt = crypto.randomBytes(16).toString('hex');
+    const newHash = hashPassword(new_password, newSalt);
+    db.prepare('UPDATE users SET password_hash = ?, salt = ? WHERE id = ?').run(newHash, newSalt, user.id);
+
+    db.prepare('DELETE FROM sessions WHERE user_id = ? AND token != ?').run(user.id, req.headers.authorization?.replace('Bearer ', ''));
+    res.json({ ok: true });
+  });
 
   // ---------- Roles & Permissions ----------
   router.get('/roles', (req, res) => {

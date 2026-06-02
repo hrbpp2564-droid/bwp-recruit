@@ -1,4 +1,5 @@
 const Database = require('better-sqlite3');
+const crypto = require('crypto');
 const path = require('path');
 
 const DB_PATH = path.join(__dirname, 'bwp.db');
@@ -209,6 +210,24 @@ function initSchema(db) {
       th TEXT NOT NULL,
       color TEXT,
       sort_order INTEGER DEFAULT 0
+    );
+
+    CREATE TABLE IF NOT EXISTS users (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      username TEXT UNIQUE NOT NULL,
+      password_hash TEXT NOT NULL,
+      salt TEXT NOT NULL,
+      role_id TEXT NOT NULL REFERENCES roles(id),
+      display_name TEXT NOT NULL,
+      active INTEGER DEFAULT 1,
+      created_at TEXT
+    );
+
+    CREATE TABLE IF NOT EXISTS sessions (
+      token TEXT PRIMARY KEY,
+      user_id INTEGER NOT NULL REFERENCES users(id),
+      created_at TEXT NOT NULL,
+      expires_at TEXT NOT NULL
     );
   `);
 }
@@ -445,6 +464,25 @@ function seed(db) {
     ['LinkedIn',14,58,'#128a9c'],['Walk-in / ป้ายหน้าโรงงาน',12,49,'#d98a16'],
     ['จัดหางานจังหวัด',8,44,'#6b4fd1'],['Agency',4,38,'#d6453d'],
   ]);
+
+  // Users
+  const userList = [
+    ['admin',        'BWPadmin@2569',  'super_admin',  'ก. ระบบาธิป'],
+    ['hr.manager',   'HRm@2569',       'hr_manager',   'สุนิสา ภักดีงาม'],
+    ['hr.officer',   'HRo@2569',       'hr_officer',   'พิมพ์ชนก ศรีสุข'],
+    ['dept.manager', 'DEPm@2569',      'dept_manager', 'ธนกฤต วงศ์ไพบูลย์'],
+    ['interviewer',  'IVw@2569',       'interviewer',  'อนุชา เรืองศักดิ์'],
+    ['md',           'MD@2569',        'md',           'วิเชียร บุญประเสริฐ'],
+  ];
+  const userStmt = db.prepare('INSERT OR REPLACE INTO users (username, password_hash, salt, role_id, display_name, created_at) VALUES (?, ?, ?, ?, ?, ?)');
+  const userTx = db.transaction(() => {
+    for (const [username, password, role_id, display_name] of userList) {
+      const salt = crypto.randomBytes(16).toString('hex');
+      const hash = crypto.scryptSync(password, salt, 64).toString('hex');
+      userStmt.run(username, hash, salt, role_id, display_name, new Date().toISOString());
+    }
+  });
+  userTx();
 
   console.log('Database seeded successfully.');
 }
