@@ -2005,34 +2005,268 @@ const AIModule = () => (
 );
 
 const SettingsModule = () => {
+  const [tab, setTab] = useState('matrix');
+  const [matrix, setMatrix] = useState(BWP.permMatrix);
+  const [users, setUsers] = useState([]);
+  const [loadingUsers, setLoadingUsers] = useState(false);
+  const [showAddUser, setShowAddUser] = useState(false);
+  const [showResetPw, setShowResetPw] = useState(null);
+  const [showEditUser, setShowEditUser] = useState(null);
+  const [toast, setToast] = useState(null);
+
+  const token = localStorage.getItem('bwp_token');
+  const headers = { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token };
   const cols = [["super_admin", "Super Admin"], ["hr_manager", "HR Mgr"], ["hr_officer", "HR Officer"], ["dept_manager", "Dept Mgr"], ["interviewer", "Interviewer"], ["md", "MD"]];
   const cellColor = { F: ["var(--green)", "var(--green-soft)"], A: ["var(--violet)", "var(--violet-soft)"], E: ["var(--accent)", "var(--accent-soft)"], C: ["var(--teal)", "var(--teal-soft)"], V: ["var(--ink-3)", "#eef1f5"], "–": ["#c4cdd9", "transparent"] };
+  const levels = ['F','A','E','C','V','–'];
+
+  const showToast = (m) => { setToast(m); setTimeout(() => setToast(null), 2400); };
+
+  const loadUsers = async () => {
+    setLoadingUsers(true);
+    try {
+      const res = await fetch('/api/users', { headers });
+      if (res.ok) setUsers(await res.json());
+    } catch(e) {}
+    setLoadingUsers(false);
+  };
+
+  useEffect(() => { if (tab === 'users') loadUsers(); }, [tab]);
+
+  const cycleLevel = async (mod, roleId, current) => {
+    const idx = levels.indexOf(current);
+    const next = levels[(idx + 1) % levels.length];
+    try {
+      const res = await fetch('/api/perm-matrix', { method: 'PATCH', headers, body: JSON.stringify({ module: mod, role_id: roleId, level: next }) });
+      if (res.ok) {
+        setMatrix(prev => prev.map(row => row.module === mod ? { ...row, [roleId]: next } : row));
+        BWP.permMatrix = matrix.map(row => row.module === mod ? { ...row, [roleId]: next } : row);
+        showToast(`${mod} / ${roleId} → ${BWP.permLegend[next]}`);
+      }
+    } catch(e) {}
+  };
+
+  const tabs = [
+    { id: 'matrix', label: 'Permission Matrix', icon: 'layers' },
+    { id: 'users', label: 'จัดการผู้ใช้', icon: 'users' },
+  ];
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      <Panel title="Permission Matrix (RBAC)" sub="สิทธิ์การเข้าถึงแต่ละโมดูลตามบทบาท" icon="settings">
-        <div style={{ overflowX: "auto" }}>
-          <table className="dt" style={{ minWidth: 720 }}>
-            <thead><tr><th>โมดูล</th>{cols.map(([k, l]) => <th key={k} style={{ textAlign: "center" }}>{l}</th>)}</tr></thead>
-            <tbody>{BWP.permMatrix.map((row, i) => (
-              <tr key={i}>
-                <td style={{ fontWeight: 600, color: "var(--ink)" }}>{row.module}</td>
-                {cols.map(([k]) => { const v = row[k]; const [c, bg] = cellColor[v]; return <td key={k} style={{ textAlign: "center" }}><span style={{ display: "inline-grid", placeItems: "center", width: 26, height: 26, borderRadius: 7, background: bg, color: c, fontSize: 12, fontWeight: 700 }}>{v}</span></td>; })}
-              </tr>))}</tbody>
-          </table>
-        </div>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 14, marginTop: 16, paddingTop: 14, borderTop: "1px solid var(--line)" }}>
-          {Object.entries(BWP.permLegend).map(([k, v]) => { const [c, bg] = cellColor[k]; return <span key={k} style={{ display: "inline-flex", alignItems: "center", gap: 7, fontSize: 12, color: "var(--ink-2)" }}><span style={{ display: "inline-grid", placeItems: "center", width: 22, height: 22, borderRadius: 6, background: bg, color: c, fontSize: 11, fontWeight: 700 }}>{k}</span>{v}</span>; })}
-        </div>
-      </Panel>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(200px,1fr))", gap: 14 }}>
-        {BWP.roles.map(r => (
-          <div key={r.id} className="card" style={{ padding: 16, display: "flex", alignItems: "center", gap: 12 }}>
-            <Avatar initials={r.initials} color={r.color} size={42} />
-            <div><div style={{ fontSize: 13.5, fontWeight: 700, color: "var(--ink)" }}>{r.name}</div><div style={{ fontSize: 12, color: "var(--ink-3)" }}>{r.th}</div></div>
+      <Tabs tabs={tabs} active={tab} onChange={setTab} />
+
+      {tab === 'matrix' && <>
+        <Panel title="Permission Matrix (RBAC)" sub="คลิกที่ช่องเพื่อเปลี่ยนระดับสิทธิ์ (วนรอบ F → A → E → C → V → –)" icon="settings">
+          <div style={{ overflowX: "auto" }}>
+            <table className="dt" style={{ minWidth: 720 }}>
+              <thead><tr><th>โมดูล</th>{cols.map(([k, l]) => <th key={k} style={{ textAlign: "center" }}>{l}</th>)}</tr></thead>
+              <tbody>{matrix.map((row, i) => (
+                <tr key={i}>
+                  <td style={{ fontWeight: 600, color: "var(--ink)" }}>{row.module}</td>
+                  {cols.map(([k]) => { const v = row[k]; const [c, bg] = cellColor[v] || cellColor['–']; return (
+                    <td key={k} style={{ textAlign: "center" }}>
+                      <button onClick={() => cycleLevel(row.module, k, v)} title={`${BWP.permLegend[v]} — คลิกเพื่อเปลี่ยน`}
+                        style={{ display: "inline-grid", placeItems: "center", width: 32, height: 32, borderRadius: 8, background: bg, color: c, fontSize: 13, fontWeight: 700, border: "2px solid transparent", cursor: "pointer", transition: "all .15s" }}
+                        onMouseEnter={e => { e.currentTarget.style.borderColor = c; e.currentTarget.style.transform = 'scale(1.15)'; }}
+                        onMouseLeave={e => { e.currentTarget.style.borderColor = 'transparent'; e.currentTarget.style.transform = ''; }}>
+                        {v}
+                      </button>
+                    </td>
+                  ); })}
+                </tr>))}</tbody>
+            </table>
           </div>
-        ))}
-      </div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 14, marginTop: 16, paddingTop: 14, borderTop: "1px solid var(--line)" }}>
+            {Object.entries(BWP.permLegend).map(([k, v]) => { const [c, bg] = cellColor[k]; return <span key={k} style={{ display: "inline-flex", alignItems: "center", gap: 7, fontSize: 12, color: "var(--ink-2)" }}><span style={{ display: "inline-grid", placeItems: "center", width: 22, height: 22, borderRadius: 6, background: bg, color: c, fontSize: 11, fontWeight: 700 }}>{k}</span>{v}</span>; })}
+          </div>
+        </Panel>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(200px,1fr))", gap: 14 }}>
+          {BWP.roles.map(r => (
+            <div key={r.id} className="card" style={{ padding: 16, display: "flex", alignItems: "center", gap: 12 }}>
+              <Avatar initials={r.initials} color={r.color} size={42} />
+              <div><div style={{ fontSize: 13.5, fontWeight: 700, color: "var(--ink)" }}>{r.name}</div><div style={{ fontSize: 12, color: "var(--ink-3)" }}>{r.th}</div></div>
+            </div>
+          ))}
+        </div>
+      </>}
+
+      {tab === 'users' && <>
+        <Panel title="จัดการผู้ใช้งาน" sub={`ทั้งหมด ${users.length} บัญชี`} icon="users"
+          right={<Btn variant="accent" size="sm" icon="plus" onClick={() => setShowAddUser(true)}>เพิ่มผู้ใช้</Btn>}>
+          {loadingUsers ? <div style={{ textAlign: 'center', padding: 40, color: 'var(--ink-3)' }}>กำลังโหลด...</div> : (
+            <div style={{ overflowX: 'auto' }}>
+              <table className="dt" style={{ minWidth: 700 }}>
+                <thead><tr><th>ผู้ใช้</th><th>Username</th><th>บทบาท</th><th>สถานะ</th><th style={{ textAlign: 'center' }}>จัดการ</th></tr></thead>
+                <tbody>{users.map(u => (
+                  <tr key={u.id}>
+                    <td>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <Avatar initials={u.role_initials} color={u.role_color} size={34} />
+                        <span style={{ fontWeight: 600, color: 'var(--ink)' }}>{u.display_name}</span>
+                      </div>
+                    </td>
+                    <td><span className="mono" style={{ fontSize: 13, color: 'var(--accent)' }}>{u.username}</span></td>
+                    <td><Pill color={u.role_color} bg={u.role_color + '18'}>{u.role_th}</Pill></td>
+                    <td>
+                      {u.active ? <Pill color="var(--green)" bg="var(--green-soft)" dot>ใช้งาน</Pill> : <Pill color="var(--red)" bg="var(--red-soft)" dot>ระงับ</Pill>}
+                    </td>
+                    <td style={{ textAlign: 'center' }}>
+                      <div style={{ display: 'flex', gap: 4, justifyContent: 'center' }}>
+                        <Btn variant="ghost" size="sm" icon="settings" onClick={() => setShowEditUser(u)} title="แก้ไข" />
+                        <Btn variant="ghost" size="sm" icon="settings" onClick={() => setShowResetPw(u)} title="รีเซ็ตรหัสผ่าน" style={{ color: 'var(--amber)' }}>รหัส</Btn>
+                        {u.active ? (
+                          <Btn variant="danger" size="sm" onClick={async () => {
+                            if (!confirm(`ระงับบัญชี "${u.display_name}"?`)) return;
+                            await fetch(`/api/users/${u.id}`, { method: 'PATCH', headers, body: JSON.stringify({ active: 0 }) });
+                            loadUsers(); showToast('ระงับบัญชีแล้ว');
+                          }}>ระงับ</Btn>
+                        ) : (
+                          <Btn variant="soft" size="sm" style={{ color: 'var(--green)' }} onClick={async () => {
+                            await fetch(`/api/users/${u.id}`, { method: 'PATCH', headers, body: JSON.stringify({ active: 1 }) });
+                            loadUsers(); showToast('เปิดใช้งานแล้ว');
+                          }}>เปิดใช้</Btn>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}</tbody>
+              </table>
+            </div>
+          )}
+        </Panel>
+      </>}
+
+      <AddUserModal open={showAddUser} onClose={() => setShowAddUser(false)} onSaved={() => { loadUsers(); showToast('เพิ่มผู้ใช้สำเร็จ'); }} headers={headers} />
+      <EditUserModal open={!!showEditUser} user={showEditUser} onClose={() => setShowEditUser(null)} onSaved={() => { loadUsers(); showToast('บันทึกแล้ว'); }} headers={headers} />
+      <ResetPwModal open={!!showResetPw} user={showResetPw} onClose={() => setShowResetPw(null)} onSaved={() => showToast('รีเซ็ตรหัสผ่านสำเร็จ')} headers={headers} />
+      {toast && <div style={{ position: 'fixed', bottom: 24, left: '50%', transform: 'translateX(-50%)', background: 'var(--navy-800)', color: '#fff', padding: '10px 22px', borderRadius: 10, fontSize: 14, fontWeight: 600, boxShadow: 'var(--shadow-lg)', zIndex: 300 }} className="anim-up">{toast}</div>}
     </div>
+  );
+};
+
+const AddUserModal = ({ open, onClose, onSaved, headers }) => {
+  const [form, setForm] = useState({ username: '', password: '', display_name: '', role_id: 'hr_officer' });
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+
+  const handleSubmit = async (e) => {
+    e.preventDefault(); setError(''); setLoading(true);
+    try {
+      const res = await fetch('/api/users', { method: 'POST', headers, body: JSON.stringify(form) });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setForm({ username: '', password: '', display_name: '', role_id: 'hr_officer' });
+      onClose(); onSaved();
+    } catch(err) { setError(err.message); }
+    setLoading(false);
+  };
+
+  return (
+    <Modal open={open} onClose={onClose} title="เพิ่มผู้ใช้ใหม่" icon="plus" width={480}>
+      <form onSubmit={handleSubmit}>
+        {error && <div style={{ background: 'var(--red-soft)', border: '1px solid #f0c9c7', borderRadius: 8, padding: '8px 12px', marginBottom: 14, fontSize: 13, color: 'var(--red)', fontWeight: 600 }}>{error}</div>}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <Field label="ชื่อแสดง (ชื่อ-นามสกุล)" required>
+            <TextInput value={form.display_name} onChange={e => set('display_name', e.target.value)} placeholder="เช่น สมชาย ใจดี" />
+          </Field>
+          <div style={{ display: 'flex', gap: 14 }}>
+            <Field label="Username" required half>
+              <TextInput value={form.username} onChange={e => set('username', e.target.value)} placeholder="เช่น somchai.j" autoComplete="off" />
+            </Field>
+            <Field label="รหัสผ่าน (6+ ตัว)" required half>
+              <TextInput type="password" value={form.password} onChange={e => set('password', e.target.value)} placeholder="รหัสผ่าน" autoComplete="new-password" />
+            </Field>
+          </div>
+          <Field label="บทบาท" required>
+            <Select value={form.role_id} onChange={e => set('role_id', e.target.value)} options={BWP.roles.map(r => ({ value: r.id, label: `${r.name} — ${r.th}` }))} />
+          </Field>
+        </div>
+        <div style={{ marginTop: 20, display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+          <Btn variant="ghost" onClick={onClose}>ยกเลิก</Btn>
+          <Btn variant="accent" type="submit" icon="check">{loading ? 'กำลังบันทึก…' : 'เพิ่มผู้ใช้'}</Btn>
+        </div>
+      </form>
+    </Modal>
+  );
+};
+
+const EditUserModal = ({ open, user, onClose, onSaved, headers }) => {
+  const [role_id, setRoleId] = useState('');
+  const [display_name, setDisplayName] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => { if (user) { setRoleId(user.role_id); setDisplayName(user.display_name); setError(''); } }, [user]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault(); setError(''); setLoading(true);
+    try {
+      const res = await fetch(`/api/users/${user.id}`, { method: 'PATCH', headers, body: JSON.stringify({ role_id, display_name }) });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      onClose(); onSaved();
+    } catch(err) { setError(err.message); }
+    setLoading(false);
+  };
+
+  if (!user) return null;
+  return (
+    <Modal open={open} onClose={onClose} title={`แก้ไขผู้ใช้: ${user.username}`} icon="idcard" width={460}>
+      <form onSubmit={handleSubmit}>
+        {error && <div style={{ background: 'var(--red-soft)', border: '1px solid #f0c9c7', borderRadius: 8, padding: '8px 12px', marginBottom: 14, fontSize: 13, color: 'var(--red)', fontWeight: 600 }}>{error}</div>}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <Field label="ชื่อแสดง" required>
+            <TextInput value={display_name} onChange={e => setDisplayName(e.target.value)} />
+          </Field>
+          <Field label="บทบาท" required>
+            <Select value={role_id} onChange={e => setRoleId(e.target.value)} options={BWP.roles.map(r => ({ value: r.id, label: `${r.name} — ${r.th}` }))} />
+          </Field>
+        </div>
+        <div style={{ marginTop: 20, display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+          <Btn variant="ghost" onClick={onClose}>ยกเลิก</Btn>
+          <Btn variant="accent" type="submit" icon="check">{loading ? 'กำลังบันทึก…' : 'บันทึก'}</Btn>
+        </div>
+      </form>
+    </Modal>
+  );
+};
+
+const ResetPwModal = ({ open, user, onClose, onSaved, headers }) => {
+  const [newPw, setNewPw] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => { setNewPw(''); setError(''); }, [user]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault(); setError(''); setLoading(true);
+    try {
+      const res = await fetch(`/api/users/${user.id}/reset-password`, { method: 'POST', headers, body: JSON.stringify({ new_password: newPw }) });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      onClose(); onSaved();
+    } catch(err) { setError(err.message); }
+    setLoading(false);
+  };
+
+  if (!user) return null;
+  return (
+    <Modal open={open} onClose={onClose} title={`รีเซ็ตรหัสผ่าน: ${user.display_name}`} icon="settings" width={420}>
+      <form onSubmit={handleSubmit}>
+        {error && <div style={{ background: 'var(--red-soft)', border: '1px solid #f0c9c7', borderRadius: 8, padding: '8px 12px', marginBottom: 14, fontSize: 13, color: 'var(--red)', fontWeight: 600 }}>{error}</div>}
+        <div style={{ background: 'var(--amber-soft)', border: '1px solid #f0ddb3', borderRadius: 10, padding: '10px 14px', marginBottom: 16, fontSize: 13, color: 'var(--amber)' }}>
+          <strong>คำเตือน:</strong> Session เดิมของผู้ใช้จะถูกยกเลิกทั้งหมด ต้อง login ใหม่
+        </div>
+        <Field label="รหัสผ่านใหม่ (6+ ตัว)" required>
+          <TextInput type="password" value={newPw} onChange={e => setNewPw(e.target.value)} placeholder="กรอกรหัสผ่านใหม่" autoComplete="new-password" />
+        </Field>
+        <div style={{ marginTop: 20, display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+          <Btn variant="ghost" onClick={onClose}>ยกเลิก</Btn>
+          <Btn variant="accent" type="submit" icon="check">{loading ? 'กำลังรีเซ็ต…' : 'รีเซ็ตรหัสผ่าน'}</Btn>
+        </div>
+      </form>
+    </Modal>
   );
 };
 

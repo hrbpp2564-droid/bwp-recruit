@@ -97,6 +97,81 @@ module.exports = function(db) {
     res.json(Object.values(modules));
   });
 
+  router.patch('/perm-matrix', (req, res) => {
+    const session = getSessionUser(req);
+    if (!session || session.role_id !== 'super_admin') return res.status(403).json({ error: 'เฉพาะผู้ดูแลระบบเท่านั้น' });
+    const { module, role_id, level } = req.body;
+    if (!module || !role_id || !level) return res.status(400).json({ error: 'ข้อมูลไม่ครบ' });
+    const valid = ['F','A','E','C','V','–'];
+    if (!valid.includes(level)) return res.status(400).json({ error: 'ระดับสิทธิ์ไม่ถูกต้อง' });
+    db.prepare('INSERT OR REPLACE INTO perm_matrix (module, role_id, level) VALUES (?, ?, ?)').run(module, role_id, level);
+    res.json({ ok: true, module, role_id, level });
+  });
+
+  router.patch('/permissions', (req, res) => {
+    const session = getSessionUser(req);
+    if (!session || session.role_id !== 'super_admin') return res.status(403).json({ error: 'เฉพาะผู้ดูแลระบบเท่านั้น' });
+    const { module, role_id, granted } = req.body;
+    if (!module || !role_id) return res.status(400).json({ error: 'ข้อมูลไม่ครบ' });
+    if (granted) {
+      db.prepare('INSERT OR IGNORE INTO permissions (module, role_id) VALUES (?, ?)').run(module, role_id);
+    } else {
+      db.prepare('DELETE FROM permissions WHERE module = ? AND role_id = ?').run(module, role_id);
+    }
+    res.json({ ok: true });
+  });
+
+  // ---------- User Management ----------
+  router.get('/users', (req, res) => {
+    const session = getSessionUser(req);
+    if (!session || session.role_id !== 'super_admin') return res.status(403).json({ error: 'เฉพาะผู้ดูแลระบบเท่านั้น' });
+    const users = db.prepare('SELECT u.id, u.username, u.role_id, u.display_name, u.active, u.created_at, r.name as role_name, r.th as role_th, r.color as role_color, r.initials as role_initials FROM users u JOIN roles r ON u.role_id = r.id ORDER BY u.id').all();
+    res.json(users);
+  });
+
+  router.post('/users', (req, res) => {
+    const session = getSessionUser(req);
+    if (!session || session.role_id !== 'super_admin') return res.status(403).json({ error: 'เฉพาะผู้ดูแลระบบเท่านั้น' });
+    const { username, password, role_id, display_name } = req.body;
+    if (!username || !password || !role_id || !display_name) return res.status(400).json({ error: 'กรุณากรอกข้อมูลให้ครบ' });
+    if (password.length < 6) return res.status(400).json({ error: 'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร' });
+    if (!/^[a-zA-Z0-9._]+$/.test(username)) return res.status(400).json({ error: 'ชื่อผู้ใช้ใช้ได้เฉพาะ a-z, 0-9, จุด, ขีดล่าง' });
+    const existing = db.prepare('SELECT id FROM users WHERE username = ?').get(username);
+    if (existing) return res.status(400).json({ error: 'ชื่อผู้ใช้นี้มีในระบบแล้ว' });
+    const roleExists = db.prepare('SELECT id FROM roles WHERE id = ?').get(role_id);
+    if (!roleExists) return res.status(400).json({ error: 'บทบาทไม่ถูกต้อง' });
+    const salt = crypto.randomBytes(16).toString('hex');
+    const hash = hashPassword(password, salt);
+    const result = db.prepare('INSERT INTO users (username, password_hash, salt, role_id, display_name, created_at) VALUES (?, ?, ?, ?, ?, ?)').run(username, hash, salt, role_id, display_name, new Date().toISOString());
+    const user = db.prepare('SELECT u.id, u.username, u.role_id, u.display_name, u.active, u.created_at, r.name as role_name, r.th as role_th, r.color as role_color, r.initials as role_initials FROM users u JOIN roles r ON u.role_id = r.id WHERE u.id = ?').get(result.lastInsertRowid);
+    res.status(201).json(user);
+  });
+
+  router.patch('/users/:id', (req, res) => {
+    const session = getSessionUser(req);
+    if (!session || session.role_id !== 'super_admin') return res.status(403).json({ error: 'เฉพาะผู้ดูแลระบบเท่านั้น' });
+    const { role_id, display_name, active } = req.body;
+    const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.params.id);
+    if (!user) return res.status(404).json({ error: 'ไม่พบผู้ใช้' });
+    db.prepare('UPDATE users SET role_id = COALESCE(?, role_id), display_name = COALESCE(?, display_name), active = COALESCE(?, active) WHERE id = ?').run(role_id, display_name, active, req.params.id);
+    const updated = db.prepare('SELECT u.id, u.username, u.role_id, u.display_name, u.active, u.created_at, r.name as role_name, r.th as role_th, r.color as role_color, r.initials as role_initials FROM users u JOIN roles r ON u.role_id = r.id WHERE u.id = ?').get(req.params.id);
+    res.json(updated);
+  });
+
+  router.post('/users/:id/reset-password', (req, res) => {
+    const session = getSessionUser(req);
+    if (!session || session.role_id !== 'super_admin') return res.status(403).json({ error: 'เฉพาะผู้ดูแลระบบเท่านั้น' });
+    const { new_password } = req.body;
+    if (!new_password || new_password.length < 6) return res.status(400).json({ error: 'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร' });
+    const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.params.id);
+    if (!user) return res.status(404).json({ error: 'ไม่พบผู้ใช้' });
+    const salt = crypto.randomBytes(16).toString('hex');
+    const hash = hashPassword(new_password, salt);
+    db.prepare('UPDATE users SET password_hash = ?, salt = ? WHERE id = ?').run(hash, salt, req.params.id);
+    db.prepare('DELETE FROM sessions WHERE user_id = ?').run(req.params.id);
+    res.json({ ok: true });
+  });
+
   // ---------- Company Config / Summary ----------
   router.get('/config', (req, res) => {
     const rows = db.prepare('SELECT key, value FROM company_config').all();
