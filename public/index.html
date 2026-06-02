@@ -1,0 +1,2132 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BWP Recruitment Management System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+/* ============================================================
+   BWP Recruitment Management System — Design Tokens & Globals
+   Theme: Modern Industrial Corporate — Navy / White / Silver
+   ============================================================ */
+
+:root {
+  --navy-900: #0b1f3a;
+  --navy-800: #0f2747;
+  --navy-700: #16335c;
+  --navy-600: #1d3f70;
+  --navy-500: #2a5288;
+
+  --accent: #2f6fd6;
+  --accent-soft: #e8f0fc;
+  --accent-700: #2257ad;
+
+  --bg: #eef1f5;
+  --bg-soft: #f5f7fa;
+  --surface: #ffffff;
+  --surface-2: #f8fafc;
+  --line: #e3e8ef;
+  --line-strong: #d2dae4;
+
+  --ink: #16202e;
+  --ink-2: #44505f;
+  --ink-3: #6b7686;
+  --ink-on-navy: #eaf0f8;
+  --ink-on-navy-dim: #9db0cc;
+
+  --green: #1f9d63;
+  --green-soft: #e3f5ec;
+  --amber: #d98a16;
+  --amber-soft: #fbf0db;
+  --red: #d6453d;
+  --red-soft: #fbe6e5;
+  --violet: #6b4fd1;
+  --violet-soft: #ece7fb;
+  --teal: #128a9c;
+  --teal-soft: #def0f3;
+
+  --r-sm: 6px;
+  --r: 10px;
+  --r-lg: 14px;
+  --r-xl: 20px;
+
+  --shadow-xs: 0 1px 2px rgba(15,39,71,0.06);
+  --shadow-sm: 0 1px 3px rgba(15,39,71,0.08), 0 1px 2px rgba(15,39,71,0.04);
+  --shadow: 0 4px 16px rgba(15,39,71,0.08), 0 1px 3px rgba(15,39,71,0.05);
+  --shadow-lg: 0 18px 48px rgba(11,31,58,0.22);
+
+  --sidebar-w: 256px;
+  --topbar-h: 62px;
+
+  --font: "IBM Plex Sans Thai", "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+#root { min-height: 100vh; }
+
+button { font-family: inherit; cursor: pointer; }
+input, select, textarea { font-family: inherit; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: #c4cdd9; border-radius: 6px; border: 2px solid transparent; background-clip: padding-box; }
+::-webkit-scrollbar-thumb:hover { background: #aab6c6; background-clip: padding-box; }
+::-webkit-scrollbar-track { background: transparent; }
+
+.tnum { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+.mono { font-family: var(--mono); }
+
+.eyebrow {
+  font-size: 11px; font-weight: 600; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--ink-3);
+}
+
+.app {
+  display: grid;
+  grid-template-columns: var(--sidebar-w) 1fr;
+  min-height: 100vh;
+}
+.app.mobile-mode { grid-template-columns: 1fr; }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.focusable:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+@keyframes fadeUp { from { transform: translateY(7px); } to { transform: none; } }
+@keyframes fadeIn { from { opacity: .85; } to { opacity: 1; } }
+@keyframes scaleIn { from { transform: scale(.98); } to { transform: none; } }
+.anim-fade { animation: fadeIn .25s ease; }
+.anim-up { animation: fadeUp .35s cubic-bezier(.2,.7,.3,1); }
+
+.noscroll::-webkit-scrollbar { height: 8px; }
+
+.pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 3px 10px; border-radius: 999px;
+  font-size: 12px; font-weight: 600; line-height: 1.5;
+}
+
+table.dt { width: 100%; border-collapse: collapse; }
+table.dt th {
+  text-align: left; font-size: 11.5px; font-weight: 600; letter-spacing: .03em;
+  color: var(--ink-3); text-transform: uppercase;
+  padding: 11px 14px; border-bottom: 1px solid var(--line);
+  background: var(--surface-2); position: sticky; top: 0;
+}
+table.dt td { padding: 13px 14px; border-bottom: 1px solid var(--line); font-size: 13.5px; color: var(--ink-2); }
+table.dt tbody tr { transition: background .12s; }
+table.dt tbody tr:hover { background: var(--surface-2); }
+table.dt tbody tr:last-child td { border-bottom: none; }
+
+main { container-type: inline-size; }
+@container (max-width: 760px) {
+  .dash-grid { grid-template-columns: 1fr !important; }
+}
+@media (max-width: 760px) {
+  .dash-grid { grid-template-columns: 1fr !important; }
+}
+</style>
+</head>
+<body>
+<div id="root">
+  <div style="min-height:100vh;display:grid;place-items:center;color:#6b7686;font-family:system-ui;">
+    <div style="text-align:center">
+      <div style="width:48px;height:48px;border-radius:13px;background:linear-gradient(135deg,#2f6fd6,#1d3f70);display:grid;place-items:center;margin:0 auto 14px;color:#fff;font-weight:800;font-size:19px">BW</div>
+      กำลังโหลดระบบ…
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.26.8/babel.min.js" crossorigin="anonymous"></script>
+<!-- Local fallback when CDN is unavailable -->
+<script>
+if (typeof React === 'undefined') document.write('<script src="react.development.js"><\/script>');
+</script>
+<script>
+if (typeof ReactDOM === 'undefined') document.write('<script src="react-dom.development.js"><\/script>');
+</script>
+<script>
+if (typeof Babel === 'undefined') document.write('<script src="babel.min.js"><\/script>');
+</script>
+
+<script type="text/babel">
+/* ============================================================
+   BWP Recruitment — Data Layer (loaded from API)
+   ============================================================ */
+
+const BWP = {};
+let BWP_READY = false;
+
+async function loadBWP() {
+  try {
+    const res = await fetch('/api/init');
+    if (!res.ok) throw new Error('API unavailable');
+    const data = await res.json();
+    Object.assign(BWP, data);
+    BWP_READY = true;
+  } catch (e) {
+    console.warn('API not available, using fallback data');
+    seedFallback();
+    BWP_READY = true;
+  }
+}
+
+function seedFallback() {
+
+BWP.roles = [
+  { id: "super_admin", name: "Super Admin", th: "ผู้ดูแลระบบสูงสุด", color: "#6b4fd1", initials: "SA", person: "ก. ระบบาธิป" },
+  { id: "hr_manager", name: "HR Manager", th: "ผู้จัดการฝ่ายบุคคล", color: "#2f6fd6", initials: "HM", person: "สุนิสา ภักดีงาม" },
+  { id: "hr_officer", name: "HR Officer", th: "เจ้าหน้าที่สรรหา", color: "#128a9c", initials: "HO", person: "พิมพ์ชนก ศรีสุข" },
+  { id: "dept_manager", name: "Department Manager", th: "ผู้จัดการแผนก", color: "#1f9d63", initials: "DM", person: "ธนกฤต วงศ์ไพบูลย์" },
+  { id: "interviewer", name: "Interviewer", th: "ผู้สัมภาษณ์", color: "#d98a16", initials: "IV", person: "อนุชา เรืองศักดิ์" },
+  { id: "md", name: "Managing Director", th: "กรรมการผู้จัดการ", color: "#0f2747", initials: "MD", person: "วิเชียร บุญประเสริฐ" },
+];
+
+BWP.permissions = {
+  dashboard:    ["super_admin","hr_manager","hr_officer","dept_manager","interviewer","md"],
+  manpower:     ["super_admin","hr_manager","hr_officer","dept_manager","md"],
+  requisition:  ["super_admin","hr_manager","hr_officer","dept_manager","md"],
+  jd:           ["super_admin","hr_manager","hr_officer","dept_manager"],
+  pipeline:     ["super_admin","hr_manager","hr_officer","dept_manager"],
+  candidates:   ["super_admin","hr_manager","hr_officer"],
+  interview:    ["super_admin","hr_manager","hr_officer","dept_manager","interviewer"],
+  offer:        ["super_admin","hr_manager","md"],
+  onboarding:   ["super_admin","hr_manager","hr_officer"],
+  exec:         ["super_admin","hr_manager","md"],
+  reports:      ["super_admin","hr_manager","hr_officer","md"],
+  notifications:["super_admin","hr_manager","hr_officer"],
+  ai:           ["super_admin","hr_manager","hr_officer","md"],
+  settings:     ["super_admin"],
+};
+
+BWP.permMatrix = [
+  { module: "Manpower Planning", super_admin:"F", hr_manager:"F", hr_officer:"E", dept_manager:"V", interviewer:"–", md:"V" },
+  { module: "Requisition", super_admin:"F", hr_manager:"A", hr_officer:"E", dept_manager:"C", interviewer:"–", md:"A" },
+  { module: "Job Description", super_admin:"F", hr_manager:"F", hr_officer:"E", dept_manager:"C", interviewer:"–", md:"V" },
+  { module: "Pipeline", super_admin:"F", hr_manager:"F", hr_officer:"E", dept_manager:"V", interviewer:"–", md:"V" },
+  { module: "Candidate DB", super_admin:"F", hr_manager:"F", hr_officer:"E", dept_manager:"–", interviewer:"–", md:"–" },
+  { module: "Interview", super_admin:"F", hr_manager:"F", hr_officer:"E", dept_manager:"V", interviewer:"E", md:"V" },
+  { module: "Offer", super_admin:"F", hr_manager:"E", hr_officer:"V", dept_manager:"–", interviewer:"–", md:"A" },
+  { module: "Onboarding", super_admin:"F", hr_manager:"F", hr_officer:"E", dept_manager:"V", interviewer:"–", md:"–" },
+  { module: "Executive Dashboard", super_admin:"F", hr_manager:"V", hr_officer:"–", dept_manager:"–", interviewer:"–", md:"F" },
+  { module: "Reports", super_admin:"F", hr_manager:"E", hr_officer:"E", dept_manager:"–", interviewer:"–", md:"V" },
+  { module: "Settings / RBAC", super_admin:"F", hr_manager:"–", hr_officer:"–", dept_manager:"–", interviewer:"–", md:"–" },
+];
+BWP.permLegend = { F:"เต็มสิทธิ์", A:"อนุมัติ", E:"แก้ไข", C:"สร้าง", V:"ดูอย่างเดียว", "–":"ไม่มีสิทธิ์" };
+
+BWP.departments = [
+  { id:"prod", name:"ฝ่ายผลิต", en:"Production", plan:182, actual:171, type:"factory", color:"#2f6fd6" },
+  { id:"qc",   name:"ประกันคุณภาพ", en:"QA / QC", plan:34, actual:30, type:"factory", color:"#128a9c" },
+  { id:"wh",   name:"คลังสินค้า", en:"Warehouse", plan:48, actual:44, type:"factory", color:"#1f9d63" },
+  { id:"maint",name:"ซ่อมบำรุง", en:"Maintenance", plan:26, actual:21, type:"factory", color:"#d98a16" },
+  { id:"eng",  name:"วิศวกรรม", en:"Engineering", plan:18, actual:16, type:"factory", color:"#6b4fd1" },
+  { id:"sales",name:"ฝ่ายขาย", en:"Sales", plan:22, actual:20, type:"office", color:"#d6453d" },
+  { id:"hr",   name:"ทรัพยากรบุคคล", en:"HR", plan:11, actual:10, type:"office", color:"#2a5288" },
+  { id:"acc",  name:"บัญชีการเงิน", en:"Accounting", plan:14, actual:14, type:"office", color:"#7a8694" },
+];
+
+BWP.shifts = [
+  { id:"A", name:"กะเช้า (A)", time:"07:00–15:00", plan:64, actual:61 },
+  { id:"B", name:"กะบ่าย (B)", time:"15:00–23:00", plan:60, actual:55 },
+  { id:"C", name:"กะดึก (C)", time:"23:00–07:00", plan:58, actual:55 },
+];
+
+BWP.summary = {
+  totalEmployees: 326, planEmployees: 355, factory: 282, office: 58,
+  vacancyRate: 8.2, turnoverRate: 1.7, openPositions: 14, newHiresMonth: 9,
+  candidatesActive: 168, interviewsWeek: 11, offersOut: 4, probationCount: 17,
+};
+
+BWP.execKpi = {
+  timeToHire: { value: 32, unit:"วัน", trend:-4, target:35 },
+  timeToFill: { value: 41, unit:"วัน", trend:-2, target:45 },
+  costPerHire: { value: 18400, unit:"฿", trend:+1200, target:20000 },
+  offerAccept: { value: 86, unit:"%", trend:+3, target:85 },
+  probationTurnover: { value: 11, unit:"%", trend:-2, target:12 },
+  sourceEffectiveness: { value: 64, unit:"%", trend:+5, target:60 },
+};
+
+BWP.headcountTrend = [
+  { m:"ก.ค.", v:308 },{ m:"ส.ค.", v:312 },{ m:"ก.ย.", v:315 },
+  { m:"ต.ค.", v:319 },{ m:"พ.ย.", v:321 },{ m:"ธ.ค.", v:318 },
+  { m:"ม.ค.", v:322 },{ m:"ก.พ.", v:325 },{ m:"มี.ค.", v:324 },
+  { m:"เม.ย.", v:327 },{ m:"พ.ค.", v:326 },{ m:"มิ.ย.", v:326 },
+];
+BWP.recruitTrend = [
+  { m:"ม.ค.", open:9, hired:6 },{ m:"ก.พ.", open:11, hired:7 },
+  { m:"มี.ค.", open:8, hired:8 },{ m:"เม.ย.", open:13, hired:9 },
+  { m:"พ.ค.", open:12, hired:7 },{ m:"มิ.ย.", open:14, hired:9 },
+];
+BWP.monthlyHiring = [
+  { m:"ม.ค.", v:6 },{ m:"ก.พ.", v:7 },{ m:"มี.ค.", v:8 },
+  { m:"เม.ย.", v:9 },{ m:"พ.ค.", v:7 },{ m:"มิ.ย.", v:9 },
+];
+BWP.funnel = [
+  { stage:"ผู้สมัคร", v:420, color:"#2a5288" },
+  { stage:"คัดกรอง", v:198, color:"#2f6fd6" },
+  { stage:"สัมภาษณ์ครั้งที่ 1", v:96, color:"#128a9c" },
+  { stage:"สัมภาษณ์ครั้งที่ 2", v:48, color:"#1f9d63" },
+  { stage:"สัมภาษณ์ผู้บริหาร", v:24, color:"#d98a16" },
+  { stage:"เสนอ Offer", v:14, color:"#d6453d" },
+  { stage:"รับเข้าทำงาน", v:11, color:"#0f2747" },
+];
+BWP.sources = [
+  { name:"JobThai", v:38, eff:72, color:"#2f6fd6" },
+  { name:"แนะนำพนักงาน", v:24, eff:81, color:"#1f9d63" },
+  { name:"LinkedIn", v:14, eff:58, color:"#128a9c" },
+  { name:"Walk-in / ป้ายหน้าโรงงาน", v:12, eff:49, color:"#d98a16" },
+  { name:"จัดหางานจังหวัด", v:8, eff:44, color:"#6b4fd1" },
+  { name:"Agency", v:4, eff:38, color:"#d6453d" },
+];
+
+BWP.requisitions = [
+  { id:"REQ-2406-014", pos:"หัวหน้ากะฝ่ายผลิต (Extrusion)", dept:"ฝ่ายผลิต", count:1, type:"ประจำ", reason:"ทดแทน", salary:"32,000–38,000", urgency:"สูง", start:"15 มิ.ย. 69", status:"pending_dir", by:"ธนกฤต วงศ์ไพบูลย์", date:"28 พ.ค. 69" },
+  { id:"REQ-2406-013", pos:"วิศวกรกระบวนการผลิต", dept:"วิศวกรรม", count:1, type:"ประจำ", reason:"ขยายกำลังคน", salary:"35,000–45,000", urgency:"กลาง", start:"1 ก.ค. 69", status:"pending_hr", by:"ธนกฤต วงศ์ไพบูลย์", date:"27 พ.ค. 69" },
+  { id:"REQ-2406-012", pos:"เจ้าหน้าที่ควบคุมคุณภาพ (QC Inline)", dept:"ประกันคุณภาพ", count:2, type:"ประจำ", reason:"ทดแทน", salary:"16,000–20,000", urgency:"สูง", start:"10 มิ.ย. 69", status:"approved", by:"สมหญิง ทองดี", date:"24 พ.ค. 69" },
+  { id:"REQ-2406-011", pos:"พนักงานคลังสินค้า", dept:"คลังสินค้า", count:3, type:"รายวัน", reason:"ขยายกำลังคน", salary:"380/วัน", urgency:"กลาง", start:"5 มิ.ย. 69", status:"approved", by:"ประยุทธ์ คงเดช", date:"22 พ.ค. 69" },
+  { id:"REQ-2406-010", pos:"ช่างซ่อมบำรุงเครื่องจักร", dept:"ซ่อมบำรุง", count:2, type:"ประจำ", reason:"ทดแทน", salary:"18,000–24,000", urgency:"สูง", start:"8 มิ.ย. 69", status:"pending_dir", by:"วิรัตน์ แสงทอง", date:"21 พ.ค. 69" },
+  { id:"REQ-2406-009", pos:"พนักงานขายโครงการ (Industrial)", dept:"ฝ่ายขาย", count:1, type:"ประจำ", reason:"โครงการใหม่", salary:"25,000–32,000+คอมฯ", urgency:"กลาง", start:"1 ก.ค. 69", status:"draft", by:"กิตติพงษ์ ใจดี", date:"20 พ.ค. 69" },
+  { id:"REQ-2405-008", pos:"เจ้าหน้าที่บัญชีต้นทุน", dept:"บัญชีการเงิน", count:1, type:"ประจำ", reason:"ทดแทน", salary:"20,000–26,000", urgency:"ต่ำ", start:"15 มิ.ย. 69", status:"rejected", by:"นภัสสร พงษ์ศรี", date:"15 พ.ค. 69" },
+  { id:"REQ-2405-007", pos:"ผู้ควบคุมเครื่องอัดฟิล์ม (Operator)", dept:"ฝ่ายผลิต", count:4, type:"ประจำ", reason:"ขยายกำลังคน", salary:"14,000–17,000", urgency:"สูง", start:"1 มิ.ย. 69", status:"closed", by:"ธนกฤต วงศ์ไพบูลย์", date:"10 พ.ค. 69" },
+];
+BWP.reqStatus = {
+  draft:        { th:"ร่าง", color:"#7a8694", bg:"#eef1f5" },
+  pending_hr:   { th:"รอ HR", color:"#d98a16", bg:"var(--amber-soft)" },
+  pending_dir:  { th:"รอกรรมการผู้จัดการ", color:"#6b4fd1", bg:"var(--violet-soft)" },
+  approved:     { th:"อนุมัติแล้ว", color:"#1f9d63", bg:"var(--green-soft)" },
+  rejected:     { th:"ไม่อนุมัติ", color:"#d6453d", bg:"var(--red-soft)" },
+  closed:       { th:"ปิดงาน", color:"#2f6fd6", bg:"var(--accent-soft)" },
+};
+
+BWP.stages = [
+  { id:"applied",   th:"ผู้สมัครใหม่", color:"#2a5288" },
+  { id:"screening", th:"คัดกรอง", color:"#2f6fd6" },
+  { id:"phone",     th:"สัมภาษณ์ทางโทรศัพท์", color:"#128a9c" },
+  { id:"interview1",th:"สัมภาษณ์ครั้งที่ 1", color:"#1f9d63" },
+  { id:"interview2",th:"สัมภาษณ์ครั้งที่ 2", color:"#7a9c1f" },
+  { id:"mgmt",      th:"สัมภาษณ์ผู้บริหาร", color:"#d98a16" },
+  { id:"offer",     th:"เสนอ Offer", color:"#d6453d" },
+  { id:"hired",     th:"รับเข้าทำงาน", color:"#0f2747" },
+];
+
+BWP.candidates = [
+  { id:"C-1042", name:"ณัฐพล สุวรรณชาติ", pos:"หัวหน้ากะฝ่ายผลิต", dept:"ฝ่ายผลิต", exp:8, salary:36000, prov:"ระยอง", source:"แนะนำพนักงาน", applied:"26 พ.ค.", stage:"mgmt", match:91, edu:"ปวส. เทคนิคการผลิต", skills:["Extrusion","Lean","ควบคุมกะ","TPM"] },
+  { id:"C-1041", name:"กมลชนก ทองเปลว", pos:"วิศวกรกระบวนการผลิต", dept:"วิศวกรรม", exp:5, salary:42000, prov:"ชลบุรี", source:"JobThai", applied:"25 พ.ค.", stage:"interview2", match:88, edu:"วศ.บ. อุตสาหการ", skills:["Process","Six Sigma","AutoCAD","Minitab"] },
+  { id:"C-1040", name:"ธีรเดช คำแก้ว", pos:"ช่างซ่อมบำรุง", dept:"ซ่อมบำรุง", exp:6, salary:22000, prov:"ระยอง", source:"Walk-in", applied:"25 พ.ค.", stage:"interview1", match:79, edu:"ปวส. ไฟฟ้ากำลัง", skills:["PLC","ไฟฟ้า","นิวเมติกส์","ซ่อมเครื่องจักร"] },
+  { id:"C-1039", name:"ศุภวิชญ์ บุญมาก", pos:"QC Inline", dept:"ประกันคุณภาพ", exp:3, salary:18000, prov:"ระยอง", source:"JobThai", applied:"24 พ.ค.", stage:"interview1", match:84, edu:"ปวส. เคมีอุตสาหกรรม", skills:["QC","ISO9001","วัดความหนาฟิล์ม"] },
+  { id:"C-1038", name:"พรนภา จันทร์เพ็ญ", pos:"เจ้าหน้าที่ความปลอดภัย", dept:"วิศวกรรม", exp:4, salary:24000, prov:"กรุงเทพฯ", source:"LinkedIn", applied:"24 พ.ค.", stage:"phone", match:76, edu:"วท.บ. อาชีวอนามัย", skills:["จป.วิชาชีพ","ISO45001","ประเมินความเสี่ยง"] },
+  { id:"C-1037", name:"อรรถพล มีสุข", pos:"ผู้ควบคุมเครื่องอัดฟิล์ม", dept:"ฝ่ายผลิต", exp:2, salary:15500, prov:"ระยอง", source:"จัดหางานจังหวัด", applied:"23 พ.ค.", stage:"screening", match:72, edu:"ม.6", skills:["เดินเครื่อง","งานกะ"] },
+  { id:"C-1036", name:"วรรณวิสา เกตุแก้ว", pos:"เจ้าหน้าที่บัญชีต้นทุน", dept:"บัญชีการเงิน", exp:5, salary:25000, prov:"ชลบุรี", source:"JobThai", applied:"23 พ.ค.", stage:"interview1", match:81, edu:"บช.บ.", skills:["ต้นทุนการผลิต","Express","SAP B1"] },
+  { id:"C-1035", name:"ปิยะวัฒน์ ชูเกียรติ", pos:"พนักงานขายโครงการ", dept:"ฝ่ายขาย", exp:7, salary:30000, prov:"กรุงเทพฯ", source:"แนะนำพนักงาน", applied:"22 พ.ค.", stage:"offer", match:87, edu:"บธ.บ. การตลาด", skills:["B2B Sales","บรรจุภัณฑ์","เจรจาต่อรอง"] },
+  { id:"C-1034", name:"จิราพร แสงสว่าง", pos:"พนักงานคลังสินค้า", dept:"คลังสินค้า", exp:3, salary:14500, prov:"ระยอง", source:"Walk-in", applied:"22 พ.ค.", stage:"screening", match:69, edu:"ปวช.", skills:["WMS","Forklift","จัดเก็บ"] },
+  { id:"C-1033", name:"เอกราช พัฒนสิน", pos:"วิศวกรกระบวนการผลิต", dept:"วิศวกรรม", exp:9, salary:48000, prov:"ระยอง", source:"LinkedIn", applied:"21 พ.ค.", stage:"hired", match:93, edu:"วศ.ม. อุตสาหการ", skills:["Process","Automation","Project","Lean"] },
+  { id:"C-1032", name:"สิริมา ทรัพย์เจริญ", pos:"QC Inline", dept:"ประกันคุณภาพ", exp:1, salary:16000, prov:"ระยอง", source:"JobThai", applied:"21 พ.ค.", stage:"applied", match:65, edu:"ปวส. วิทยาศาสตร์", skills:["QC พื้นฐาน","ตรวจสอบ"] },
+  { id:"C-1031", name:"กฤษฎา รุ่งเรือง", pos:"หัวหน้ากะฝ่ายผลิต", dept:"ฝ่ายผลิต", exp:6, salary:34000, prov:"ชลบุรี", source:"แนะนำพนักงาน", applied:"20 พ.ค.", stage:"applied", match:77, edu:"ปวส. การผลิต", skills:["ควบคุมกะ","5ส","ความปลอดภัย"] },
+  { id:"C-1030", name:"ภัทรวดี นิลกาฬ", pos:"พนักงานขายโครงการ", dept:"ฝ่ายขาย", exp:4, salary:27000, prov:"กรุงเทพฯ", source:"JobThai", applied:"19 พ.ค.", stage:"phone", match:74, edu:"บธ.บ.", skills:["Sales","CRM","นำเสนอ"] },
+];
+
+BWP.interviews = [
+  { id:"IV-301", cand:"ณัฐพล สุวรรณชาติ", pos:"หัวหน้ากะฝ่ายผลิต", type:"onsite", date:"3 มิ.ย. 69", time:"10:00", panel:["อนุชา เรืองศักดิ์","ธนกฤต วงศ์ไพบูลย์"], round:"สัมภาษณ์ผู้บริหาร", status:"scheduled" },
+  { id:"IV-300", cand:"กมลชนก ทองเปลว", pos:"วิศวกรกระบวนการผลิต", type:"online", date:"3 มิ.ย. 69", time:"13:30", panel:["อนุชา เรืองศักดิ์"], round:"สัมภาษณ์ครั้งที่ 2", status:"scheduled" },
+  { id:"IV-299", cand:"ธีรเดช คำแก้ว", pos:"ช่างซ่อมบำรุง", type:"onsite", date:"2 มิ.ย. 69", time:"09:30", panel:["วิรัตน์ แสงทอง"], round:"สัมภาษณ์ครั้งที่ 1", status:"done", score:4.1 },
+  { id:"IV-298", cand:"ศุภวิชญ์ บุญมาก", pos:"QC Inline", type:"onsite", date:"2 มิ.ย. 69", time:"11:00", panel:["สมหญิง ทองดี"], round:"สัมภาษณ์ครั้งที่ 1", status:"done", score:3.8 },
+  { id:"IV-297", cand:"วรรณวิสา เกตุแก้ว", pos:"บัญชีต้นทุน", type:"online", date:"4 มิ.ย. 69", time:"14:00", panel:["นภัสสร พงษ์ศรี"], round:"สัมภาษณ์ครั้งที่ 1", status:"scheduled" },
+];
+BWP.interviewCriteria = [
+  { id:"tech", th:"ทักษะเฉพาะตำแหน่ง (Technical)" },
+  { id:"exp", th:"ประสบการณ์ (Experience)" },
+  { id:"person", th:"บุคลิกภาพ / ทัศนคติ (Personality)" },
+  { id:"lead", th:"ภาวะผู้นำ (Leadership)" },
+  { id:"comm", th:"การสื่อสาร (Communication)" },
+  { id:"problem", th:"การแก้ปัญหา (Problem Solving)" },
+];
+
+BWP.offers = [
+  { id:"OF-118", cand:"ปิยะวัฒน์ ชูเกียรติ", pos:"พนักงานขายโครงการ", base:30000, position_allow:3000, travel:2500, attend:800, bonus:"2 เดือน/ปี", pf:"5%", status:"sent", date:"30 พ.ค. 69" },
+  { id:"OF-117", cand:"เอกราช พัฒนสิน", pos:"วิศวกรกระบวนการผลิต", base:48000, position_allow:5000, travel:0, attend:0, bonus:"2.5 เดือน/ปี", pf:"7%", status:"accepted", date:"24 พ.ค. 69" },
+  { id:"OF-116", cand:"ณัฐพล สุวรรณชาติ", pos:"หัวหน้ากะฝ่ายผลิต", base:36000, position_allow:4000, travel:1500, attend:1000, bonus:"2 เดือน/ปี", pf:"5%", status:"pending_dir", date:"1 มิ.ย. 69" },
+];
+BWP.offerStatus = {
+  draft:{th:"ร่าง",color:"#7a8694",bg:"#eef1f5"},
+  pending_dir:{th:"รออนุมัติ (MD)",color:"#6b4fd1",bg:"var(--violet-soft)"},
+  sent:{th:"ส่งให้ผู้สมัครแล้ว",color:"#d98a16",bg:"var(--amber-soft)"},
+  accepted:{th:"ตอบรับแล้ว",color:"#1f9d63",bg:"var(--green-soft)"},
+  declined:{th:"ปฏิเสธ",color:"#d6453d",bg:"var(--red-soft)"},
+};
+
+BWP.onboarding = [
+  { name:"เอกราช พัฒนสิน", pos:"วิศวกรกระบวนการผลิต", start:"10 มิ.ย. 69", done:6, total:8 },
+  { name:"สมชาย ภักดี", pos:"ผู้ควบคุมเครื่องอัดฟิล์ม", start:"5 มิ.ย. 69", done:4, total:8 },
+  { name:"ปวีณา ดอกไม้", pos:"QC Inline", start:"3 มิ.ย. 69", done:8, total:8 },
+];
+BWP.onboardTasks = [
+  { id:1, th:"จัดเก็บเอกสารพนักงาน (สำเนาบัตร/ทะเบียนบ้าน/วุฒิ)", group:"เอกสาร", done:true },
+  { id:2, th:"ตรวจสุขภาพก่อนเริ่มงาน", group:"เอกสาร", done:true },
+  { id:3, th:"จัดเตรียมชุดยูนิฟอร์ม + รองเท้าเซฟตี้", group:"อุปกรณ์", done:true },
+  { id:4, th:"ทำบัตรพนักงาน + คีย์การ์ดเข้าโรงงาน", group:"อุปกรณ์", done:true },
+  { id:5, th:"สร้าง Email บริษัท", group:"ระบบ", done:true },
+  { id:6, th:"สร้าง User Account (ERP / HRIS)", group:"ระบบ", done:true },
+  { id:7, th:"อบรมความปลอดภัยในการทำงาน (Safety Induction)", group:"อบรม", done:false },
+  { id:8, th:"ปฐมนิเทศพนักงานใหม่ (Orientation)", group:"อบรม", done:false },
+];
+
+BWP.jds = [
+  { code:"JD-PR-001", title:"หัวหน้ากะฝ่ายผลิต", dept:"ฝ่ายผลิต", reports:"ผู้จัดการฝ่ายผลิต", rev:"v3.2", date:"12 ก.พ. 69", status:"approved" },
+  { code:"JD-EN-004", title:"วิศวกรกระบวนการผลิต", dept:"วิศวกรรม", reports:"ผู้จัดการวิศวกรรม", rev:"v2.0", date:"5 ม.ค. 69", status:"approved" },
+  { code:"JD-QC-002", title:"เจ้าหน้าที่ควบคุมคุณภาพ", dept:"ประกันคุณภาพ", reports:"หัวหน้าแผนก QA", rev:"v1.4", date:"20 มี.ค. 69", status:"review" },
+  { code:"JD-MT-003", title:"ช่างซ่อมบำรุงเครื่องจักร", dept:"ซ่อมบำรุง", reports:"หัวหน้าซ่อมบำรุง", rev:"v2.1", date:"8 เม.ย. 69", status:"approved" },
+  { code:"JD-WH-001", title:"พนักงานคลังสินค้า", dept:"คลังสินค้า", reports:"หัวหน้าคลังสินค้า", rev:"v1.0", date:"15 พ.ค. 69", status:"draft" },
+  { code:"JD-SL-002", title:"พนักงานขายโครงการ", dept:"ฝ่ายขาย", reports:"ผู้จัดการฝ่ายขาย", rev:"v1.2", date:"2 พ.ค. 69", status:"approved" },
+];
+
+BWP.notifications = [
+  { id:1, type:"approve", icon:"check", th:"อนุมัติเปิดอัตรา REQ-2406-012 (QC Inline ×2)", who:"กรรมการผู้จัดการ", time:"5 นาทีที่แล้ว", ch:["line","email"], read:false },
+  { id:2, type:"interview", icon:"calendar", th:"นัดสัมภาษณ์ ณัฐพล สุวรรณชาติ — 3 มิ.ย. 10:00 (Onsite)", who:"ระบบ", time:"1 ชม.ที่แล้ว", ch:["line","email"], read:false },
+  { id:3, type:"offer", icon:"mail", th:"ส่ง Offer ปิยะวัฒน์ ชูเกียรติ เรียบร้อย", who:"สุนิสา ภักดีงาม", time:"3 ชม.ที่แล้ว", ch:["email"], read:true },
+  { id:4, type:"result", icon:"star", th:"ผลสัมภาษณ์ ธีรเดช คำแก้ว — คะแนนเฉลี่ย 4.1/5", who:"วิรัตน์ แสงทอง", time:"เมื่อวาน", ch:["line"], read:true },
+  { id:5, type:"warn", icon:"alert", th:"เอกสารขาด: เอกราช พัฒนสิน ยังไม่ส่งผลตรวจสุขภาพ", who:"ระบบ Onboarding", time:"เมื่อวาน", ch:["line","email"], read:true },
+];
+
+BWP.aiInsights = [
+  { icon:"search", title:"ตำแหน่งที่หายาก", body:"“ช่างซ่อมบำรุง (PLC)” และ “วิศวกรกระบวนการ” มีเวลาเฉลี่ยในการสรรหา 52 วัน สูงกว่าค่าเฉลี่ย 27% — แนะนำเพิ่มช่องทาง Agency เฉพาะทาง", tone:"amber" },
+  { icon:"x", title:"สาเหตุปฏิเสธ Offer", body:"38% ของผู้ปฏิเสธ Offer ระบุเรื่อง “ระยะทาง/ที่พัก” — พิจารณาเพิ่มสวัสดิการรถรับส่งสำหรับสายการผลิต", tone:"red" },
+  { icon:"trend", title:"แนวโน้มลาออกช่วงทดลองงาน", body:"กลุ่มพนักงานรายวันฝ่ายผลิตมีอัตราออกช่วงทดลองงาน 18% — ปัจจัยหลักคือความเข้าใจงานกะ แนะนำเสริม Buddy Program", tone:"violet" },
+  { icon:"check", title:"ประสิทธิภาพช่องทางสรรหา", body:"“แนะนำพนักงาน” ให้ Quality of Hire สูงสุด (81%) และต้นทุนต่ำสุด — ควรผลักดันโครงการ Referral เพิ่ม", tone:"green" },
+];
+
+}
+
+/* ============================================================
+   Icons (inline SVG, stroke style)
+   ============================================================ */
+const Icon = ({ name, size = 18, stroke = 1.7, style, className }) => {
+  const p = {
+    fill: "none", stroke: "currentColor", strokeWidth: stroke,
+    strokeLinecap: "round", strokeLinejoin: "round",
+  };
+  const paths = {
+    grid:        <><rect x="3" y="3" width="7" height="7" rx="1.5" {...p}/><rect x="14" y="3" width="7" height="7" rx="1.5" {...p}/><rect x="3" y="14" width="7" height="7" rx="1.5" {...p}/><rect x="14" y="14" width="7" height="7" rx="1.5" {...p}/></>,
+    users:       <><circle cx="9" cy="8" r="3.2" {...p}/><path d="M3.5 19c.5-3 2.8-4.5 5.5-4.5S14 16 14.5 19" {...p}/><path d="M16 5.2A3 3 0 0 1 16 11M18 19c-.2-2.2-1-3.6-2.4-4.4" {...p}/></>,
+    doc:         <><path d="M6 3h7l5 5v13H6z" {...p}/><path d="M13 3v5h5" {...p}/><path d="M9 13h6M9 16.5h6" {...p}/></>,
+    board:       <><rect x="3" y="4" width="18" height="16" rx="2" {...p}/><path d="M9 4v16M15 4v16" {...p}/></>,
+    idcard:      <><rect x="2.5" y="5" width="19" height="14" rx="2" {...p}/><circle cx="8" cy="11" r="2.2" {...p}/><path d="M5.5 16c.4-1.5 1.4-2.2 2.5-2.2s2.1.7 2.5 2.2" {...p}/><path d="M14 10h5M14 13h4" {...p}/></>,
+    calendar:    <><rect x="3.5" y="5" width="17" height="15" rx="2" {...p}/><path d="M3.5 9.5h17M8 3v4M16 3v4" {...p}/></>,
+    handshake:   <><path d="M3 11l3-3 4 1 2-2 2 2 4-1 3 3" {...p}/><path d="M7 13l3 3 2-1 2 1 3-3" {...p}/><path d="M12 10v4" {...p}/></>,
+    check:       <path d="M4 12.5l5 5L20 6.5" {...p}/>,
+    checklist:   <><path d="M4 6.5l1.5 1.5L8 5.5" {...p}/><path d="M4 14.5l1.5 1.5L8 13.5" {...p}/><path d="M11 7h9M11 15h9" {...p}/></>,
+    chart:       <><path d="M4 4v16h16" {...p}/><path d="M8 14l3-4 3 2 4-6" {...p}/></>,
+    report:      <><path d="M6 3h12v18H6z" {...p}/><path d="M9 8h6M9 12h6M9 16h3" {...p}/></>,
+    bell:        <><path d="M6 9a6 6 0 0 1 12 0c0 5 2 6 2 6H4s2-1 2-6Z" {...p}/><path d="M10 19a2 2 0 0 0 4 0" {...p}/></>,
+    spark:       <><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8Z" {...p}/><path d="M18 15l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7Z" {...p}/></>,
+    building:    <><path d="M4 21V5l8-2v18M12 21V9l6 2v10" {...p}/><path d="M7 8h2M7 11h2M7 14h2M15 13h1M15 16h1" {...p}/><path d="M2.5 21h19" {...p}/></>,
+    factory:     <><path d="M3 21V10l5 3V10l5 3V7l6 3v11Z" {...p}/><path d="M3 21h18M7 17h2M11 17h2M15 17h2" {...p}/></>,
+    search:      <><circle cx="11" cy="11" r="6.5" {...p}/><path d="M16 16l4 4" {...p}/></>,
+    bars:        <><path d="M4 6h16M4 12h16M4 18h16" {...p}/></>,
+    chevron:     <path d="M9 6l6 6-6 6" {...p}/>,
+    chevronDown: <path d="M6 9l6 6 6-6" {...p}/>,
+    plus:        <path d="M12 5v14M5 12h14" {...p}/>,
+    x:           <path d="M6 6l12 12M18 6L6 18" {...p}/>,
+    filter:      <path d="M3 5h18l-7 8v6l-4-2v-4Z" {...p}/>,
+    download:    <><path d="M12 4v11M7 11l5 4 5-4" {...p}/><path d="M5 20h14" {...p}/></>,
+    mail:        <><rect x="3" y="5" width="18" height="14" rx="2" {...p}/><path d="M3.5 7l8.5 6 8.5-6" {...p}/></>,
+    star:        <path d="M12 4l2.4 5 5.6.8-4 4 1 5.6L12 17l-5 2.4 1-5.6-4-4 5.6-.8Z" {...p}/>,
+    alert:       <><path d="M12 4l9 16H3Z" {...p}/><path d="M12 10v4M12 17h.01" {...p}/></>,
+    clock:       <><circle cx="12" cy="12" r="8" {...p}/><path d="M12 8v4.5l3 2" {...p}/></>,
+    money:       <><rect x="2.5" y="6" width="19" height="12" rx="2" {...p}/><circle cx="12" cy="12" r="2.6" {...p}/><path d="M6 9v6M18 9v6" {...p}/></>,
+    target:      <><circle cx="12" cy="12" r="8" {...p}/><circle cx="12" cy="12" r="4" {...p}/><circle cx="12" cy="12" r=".6" fill="currentColor" stroke="none"/></>,
+    arrowUp:     <path d="M12 19V5M6 11l6-6 6 6" {...p}/>,
+    arrowDown:   <path d="M12 5v14M6 13l6 6 6-6" {...p}/>,
+    trend:       <><path d="M3 17l5-5 4 3 6-7" {...p}/><path d="M16 8h4v4" {...p}/></>,
+    pin:         <><path d="M12 21s7-6.5 7-12a7 7 0 0 0-14 0c0 5.5 7 12 7 12Z" {...p}/><circle cx="12" cy="9" r="2.4" {...p}/></>,
+    phone:       <path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L20 13l2 4v3a1.5 1.5 0 0 1-1.6 1.5C11 21 4 14 3.5 5.6A1.5 1.5 0 0 1 5 4Z" {...p}/>,
+    video:       <><rect x="3" y="6" width="13" height="12" rx="2" {...p}/><path d="M16 10l5-3v10l-5-3Z" {...p}/></>,
+    settings:    <><circle cx="12" cy="12" r="3" {...p}/><path d="M12 2.5v3M12 18.5v3M21.5 12h-3M5.5 12h-3M18.4 5.6l-2 2M7.6 16.4l-2 2M18.4 18.4l-2-2M7.6 7.6l-2-2" {...p}/></>,
+    logout:      <><path d="M9 4H5v16h4" {...p}/><path d="M16 8l4 4-4 4M9 12h11" {...p}/></>,
+    menu:        <path d="M4 7h16M4 12h16M4 17h16" {...p}/>,
+    eye:         <><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z" {...p}/><circle cx="12" cy="12" r="2.8" {...p}/></>,
+    flow:        <><rect x="8" y="3" width="8" height="4" rx="1" {...p}/><rect x="3" y="17" width="8" height="4" rx="1" {...p}/><rect x="13" y="17" width="8" height="4" rx="1" {...p}/><path d="M12 7v4M12 11H7v6M12 11h5v6" {...p}/></>,
+    line:        <><rect x="3" y="4" width="18" height="14" rx="4" {...p}/><path d="M7 9v4M7 9l3 4V9M13 9v4h2.5M18 9v4M18 9h-2" {...p}/><path d="M9 18l-1.5 3 4-3" {...p}/></>,
+    award:       <><circle cx="12" cy="9" r="5" {...p}/><path d="M9 13l-1.5 7 4.5-3 4.5 3L15 13" {...p}/></>,
+    layers:      <><path d="M12 3l9 5-9 5-9-5Z" {...p}/><path d="M3 13l9 5 9-5M3 16.5l9 5 9-5" {...p}/></>,
+  };
+  return (
+    <svg viewBox="0 0 24 24" width={size} height={size} style={style} className={className} aria-hidden="true">
+      {paths[name] || null}
+    </svg>
+  );
+};
+
+/* ============================================================
+   Shared UI kit + SVG charts
+   ============================================================ */
+const { useState, useRef, useEffect, useMemo } = React;
+
+const Pill = ({ children, color = "#5b6675", bg = "#eef1f5", dot, style }) => (
+  <span className="pill" style={{ color, background: bg, ...style }}>
+    {dot && <span style={{ width: 7, height: 7, borderRadius: 99, background: color }} />}
+    {children}
+  </span>
+);
+
+const Btn = ({ children, variant = "primary", size = "md", icon, iconRight, onClick, style, title, type }) => {
+  const sizes = { sm: { padding: "6px 12px", fontSize: 12.5, gap: 6 }, md: { padding: "9px 16px", fontSize: 13.5, gap: 7 }, lg: { padding: "12px 22px", fontSize: 15, gap: 8 } };
+  const variants = {
+    primary: { background: "var(--navy-800)", color: "#fff", border: "1px solid var(--navy-800)" },
+    accent:  { background: "var(--accent)", color: "#fff", border: "1px solid var(--accent)" },
+    ghost:   { background: "transparent", color: "var(--ink-2)", border: "1px solid var(--line-strong)" },
+    soft:    { background: "var(--surface-2)", color: "var(--ink)", border: "1px solid var(--line)" },
+    danger:  { background: "#fff", color: "var(--red)", border: "1px solid #f0c9c7" },
+    subtle:  { background: "transparent", color: "var(--ink-3)", border: "1px solid transparent" },
+  };
+  return (
+    <button type={type || "button"} className="focusable" onClick={onClick} title={title}
+      style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", fontWeight: 600, borderRadius: 9, transition: "all .14s", whiteSpace: "nowrap", ...sizes[size], ...variants[variant], ...style }}
+      onMouseEnter={(e) => { e.currentTarget.style.filter = "brightness(1.06)"; e.currentTarget.style.transform = "translateY(-1px)"; }}
+      onMouseLeave={(e) => { e.currentTarget.style.filter = ""; e.currentTarget.style.transform = ""; }}>
+      {icon && <Icon name={icon} size={size === "sm" ? 15 : 17} />}
+      {children}
+      {iconRight && <Icon name={iconRight} size={size === "sm" ? 15 : 17} />}
+    </button>
+  );
+};
+
+const Avatar = ({ name, color = "var(--navy-700)", size = 38, initials }) => {
+  const ini = initials || (name ? name.trim().split(/\s+/).slice(0, 2).map(s => s[0]).join("") : "?");
+  return (
+    <div style={{ width: size, height: size, borderRadius: size > 30 ? 11 : 8, flexShrink: 0, background: color, color: "#fff", display: "grid", placeItems: "center", fontWeight: 700, fontSize: size * 0.36, letterSpacing: ".01em" }}>{ini}</div>
+  );
+};
+
+const SectionTitle = ({ icon, children, sub, right, style }) => (
+  <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 16, marginBottom: 16, ...style }}>
+    <div style={{ display: "flex", alignItems: "center", gap: 11 }}>
+      {icon && <div style={{ width: 34, height: 34, borderRadius: 9, background: "var(--accent-soft)", color: "var(--accent)", display: "grid", placeItems: "center" }}><Icon name={icon} size={19} /></div>}
+      <div>
+        <div style={{ fontSize: 18, fontWeight: 700, color: "var(--ink)", letterSpacing: "-.01em" }}>{children}</div>
+        {sub && <div style={{ fontSize: 13, color: "var(--ink-3)", marginTop: 2 }}>{sub}</div>}
+      </div>
+    </div>
+    {right}
+  </div>
+);
+
+const Trend = ({ v, suffix = "", invert = false }) => {
+  const up = v > 0;
+  const good = invert ? !up : up;
+  const c = v === 0 ? "var(--ink-3)" : good ? "var(--green)" : "var(--red)";
+  return (
+    <span className="tnum" style={{ display: "inline-flex", alignItems: "center", gap: 2, color: c, fontSize: 12.5, fontWeight: 700 }}>
+      {v !== 0 && <Icon name={up ? "arrowUp" : "arrowDown"} size={13} stroke={2.2} />}
+      {up ? "+" : ""}{v}{suffix}
+    </span>
+  );
+};
+
+const StatCard = ({ label, value, unit, icon, accent = "var(--accent)", trend, trendSuffix, invert, sub, big }) => (
+  <div className="card anim-up" style={{ padding: big ? "20px 22px" : "17px 18px", display: "flex", flexDirection: "column", gap: 10, minWidth: 0 }}>
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 10 }}>
+      <span className="eyebrow" style={{ lineHeight: 1.4 }}>{label}</span>
+      {icon && <div style={{ width: 32, height: 32, borderRadius: 8, background: accent + "14", color: accent, display: "grid", placeItems: "center", flexShrink: 0 }}><Icon name={icon} size={18} /></div>}
+    </div>
+    <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
+      <span className="tnum" style={{ fontSize: big ? 34 : 28, fontWeight: 700, color: "var(--ink)", letterSpacing: "-.02em", lineHeight: 1 }}>{value}</span>
+      {unit && <span style={{ fontSize: 14, color: "var(--ink-3)", fontWeight: 600 }}>{unit}</span>}
+    </div>
+    {(trend !== undefined || sub) && (
+      <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12.5, color: "var(--ink-3)" }}>
+        {trend !== undefined && <Trend v={trend} suffix={trendSuffix} invert={invert} />}
+        {sub && <span>{sub}</span>}
+      </div>
+    )}
+  </div>
+);
+
+const Bar = ({ value, max = 100, color = "var(--accent)", height = 8, bg = "#e8edf3", showLabel }) => (
+  <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
+    <div style={{ flex: 1, height, background: bg, borderRadius: 99, overflow: "hidden" }}>
+      <div style={{ width: `${Math.min(100, (value / max) * 100)}%`, height: "100%", background: color, borderRadius: 99, transition: "width .6s cubic-bezier(.2,.7,.3,1)" }} />
+    </div>
+    {showLabel && <span className="tnum" style={{ fontSize: 12, fontWeight: 700, color: "var(--ink-2)", minWidth: 34, textAlign: "right" }}>{Math.round((value / max) * 100)}%</span>}
+  </div>
+);
+
+const Donut = ({ value, size = 96, stroke = 11, color = "var(--accent)", track = "#e8edf3", label, sub }) => {
+  const r = (size - stroke) / 2, c = 2 * Math.PI * r;
+  return (
+    <div style={{ position: "relative", width: size, height: size }}>
+      <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={track} strokeWidth={stroke} />
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color} strokeWidth={stroke} strokeLinecap="round"
+          strokeDasharray={c} strokeDashoffset={c - (c * value) / 100} style={{ transition: "stroke-dashoffset .8s cubic-bezier(.2,.7,.3,1)" }} />
+      </svg>
+      <div style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", textAlign: "center" }}>
+        <div>
+          <div className="tnum" style={{ fontSize: size * 0.24, fontWeight: 700, color: "var(--ink)" }}>{label ?? value + "%"}</div>
+          {sub && <div style={{ fontSize: 10.5, color: "var(--ink-3)", marginTop: 1 }}>{sub}</div>}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const BarChart = ({ data, height = 180, color = "var(--accent)", valueKey = "v", labelKey = "m", fmt }) => {
+  const max = Math.max(...data.map(d => d[valueKey])) * 1.12;
+  return (
+    <div style={{ display: "flex", alignItems: "flex-end", gap: 8, height, paddingTop: 8 }}>
+      {data.map((d, i) => (
+        <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 7, height: "100%", justifyContent: "flex-end" }}>
+          <span className="tnum" style={{ fontSize: 11, fontWeight: 700, color: "var(--ink-2)" }}>{fmt ? fmt(d[valueKey]) : d[valueKey]}</span>
+          <div title={d[valueKey]} style={{ width: "78%", maxWidth: 38, height: `${(d[valueKey] / max) * 100}%`, background: `linear-gradient(180deg, ${color}, ${color}cc)`, borderRadius: "6px 6px 3px 3px", transition: "height .7s cubic-bezier(.2,.7,.3,1)", minHeight: 3 }} />
+          <span style={{ fontSize: 11, color: "var(--ink-3)", fontWeight: 500 }}>{d[labelKey]}</span>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+const GroupedBar = ({ data, height = 200, colors = ["var(--navy-600)", "var(--accent)"], keys = ["open", "hired"], labels = ["เปิดรับ", "จ้างสำเร็จ"] }) => {
+  const max = Math.max(...data.flatMap(d => keys.map(k => d[k]))) * 1.15;
+  return (
+    <div>
+      <div style={{ display: "flex", alignItems: "flex-end", gap: 14, height, paddingTop: 8 }}>
+        {data.map((d, i) => (
+          <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 7, height: "100%", justifyContent: "flex-end" }}>
+            <div style={{ display: "flex", alignItems: "flex-end", gap: 4, width: "100%", height: "100%", justifyContent: "center" }}>
+              {keys.map((k, j) => (
+                <div key={k} title={`${labels[j]}: ${d[k]}`} style={{ width: 16, height: `${(d[k] / max) * 100}%`, background: colors[j], borderRadius: "5px 5px 2px 2px", transition: "height .7s cubic-bezier(.2,.7,.3,1)", minHeight: 3 }} />
+              ))}
+            </div>
+            <span style={{ fontSize: 11, color: "var(--ink-3)" }}>{d.m}</span>
+          </div>
+        ))}
+      </div>
+      <Legend items={keys.map((k, j) => ({ label: labels[j], color: colors[j] }))} />
+    </div>
+  );
+};
+
+const Legend = ({ items, style }) => (
+  <div style={{ display: "flex", flexWrap: "wrap", gap: 16, marginTop: 12, ...style }}>
+    {items.map((it, i) => (
+      <div key={i} style={{ display: "flex", alignItems: "center", gap: 7, fontSize: 12, color: "var(--ink-2)" }}>
+        <span style={{ width: 11, height: 11, borderRadius: 3, background: it.color }} />
+        {it.label}{it.value !== undefined && <b className="tnum" style={{ color: "var(--ink)" }}>{it.value}</b>}
+      </div>
+    ))}
+  </div>
+);
+
+const LineChart = ({ data, height = 190, color = "var(--accent)", valueKey = "v", labelKey = "m" }) => {
+  const w = 560, pad = 10;
+  const vals = data.map(d => d[valueKey]);
+  const min = Math.min(...vals), max = Math.max(...vals);
+  const range = max - min || 1;
+  const stepX = (w - pad * 2) / (data.length - 1);
+  const pts = data.map((d, i) => [pad + i * stepX, height - pad - ((d[valueKey] - min) / range) * (height - pad * 2 - 18)]);
+  const path = pts.map((p, i) => i === 0 ? `M${p[0]},${p[1]}` : `L${p[0]},${p[1]}`).join(" ");
+  const area = `${path} L${pts[pts.length - 1][0]},${height} L${pts[0][0]},${height} Z`;
+  return (
+    <div>
+      <svg viewBox={`0 0 ${w} ${height}`} style={{ width: "100%", height }} preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="lc-fill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={color} stopOpacity="0.18" />
+            <stop offset="100%" stopColor={color} stopOpacity="0" />
+          </linearGradient>
+        </defs>
+        {[0.25, 0.5, 0.75].map(g => <line key={g} x1={pad} x2={w - pad} y1={height * g} y2={height * g} stroke="#eef1f5" strokeWidth="1" />)}
+        <path d={area} fill="url(#lc-fill)" />
+        <path d={path} fill="none" stroke={color} strokeWidth="2.4" strokeLinejoin="round" strokeLinecap="round" />
+        {pts.map((p, i) => <circle key={i} cx={p[0]} cy={p[1]} r="3.2" fill="#fff" stroke={color} strokeWidth="2" />)}
+      </svg>
+      <div style={{ display: "flex", justifyContent: "space-between", padding: "0 6px", marginTop: 2 }}>
+        {data.map((d, i) => <span key={i} style={{ fontSize: 10.5, color: "var(--ink-3)" }}>{d[labelKey]}</span>)}
+      </div>
+    </div>
+  );
+};
+
+const Funnel = ({ data }) => {
+  const max = data[0].v;
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+      {data.map((d, i) => {
+        const pct = (d.v / max) * 100;
+        const conv = i > 0 ? Math.round((d.v / data[i - 1].v) * 100) : 100;
+        return (
+          <div key={i} style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <span style={{ fontSize: 12.5, color: "var(--ink-2)", width: 150, textAlign: "right", flexShrink: 0 }}>{d.stage}</span>
+            <div style={{ flex: 1, height: 30, position: "relative", display: "flex", alignItems: "center" }}>
+              <div style={{ width: `${pct}%`, height: "100%", background: d.color, borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 11px", transition: "width .7s", minWidth: 52 }}>
+                <span className="tnum" style={{ color: "#fff", fontWeight: 700, fontSize: 13 }}>{d.v}</span>
+              </div>
+            </div>
+            <span className="tnum" style={{ fontSize: 11.5, color: i === 0 ? "var(--ink-3)" : "var(--ink-2)", width: 42, fontWeight: 600 }}>{i > 0 ? conv + "%" : ""}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+const HBars = ({ data, color, valueKey = "v", labelKey = "name", suffix = "" }) => {
+  const max = Math.max(...data.map(d => d[valueKey]));
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 13 }}>
+      {data.map((d, i) => (
+        <div key={i}>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5, fontSize: 12.5 }}>
+            <span style={{ color: "var(--ink-2)" }}>{d[labelKey]}</span>
+            <span className="tnum" style={{ color: "var(--ink)", fontWeight: 700 }}>{d[valueKey]}{suffix}</span>
+          </div>
+          <Bar value={d[valueKey]} max={max} color={d.color || color || "var(--accent)"} height={8} />
+        </div>
+      ))}
+    </div>
+  );
+};
+
+const SkillTag = ({ children, active }) => (
+  <span style={{ fontSize: 11.5, fontWeight: 600, padding: "3px 9px", borderRadius: 6, background: active ? "var(--accent-soft)" : "var(--surface-2)", color: active ? "var(--accent-700)" : "var(--ink-2)", border: `1px solid ${active ? "#cadcf6" : "var(--line)"}` }}>{children}</span>
+);
+
+const Modal = ({ open, onClose, children, width = 560, title, sub, icon }) => {
+  if (!open) return null;
+  return (
+    <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 200, background: "rgba(11,31,58,.45)", backdropFilter: "blur(3px)", display: "grid", placeItems: "center", padding: 24 }} className="anim-fade">
+      <div onClick={e => e.stopPropagation()} className="anim-up" style={{ width, maxWidth: "100%", maxHeight: "90vh", overflow: "auto", background: "var(--surface)", borderRadius: 16, boxShadow: "var(--shadow-lg)" }}>
+        {title && (
+          <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "18px 22px", borderBottom: "1px solid var(--line)", position: "sticky", top: 0, background: "var(--surface)", zIndex: 2 }}>
+            {icon && <div style={{ width: 36, height: 36, borderRadius: 9, background: "var(--accent-soft)", color: "var(--accent)", display: "grid", placeItems: "center" }}><Icon name={icon} size={20} /></div>}
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 16, fontWeight: 700, color: "var(--ink)" }}>{title}</div>
+              {sub && <div style={{ fontSize: 12.5, color: "var(--ink-3)", marginTop: 1 }}>{sub}</div>}
+            </div>
+            <button onClick={onClose} className="focusable" style={{ width: 32, height: 32, borderRadius: 8, border: "1px solid var(--line)", background: "var(--surface-2)", color: "var(--ink-2)", display: "grid", placeItems: "center" }}><Icon name="x" size={17} /></button>
+          </div>
+        )}
+        <div style={{ padding: 22 }}>{children}</div>
+      </div>
+    </div>
+  );
+};
+
+const Field = ({ label, children, required, half }) => (
+  <label style={{ display: "flex", flexDirection: "column", gap: 6, flex: half ? "1 1 45%" : "1 1 100%", minWidth: 0 }}>
+    <span style={{ fontSize: 12.5, fontWeight: 600, color: "var(--ink-2)" }}>{label}{required && <span style={{ color: "var(--red)" }}> *</span>}</span>
+    {children}
+  </label>
+);
+const inputStyle = { padding: "10px 12px", borderRadius: 9, border: "1px solid var(--line-strong)", background: "var(--surface-2)", fontSize: 13.5, color: "var(--ink)", width: "100%", outline: "none" };
+const TextInput = (props) => <input {...props} style={{ ...inputStyle, ...props.style }} onFocus={e => e.target.style.borderColor = "var(--accent)"} onBlur={e => e.target.style.borderColor = "var(--line-strong)"} />;
+const Select = ({ options, ...props }) => (
+  <select {...props} style={{ ...inputStyle, ...props.style, appearance: "none", cursor: "pointer" }}>
+    {options.map((o, i) => <option key={i} value={o.value ?? o}>{o.label ?? o}</option>)}
+  </select>
+);
+
+const Placeholder = ({ label, height = 120, icon = "doc" }) => (
+  <div style={{ height, borderRadius: 10, border: "1.5px dashed var(--line-strong)", background: "repeating-linear-gradient(135deg, var(--surface-2), var(--surface-2) 10px, #f2f5f9 10px, #f2f5f9 20px)", display: "grid", placeItems: "center", color: "var(--ink-3)" }}>
+    <div style={{ textAlign: "center" }}>
+      <Icon name={icon} size={22} />
+      <div className="mono" style={{ fontSize: 11, marginTop: 6 }}>{label}</div>
+    </div>
+  </div>
+);
+
+const Tabs = ({ tabs, active, onChange, style }) => (
+  <div style={{ display: "inline-flex", background: "var(--surface-2)", border: "1px solid var(--line)", borderRadius: 10, padding: 3, gap: 2, ...style }}>
+    {tabs.map(t => (
+      <button key={t.id} onClick={() => onChange(t.id)} className="focusable" style={{
+        padding: "7px 14px", borderRadius: 7, border: "none", fontSize: 13, fontWeight: 600, transition: "all .15s",
+        background: active === t.id ? "var(--surface)" : "transparent",
+        color: active === t.id ? "var(--navy-800)" : "var(--ink-3)",
+        boxShadow: active === t.id ? "var(--shadow-xs)" : "none",
+        display: "inline-flex", alignItems: "center", gap: 7,
+      }}>
+        {t.icon && <Icon name={t.icon} size={15} />}{t.label}
+      </button>
+    ))}
+  </div>
+);
+
+/* ============================================================
+   App Shell — Sidebar, Topbar, Role Switcher
+   ============================================================ */
+const NAV = [
+  { group: "ภาพรวม", items: [
+    { id: "dashboard", label: "แดชบอร์ดสรรหา", icon: "grid" },
+    { id: "exec", label: "Executive Dashboard", icon: "chart" },
+  ]},
+  { group: "อัตรากำลัง", items: [
+    { id: "manpower", label: "วางแผนกำลังคน", icon: "users" },
+    { id: "requisition", label: "ขอเปิดอัตรากำลัง", icon: "flow", badge: "5" },
+    { id: "jd", label: "Job Description", icon: "doc" },
+  ]},
+  { group: "กระบวนการสรรหา", items: [
+    { id: "pipeline", label: "Recruitment Pipeline", icon: "board" },
+    { id: "candidates", label: "ฐานข้อมูลผู้สมัคร", icon: "idcard" },
+    { id: "interview", label: "จัดการสัมภาษณ์", icon: "calendar", badge: "3" },
+    { id: "offer", label: "จัดการ Offer", icon: "handshake" },
+    { id: "onboarding", label: "Onboarding", icon: "checklist" },
+  ]},
+  { group: "วิเคราะห์ & รายงาน", items: [
+    { id: "reports", label: "ศูนย์รายงาน", icon: "report" },
+    { id: "ai", label: "AI Insights", icon: "spark" },
+  ]},
+  { group: "ระบบ", items: [
+    { id: "notifications", label: "การแจ้งเตือน", icon: "bell" },
+    { id: "settings", label: "ตั้งค่า & สิทธิ์ (RBAC)", icon: "settings" },
+  ]},
+];
+
+const MODULE_TITLES = {
+  dashboard: ["แดชบอร์ดสรรหา", "ภาพรวมการสรรหาแบบเรียลไทม์"],
+  exec: ["Executive Dashboard", "ตัวชี้วัดเชิงกลยุทธ์สำหรับผู้บริหาร"],
+  manpower: ["วางแผนกำลังคน (Manpower Planning)", "อัตรากำลังตามแผน · ปัจจุบัน · อัตราว่าง"],
+  requisition: ["ขอเปิดอัตรากำลัง (Requisition)", "คำขอเปิดตำแหน่งและขั้นตอนอนุมัติ"],
+  jd: ["Job Description Management", "คลัง JD กลาง · เวอร์ชัน · การอนุมัติ"],
+  pipeline: ["Recruitment Pipeline", "บอร์ด Kanban ติดตามสถานะผู้สมัคร"],
+  candidates: ["ฐานข้อมูลผู้สมัคร", "ค้นหา · โปรไฟล์ · AI Matching"],
+  interview: ["จัดการสัมภาษณ์", "ตารางสัมภาษณ์ · แบบประเมิน · สรุปผล"],
+  offer: ["จัดการ Offer", "เอกสารข้อเสนอและการอนุมัติ"],
+  onboarding: ["Onboarding", "เช็กลิสต์รับพนักงานใหม่"],
+  reports: ["ศูนย์รายงาน (Report Center)", "ออกรายงาน Excel · PDF"],
+  ai: ["AI Insights", "วิเคราะห์การสรรหาด้วย AI"],
+  notifications: ["การแจ้งเตือน", "Email · LINE Notify · LINE OA"],
+  settings: ["ตั้งค่า & สิทธิ์การใช้งาน", "Role Based Access Control"],
+};
+
+const Sidebar = ({ active, setActive, role, allowed, onNav, mobile }) => (
+  <aside style={{ width: "var(--sidebar-w)", background: "linear-gradient(180deg, var(--navy-900), var(--navy-800) 60%)", color: "var(--ink-on-navy)", display: "flex", flexDirection: "column", height: "100%", borderRight: "1px solid rgba(255,255,255,.06)" }}>
+    <div style={{ padding: "18px 20px 16px", display: "flex", alignItems: "center", gap: 12, borderBottom: "1px solid rgba(255,255,255,.07)" }}>
+      <div style={{ width: 40, height: 40, borderRadius: 11, background: "linear-gradient(135deg,#2f6fd6,#1d3f70)", display: "grid", placeItems: "center", boxShadow: "0 4px 14px rgba(47,111,214,.4)", flexShrink: 0 }}>
+        <span style={{ fontWeight: 800, fontSize: 17, color: "#fff", letterSpacing: "-.02em" }}>BW</span>
+      </div>
+      <div style={{ lineHeight: 1.2, minWidth: 0 }}>
+        <div style={{ fontWeight: 700, fontSize: 15, color: "#fff", whiteSpace: "nowrap" }}>BWP Recruit</div>
+        <div style={{ fontSize: 10.5, color: "var(--ink-on-navy-dim)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>ระบบบริหารงานสรรหา</div>
+      </div>
+    </div>
+    <nav style={{ flex: 1, overflowY: "auto", padding: "12px 12px 20px" }}>
+      {NAV.map(grp => {
+        const items = grp.items.filter(it => allowed.includes(it.id));
+        if (!items.length) return null;
+        return (
+          <div key={grp.group} style={{ marginBottom: 14 }}>
+            <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: ".09em", textTransform: "uppercase", color: "var(--ink-on-navy-dim)", padding: "6px 12px 6px", opacity: .8 }}>{grp.group}</div>
+            {items.map(it => {
+              const on = active === it.id;
+              return (
+                <button key={it.id} onClick={() => onNav(it.id)} className="focusable" style={{
+                  width: "100%", display: "flex", alignItems: "center", gap: 11, padding: "9px 12px", marginBottom: 2,
+                  border: "none", borderRadius: 9, textAlign: "left", cursor: "pointer", transition: "all .14s",
+                  background: on ? "linear-gradient(90deg, rgba(47,111,214,.28), rgba(47,111,214,.10))" : "transparent",
+                  color: on ? "#fff" : "var(--ink-on-navy-dim)", fontWeight: on ? 600 : 500, fontSize: 13.5, position: "relative",
+                }}
+                  onMouseEnter={e => { if (!on) { e.currentTarget.style.background = "rgba(255,255,255,.05)"; e.currentTarget.style.color = "#cdd9ea"; } }}
+                  onMouseLeave={e => { if (!on) { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--ink-on-navy-dim)"; } }}>
+                  {on && <span style={{ position: "absolute", left: 0, top: 8, bottom: 8, width: 3, borderRadius: 3, background: "var(--accent)" }} />}
+                  <Icon name={it.icon} size={18} style={{ flexShrink: 0, opacity: on ? 1 : .85 }} />
+                  <span style={{ flex: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{it.label}</span>
+                  {it.badge && <span className="tnum" style={{ fontSize: 11, fontWeight: 700, background: on ? "var(--accent)" : "rgba(255,255,255,.12)", color: "#fff", borderRadius: 99, padding: "1px 7px", minWidth: 20, textAlign: "center" }}>{it.badge}</span>}
+                </button>
+              );
+            })}
+          </div>
+        );
+      })}
+    </nav>
+    <div style={{ padding: "12px 16px", borderTop: "1px solid rgba(255,255,255,.07)", fontSize: 10.5, color: "var(--ink-on-navy-dim)" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <span style={{ width: 7, height: 7, borderRadius: 99, background: "var(--green)" }} />
+        เชื่อมต่อระบบ HRIS · v2.4.0
+      </div>
+    </div>
+  </aside>
+);
+
+const RoleSwitcher = ({ role, setRole }) => {
+  const [open, setOpen] = useState(false);
+  const ref = useRef();
+  useEffect(() => {
+    const h = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener("mousedown", h); return () => document.removeEventListener("mousedown", h);
+  }, []);
+  const cur = BWP.roles.find(r => r.id === role);
+  return (
+    <div ref={ref} style={{ position: "relative" }}>
+      <button onClick={() => setOpen(o => !o)} className="focusable" style={{ display: "flex", alignItems: "center", gap: 10, padding: "5px 9px 5px 6px", borderRadius: 10, border: "1px solid var(--line)", background: "var(--surface)", cursor: "pointer" }}>
+        <Avatar initials={cur.initials} color={cur.color} size={32} />
+        <div style={{ textAlign: "left", lineHeight: 1.25 }}>
+          <div style={{ fontSize: 12.5, fontWeight: 700, color: "var(--ink)", whiteSpace: "nowrap" }}>{cur.person}</div>
+          <div style={{ fontSize: 11, color: "var(--ink-3)", whiteSpace: "nowrap" }}>{cur.th}</div>
+        </div>
+        <Icon name="chevronDown" size={15} style={{ color: "var(--ink-3)" }} />
+      </button>
+      {open && (
+        <div className="anim-up" style={{ position: "absolute", right: 0, top: "calc(100% + 8px)", width: 290, background: "var(--surface)", borderRadius: 13, boxShadow: "var(--shadow-lg)", border: "1px solid var(--line)", padding: 8, zIndex: 120 }}>
+          <div style={{ fontSize: 11, fontWeight: 600, color: "var(--ink-3)", padding: "6px 10px 8px", textTransform: "uppercase", letterSpacing: ".06em" }}>สลับมุมมองบทบาท (RBAC)</div>
+          {BWP.roles.map(r => (
+            <button key={r.id} onClick={() => { setRole(r.id); setOpen(false); }} className="focusable" style={{
+              width: "100%", display: "flex", alignItems: "center", gap: 11, padding: "8px 10px", borderRadius: 9,
+              border: "none", background: r.id === role ? "var(--accent-soft)" : "transparent", cursor: "pointer", textAlign: "left", marginBottom: 1,
+            }}
+              onMouseEnter={e => { if (r.id !== role) e.currentTarget.style.background = "var(--surface-2)"; }}
+              onMouseLeave={e => { if (r.id !== role) e.currentTarget.style.background = "transparent"; }}>
+              <Avatar initials={r.initials} color={r.color} size={32} />
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 13, fontWeight: 600, color: "var(--ink)" }}>{r.person}</div>
+                <div style={{ fontSize: 11.5, color: "var(--ink-3)" }}>{r.th}</div>
+              </div>
+              {r.id === role && <Icon name="check" size={16} style={{ color: "var(--accent)" }} />}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+const Topbar = ({ active, role, setRole, onMenu, mobile, deviceToggle, notifClick, notifCount }) => {
+  const [t1, t2] = MODULE_TITLES[active] || ["", ""];
+  return (
+    <header style={{ height: "var(--topbar-h)", background: "rgba(255,255,255,.92)", backdropFilter: "blur(10px)", borderBottom: "1px solid var(--line)", display: "flex", alignItems: "center", gap: 14, padding: mobile ? "0 14px" : "0 26px", position: "sticky", top: 0, zIndex: 90 }}>
+      {mobile && <button onClick={onMenu} className="focusable" style={{ width: 38, height: 38, borderRadius: 9, border: "1px solid var(--line)", background: "var(--surface)", color: "var(--ink-2)", display: "grid", placeItems: "center" }}><Icon name="menu" size={19} /></button>}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: mobile ? 15 : 17, fontWeight: 700, color: "var(--ink)", letterSpacing: "-.01em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{t1}</div>
+        {!mobile && <div style={{ fontSize: 12, color: "var(--ink-3)" }}>{t2}</div>}
+      </div>
+      {!mobile && (
+        <div style={{ display: "flex", alignItems: "center", gap: 8, background: "var(--surface-2)", border: "1px solid var(--line)", borderRadius: 10, padding: "8px 12px", width: 230, color: "var(--ink-3)" }}>
+          <Icon name="search" size={16} />
+          <input placeholder="ค้นหาผู้สมัคร, ตำแหน่ง…" style={{ border: "none", background: "transparent", outline: "none", fontSize: 13, width: "100%", color: "var(--ink)" }} />
+        </div>
+      )}
+      {deviceToggle}
+      <button onClick={notifClick} className="focusable" style={{ position: "relative", width: 40, height: 40, borderRadius: 10, border: "1px solid var(--line)", background: "var(--surface)", color: "var(--ink-2)", display: "grid", placeItems: "center" }}>
+        <Icon name="bell" size={19} />
+        {notifCount > 0 && <span className="tnum" style={{ position: "absolute", top: -5, right: -5, minWidth: 18, height: 18, padding: "0 4px", borderRadius: 99, background: "var(--red)", color: "#fff", fontSize: 10.5, fontWeight: 700, display: "grid", placeItems: "center", border: "2px solid var(--surface)" }}>{notifCount}</span>}
+      </button>
+      {!mobile && <RoleSwitcher role={role} setRole={setRole} />}
+    </header>
+  );
+};
+
+/* ============================================================
+   Module: Recruitment Dashboard (3 layouts)
+   ============================================================ */
+const Panel = ({ title, sub, icon, right, children, pad = 18, style }) => (
+  <div className="card anim-up" style={{ display: "flex", flexDirection: "column", ...style }}>
+    {title && (
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: `${pad}px ${pad}px 0` }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
+          {icon && <Icon name={icon} size={17} style={{ color: "var(--accent)" }} />}
+          <div>
+            <div style={{ fontSize: 14.5, fontWeight: 700, color: "var(--ink)" }}>{title}</div>
+            {sub && <div style={{ fontSize: 11.5, color: "var(--ink-3)", marginTop: 1 }}>{sub}</div>}
+          </div>
+        </div>
+        {right}
+      </div>
+    )}
+    <div style={{ padding: pad }}>{children}</div>
+  </div>
+);
+
+const PipelineSnapshot = () => {
+  const counts = BWP.stages.map(s => ({ ...s, n: BWP.candidates.filter(c => c.stage === s.id).length }));
+  const max = Math.max(...counts.map(c => c.n), 1);
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
+      {counts.map(s => (
+        <div key={s.id} style={{ display: "flex", alignItems: "center", gap: 11 }}>
+          <span style={{ width: 124, fontSize: 12.5, color: "var(--ink-2)", flexShrink: 0 }}>{s.th}</span>
+          <div style={{ flex: 1 }}><Bar value={s.n} max={max} color={s.color} height={9} /></div>
+          <span className="tnum" style={{ width: 20, textAlign: "right", fontSize: 12.5, fontWeight: 700, color: "var(--ink)" }}>{s.n}</span>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+const UpcomingInterviews = ({ onOpen }) => (
+  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+    {BWP.interviews.filter(i => i.status === "scheduled").slice(0, 4).map(iv => (
+      <div key={iv.id} onClick={onOpen} style={{ display: "flex", alignItems: "center", gap: 11, padding: "9px 11px", borderRadius: 10, background: "var(--surface-2)", border: "1px solid var(--line)", cursor: "pointer", transition: "all .14s" }}
+        onMouseEnter={e => e.currentTarget.style.borderColor = "var(--accent)"} onMouseLeave={e => e.currentTarget.style.borderColor = "var(--line)"}>
+        <div style={{ width: 38, height: 38, borderRadius: 9, background: iv.type === "online" ? "var(--violet-soft)" : "var(--accent-soft)", color: iv.type === "online" ? "var(--violet)" : "var(--accent)", display: "grid", placeItems: "center", flexShrink: 0 }}>
+          <Icon name={iv.type === "online" ? "video" : "pin"} size={18} />
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: "var(--ink)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{iv.cand}</div>
+          <div style={{ fontSize: 11.5, color: "var(--ink-3)" }}>{iv.round} · {iv.pos}</div>
+        </div>
+        <div style={{ textAlign: "right", flexShrink: 0 }}>
+          <div className="tnum" style={{ fontSize: 12.5, fontWeight: 700, color: "var(--ink)" }}>{iv.time}</div>
+          <div style={{ fontSize: 11, color: "var(--ink-3)" }}>{iv.date}</div>
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
+const RecentReqs = () => (
+  <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+    {BWP.requisitions.slice(0, 5).map(r => {
+      const st = BWP.reqStatus[r.status];
+      return (
+        <div key={r.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 4px", borderBottom: "1px solid var(--line)" }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 13, fontWeight: 600, color: "var(--ink)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{r.pos}</div>
+            <div className="mono" style={{ fontSize: 11, color: "var(--ink-3)" }}>{r.id} · {r.dept} · {r.count} อัตรา</div>
+          </div>
+          <Pill color={st.color} bg={st.bg} dot>{st.th}</Pill>
+        </div>
+      );
+    })}
+  </div>
+);
+
+const ManpowerByDept = () => (
+  <HBars data={BWP.departments.map(d => ({ name: d.name, v: d.actual, color: d.color }))} suffix=" คน" />
+);
+
+const DashboardModule = ({ goto }) => {
+  const [layout, setLayout] = useState("standard");
+  const s = BWP.summary;
+  const kpis = [
+    { label: "พนักงานทั้งหมด", value: s.totalEmployees, unit: "คน", icon: "users", accent: "var(--navy-700)", trend: 0, sub: `แผน ${s.planEmployees}` },
+    { label: "ตำแหน่งเปิดรับ", value: s.openPositions, unit: "ตำแหน่ง", icon: "flow", accent: "var(--accent)", sub: `${s.candidatesActive} ผู้สมัคร` },
+    { label: "อัตราว่าง (Vacancy)", value: s.vacancyRate, unit: "%", icon: "target", accent: "var(--amber)", trend: -0.6, invert: true },
+    { label: "Turnover (เดือนนี้)", value: s.turnoverRate, unit: "%", icon: "trend", accent: "var(--red)", trend: -0.3, invert: true },
+    { label: "จ้างใหม่เดือนนี้", value: s.newHiresMonth, unit: "คน", icon: "check", accent: "var(--green)", trend: 2 },
+    { label: "สัมภาษณ์สัปดาห์นี้", value: s.interviewsWeek, unit: "นัด", icon: "calendar", accent: "var(--teal)" },
+  ];
+  const layouts = [
+    { id: "standard", label: "มาตรฐาน", icon: "grid" },
+    { id: "analytics", label: "เน้นกราฟ", icon: "chart" },
+    { id: "compact", label: "สรุปผู้บริหาร", icon: "bars" },
+  ];
+  return (
+    <div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12, marginBottom: 18 }}>
+        <div style={{ fontSize: 13, color: "var(--ink-3)" }}>ข้อมูล ณ 2 มิ.ย. 2569 · 09:14 น. · อัปเดตอัตโนมัติ</div>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <span style={{ fontSize: 12, color: "var(--ink-3)", fontWeight: 600 }}>เลย์เอาต์:</span>
+          <Tabs tabs={layouts} active={layout} onChange={setLayout} />
+        </div>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: layout === "compact" ? "repeat(auto-fit,minmax(150px,1fr))" : "repeat(auto-fit,minmax(168px,1fr))", gap: 14, marginBottom: 16 }}>
+        {kpis.map((k, i) => <StatCard key={i} {...k} big={layout === "compact"} />)}
+      </div>
+      {layout === "standard" && (
+        <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: 16 }} className="dash-grid">
+          <Panel title="แนวโน้มกำลังคน (Headcount Trend)" sub="12 เดือนล่าสุด" icon="trend" right={<Pill color="var(--green)" bg="var(--green-soft)" dot>+5.8%</Pill>}><LineChart data={BWP.headcountTrend} color="var(--accent)" /></Panel>
+          <Panel title="กำลังคนตามฝ่าย" sub="พนักงานปัจจุบัน" icon="building"><ManpowerByDept /></Panel>
+          <Panel title="แนวโน้มการสรรหา" sub="เปิดรับ vs จ้างสำเร็จ" icon="bars"><GroupedBar data={BWP.recruitTrend} /></Panel>
+          <Panel title="สถานะ Pipeline" sub="ผู้สมัครในแต่ละขั้น" icon="board" right={<Btn variant="subtle" size="sm" iconRight="chevron" onClick={() => goto("pipeline")}>เปิดบอร์ด</Btn>}><PipelineSnapshot /></Panel>
+          <Panel title="สัมภาษณ์ที่กำลังจะถึง" icon="calendar" right={<Btn variant="subtle" size="sm" iconRight="chevron" onClick={() => goto("interview")}>ทั้งหมด</Btn>}><UpcomingInterviews onOpen={() => goto("interview")} /></Panel>
+          <Panel title="คำขอเปิดอัตราล่าสุด" icon="flow" right={<Btn variant="subtle" size="sm" iconRight="chevron" onClick={() => goto("requisition")}>ทั้งหมด</Btn>}><RecentReqs /></Panel>
+        </div>
+      )}
+      {layout === "analytics" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 16 }} className="dash-grid">
+            <Panel title="แนวโน้มกำลังคน (Headcount Trend)" sub="12 เดือนล่าสุด" icon="trend"><LineChart data={BWP.headcountTrend} color="var(--accent)" height={230} /></Panel>
+            <Panel title="Recruitment Funnel" sub="อัตราผ่านแต่ละขั้น" icon="filter">
+              <div style={{ paddingTop: 8 }}>
+                {BWP.funnel.map((d, i) => {
+                  const pct = (d.v / BWP.funnel[0].v) * 100;
+                  return (
+                    <div key={i} style={{ marginBottom: 9 }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11.5, marginBottom: 4 }}>
+                        <span style={{ color: "var(--ink-2)" }}>{d.stage}</span>
+                        <span className="tnum" style={{ fontWeight: 700, color: "var(--ink)" }}>{d.v}</span>
+                      </div>
+                      <div style={{ height: 7, background: "#e8edf3", borderRadius: 99 }}><div style={{ width: pct + "%", height: "100%", background: d.color, borderRadius: 99 }} /></div>
+                    </div>
+                  );
+                })}
+              </div>
+            </Panel>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }} className="dash-grid">
+            <Panel title="แนวโน้มการสรรหา" icon="bars"><GroupedBar data={BWP.recruitTrend} height={170} /></Panel>
+            <Panel title="กำลังคนตามฝ่าย" icon="building"><ManpowerByDept /></Panel>
+            <Panel title="ช่องทางสรรหา" sub="สัดส่วนผู้สมัคร" icon="search"><HBars data={BWP.sources} suffix="%" /></Panel>
+          </div>
+        </div>
+      )}
+      {layout === "compact" && (
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }} className="dash-grid">
+          <Panel title="Recruitment Funnel" icon="filter"><Funnel data={BWP.funnel} /></Panel>
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <Panel title="สัมภาษณ์ที่กำลังจะถึง" icon="calendar"><UpcomingInterviews onOpen={() => goto("interview")} /></Panel>
+            <Panel title="สถานะ Pipeline" icon="board"><PipelineSnapshot /></Panel>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+/* ============================================================
+   Module: Executive Dashboard
+   ============================================================ */
+const ExecKpiCard = ({ k, label, icon, invert, fmt }) => {
+  const pct = Math.min(100, Math.round((k.value / k.target) * (invert ? (k.target / k.value) : 1) * 100));
+  return (
+    <div className="card anim-up" style={{ padding: 20, display: "flex", flexDirection: "column", gap: 14 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+        <div>
+          <div className="eyebrow">{label}</div>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 5, marginTop: 8 }}>
+            <span className="tnum" style={{ fontSize: 30, fontWeight: 700, color: "var(--ink)", letterSpacing: "-.02em" }}>{fmt ? fmt(k.value) : k.value}</span>
+            <span style={{ fontSize: 14, color: "var(--ink-3)", fontWeight: 600 }}>{k.unit}</span>
+          </div>
+        </div>
+        <div style={{ width: 38, height: 38, borderRadius: 10, background: "var(--accent-soft)", color: "var(--accent)", display: "grid", placeItems: "center" }}><Icon name={icon} size={20} /></div>
+      </div>
+      <div>
+        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11.5, color: "var(--ink-3)", marginBottom: 5 }}>
+          <span>เทียบเป้า {fmt ? fmt(k.target) : k.target}{k.unit}</span>
+          <Trend v={k.trend} suffix={k.unit === "%" ? "%" : ""} invert={invert} />
+        </div>
+        <Bar value={pct} color={pct >= 100 ? "var(--green)" : pct >= 80 ? "var(--accent)" : "var(--amber)"} height={7} />
+      </div>
+    </div>
+  );
+};
+
+const ExecModule = () => {
+  const e = BWP.execKpi;
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      <div style={{ background: "linear-gradient(120deg, var(--navy-800), var(--navy-600))", borderRadius: 16, padding: "22px 26px", color: "#fff", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
+        <div>
+          <div style={{ fontSize: 12, color: "var(--ink-on-navy-dim)", fontWeight: 600, letterSpacing: ".05em" }}>สรุปภาพรวมไตรมาส · Q2/2569</div>
+          <div style={{ fontSize: 22, fontWeight: 700, marginTop: 4 }}>การสรรหากำลังคน BWP Industrial</div>
+          <div style={{ fontSize: 13, color: "#bcd0ee", marginTop: 6, maxWidth: 520 }}>จ้างสำเร็จ 47 ตำแหน่งในไตรมาส · ลดเวลา Time-to-Hire ลง 4 วัน · Offer Acceptance สูงกว่าเป้า</div>
+        </div>
+        <div style={{ display: "flex", gap: 26 }}>
+          {[["47", "จ้างสำเร็จ (Q2)"], ["14", "ตำแหน่งคงค้าง"], ["86%", "Offer Accept"]].map(([n, l], i) => (
+            <div key={i} style={{ textAlign: "center" }}>
+              <div className="tnum" style={{ fontSize: 28, fontWeight: 700 }}>{n}</div>
+              <div style={{ fontSize: 11, color: "var(--ink-on-navy-dim)" }}>{l}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: 14 }}>
+        <ExecKpiCard k={e.timeToHire} label="Time to Hire" icon="clock" invert />
+        <ExecKpiCard k={e.timeToFill} label="Time to Fill" icon="target" invert />
+        <ExecKpiCard k={e.costPerHire} label="Cost per Hire" icon="money" invert fmt={v => v.toLocaleString()} />
+        <ExecKpiCard k={e.offerAccept} label="Offer Acceptance Rate" icon="handshake" />
+        <ExecKpiCard k={e.probationTurnover} label="Turnover ช่วงทดลองงาน" icon="trend" invert />
+        <ExecKpiCard k={e.sourceEffectiveness} label="Source Effectiveness" icon="search" />
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 16 }} className="dash-grid">
+        <Panel title="การจ้างงานรายเดือน (Monthly Hiring)" icon="bars" sub="6 เดือนล่าสุด"><BarChart data={BWP.monthlyHiring} color="var(--navy-600)" fmt={v => v} /></Panel>
+        <Panel title="การจ้างงานตามฝ่าย" icon="building" sub="สะสมไตรมาสนี้"><HBars data={[{ name: "ฝ่ายผลิต", v: 21, color: "#2f6fd6" },{ name: "คลังสินค้า", v: 9, color: "#1f9d63" },{ name: "ประกันคุณภาพ", v: 7, color: "#128a9c" },{ name: "ซ่อมบำรุง", v: 5, color: "#d98a16" },{ name: "ฝ่ายขาย", v: 3, color: "#d6453d" },{ name: "วิศวกรรม", v: 2, color: "#6b4fd1" }]} suffix=" คน" /></Panel>
+        <Panel title="Recruitment Funnel" icon="filter" sub="ภาพรวมไตรมาส"><Funnel data={BWP.funnel} /></Panel>
+        <Panel title="วิเคราะห์ช่องทางสรรหา (Source Analysis)" icon="search" sub="สัดส่วน vs ประสิทธิภาพ">
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            {BWP.sources.map((s, i) => (
+              <div key={i}>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12.5, marginBottom: 5 }}>
+                  <span style={{ color: "var(--ink-2)" }}>{s.name}</span>
+                  <span style={{ display: "flex", gap: 10 }}>
+                    <span className="tnum" style={{ color: "var(--ink-3)" }}>{s.v}%</span>
+                    <span className="tnum" style={{ color: s.eff >= 60 ? "var(--green)" : "var(--amber)", fontWeight: 700 }}>คุณภาพ {s.eff}%</span>
+                  </span>
+                </div>
+                <Bar value={s.v} max={40} color={s.color} height={8} />
+              </div>
+            ))}
+          </div>
+        </Panel>
+      </div>
+    </div>
+  );
+};
+
+/* ============================================================
+   Module: Manpower Planning + Workforce
+   ============================================================ */
+const OrgNode = ({ title, sub, count, color = "var(--navy-700)", root }) => (
+  <div style={{ background: root ? "var(--navy-800)" : "var(--surface)", color: root ? "#fff" : "var(--ink)", border: `1px solid ${root ? "var(--navy-800)" : "var(--line)"}`, borderRadius: 11, padding: "11px 16px", minWidth: 150, textAlign: "center", boxShadow: "var(--shadow-xs)", borderTop: root ? "none" : `3px solid ${color}` }}>
+    <div style={{ fontSize: 13.5, fontWeight: 700 }}>{title}</div>
+    {sub && <div style={{ fontSize: 11, color: root ? "var(--ink-on-navy-dim)" : "var(--ink-3)", marginTop: 2 }}>{sub}</div>}
+    {count !== undefined && <div className="tnum" style={{ fontSize: 11.5, marginTop: 5, color: root ? "#bcd0ee" : "var(--ink-2)", fontWeight: 600 }}>{count} อัตรา</div>}
+  </div>
+);
+
+const OrgChart = () => (
+  <div style={{ overflowX: "auto", padding: "10px 0" }}>
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 0, minWidth: 760 }}>
+      <OrgNode root title="กรรมการผู้จัดการ" sub="Managing Director" />
+      <div style={{ width: 2, height: 22, background: "var(--line-strong)" }} />
+      <div style={{ display: "flex", gap: 14, position: "relative" }}>
+        <div style={{ position: "absolute", top: -11, left: "8%", right: "8%", height: 2, background: "var(--line-strong)" }} />
+        {[{ t: "ฝ่ายผลิต", c: 171, col: "#2f6fd6" },{ t: "วิศวกรรม", c: 16, col: "#6b4fd1" },{ t: "ประกันคุณภาพ", c: 30, col: "#128a9c" },{ t: "คลังสินค้า", c: 44, col: "#1f9d63" },{ t: "ฝ่ายขาย", c: 20, col: "#d6453d" },{ t: "สนับสนุน (HR/บัญชี)", c: 24, col: "#2a5288" }].map((n, i) => (
+          <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+            <div style={{ width: 2, height: 11, background: "var(--line-strong)" }} />
+            <OrgNode title={n.t} count={n.c} color={n.col} />
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+);
+
+const ManpowerModule = () => {
+  const [tab, setTab] = useState("overview");
+  const depts = BWP.departments;
+  const totalPlan = depts.reduce((a, d) => a + d.plan, 0);
+  const totalActual = depts.reduce((a, d) => a + d.actual, 0);
+  const totalVacancy = totalPlan - totalActual;
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+        <Tabs tabs={[{ id: "overview", label: "ภาพรวมอัตรากำลัง", icon: "users" },{ id: "shift", label: "กำลังคนตามกะ", icon: "clock" },{ id: "org", label: "โครงสร้างองค์กร", icon: "layers" }]} active={tab} onChange={setTab} />
+        <Btn variant="ghost" size="sm" icon="download">ส่งออกแผนกำลังคน</Btn>
+      </div>
+      {tab === "overview" && <>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(180px,1fr))", gap: 14 }}>
+          <StatCard label="กำลังคนตามแผน" value={totalPlan} unit="อัตรา" icon="target" accent="var(--navy-700)" />
+          <StatCard label="กำลังคนปัจจุบัน" value={totalActual} unit="คน" icon="users" accent="var(--accent)" />
+          <StatCard label="อัตราว่าง" value={totalVacancy} unit="อัตรา" icon="flow" accent="var(--amber)" sub={`${((totalVacancy/totalPlan)*100).toFixed(1)}% ของแผน`} />
+          <StatCard label="ฝ่ายผลิต" value={BWP.summary.factory} unit="คน" icon="factory" accent="var(--teal)" />
+          <StatCard label="สำนักงาน" value={BWP.summary.office} unit="คน" icon="building" accent="var(--violet)" />
+        </div>
+        <Panel title="อัตรากำลังแยกตามฝ่าย / แผนก" sub="เปรียบเทียบแผน · ปัจจุบัน · อัตราว่าง" icon="building">
+          <div style={{ overflowX: "auto" }}>
+            <table className="dt">
+              <thead><tr><th>ฝ่าย / แผนก</th><th>ประเภท</th><th style={{ textAlign: "right" }}>ตามแผน</th><th style={{ textAlign: "right" }}>ปัจจุบัน</th><th style={{ textAlign: "right" }}>ว่าง</th><th style={{ width: 180 }}>อัตราการเติมเต็ม</th></tr></thead>
+              <tbody>{depts.map(d => { const vac = d.plan - d.actual; const fill = Math.round((d.actual / d.plan) * 100); return (
+                <tr key={d.id}>
+                  <td><div style={{ display: "flex", alignItems: "center", gap: 9 }}><span style={{ width: 9, height: 9, borderRadius: 3, background: d.color }} /><b style={{ color: "var(--ink)", fontWeight: 600 }}>{d.name}</b><span className="mono" style={{ fontSize: 11, color: "var(--ink-3)" }}>{d.en}</span></div></td>
+                  <td><Pill color={d.type === "factory" ? "var(--teal)" : "var(--violet)"} bg={d.type === "factory" ? "var(--teal-soft)" : "var(--violet-soft)"}>{d.type === "factory" ? "ฝ่ายผลิต" : "สำนักงาน"}</Pill></td>
+                  <td className="tnum" style={{ textAlign: "right", fontWeight: 600 }}>{d.plan}</td>
+                  <td className="tnum" style={{ textAlign: "right", fontWeight: 600, color: "var(--ink)" }}>{d.actual}</td>
+                  <td className="tnum" style={{ textAlign: "right", fontWeight: 700, color: vac > 0 ? "var(--amber)" : "var(--green)" }}>{vac}</td>
+                  <td><Bar value={fill} color={fill >= 95 ? "var(--green)" : fill >= 85 ? "var(--accent)" : "var(--amber)"} showLabel height={8} /></td>
+                </tr>); })}</tbody>
+            </table>
+          </div>
+        </Panel>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }} className="dash-grid">
+          <Panel title="แนวโน้มกำลังคน" icon="trend"><LineChart data={BWP.headcountTrend} /></Panel>
+          <Panel title="สัดส่วนฝ่ายผลิต vs สำนักงาน" icon="users">
+            <div style={{ display: "flex", alignItems: "center", gap: 26, padding: "10px 0" }}>
+              <Donut value={Math.round((BWP.summary.factory / BWP.summary.totalEmployees) * 100)} size={130} color="var(--teal)" label={BWP.summary.factory} sub="ฝ่ายผลิต" />
+              <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 14 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}><span style={{ width: 12, height: 12, borderRadius: 3, background: "var(--teal)" }} /><div><div style={{ fontSize: 13, color: "var(--ink-2)" }}>ฝ่ายผลิต (Factory)</div><div className="tnum" style={{ fontSize: 18, fontWeight: 700 }}>{BWP.summary.factory} คน</div></div></div>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}><span style={{ width: 12, height: 12, borderRadius: 3, background: "var(--violet)" }} /><div><div style={{ fontSize: 13, color: "var(--ink-2)" }}>สำนักงาน (Office)</div><div className="tnum" style={{ fontSize: 18, fontWeight: 700 }}>{BWP.summary.office} คน</div></div></div>
+              </div>
+            </div>
+          </Panel>
+        </div>
+      </>}
+      {tab === "shift" && <>
+        <div style={{ background: "var(--accent-soft)", border: "1px solid #cadcf6", borderRadius: 12, padding: "12px 16px", display: "flex", gap: 10, alignItems: "center", fontSize: 13, color: "var(--accent-700)" }}>
+          <Icon name="factory" size={18} /> Workforce Planning เฉพาะสายการผลิต — บริหารกำลังคนแยกตามกะการทำงาน 3 กะ
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: 14 }}>
+          {BWP.shifts.map(s => (
+            <Panel key={s.id} pad={18}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+                <div><div style={{ fontSize: 15, fontWeight: 700, color: "var(--ink)" }}>{s.name}</div><div className="mono" style={{ fontSize: 11.5, color: "var(--ink-3)" }}>{s.time}</div></div>
+                <Donut value={Math.round((s.actual / s.plan) * 100)} size={64} stroke={8} color="var(--accent)" />
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13 }}>
+                <span style={{ color: "var(--ink-3)" }}>ปัจจุบัน <b className="tnum" style={{ color: "var(--ink)" }}>{s.actual}</b> / แผน {s.plan}</span>
+                <Pill color={s.plan - s.actual > 0 ? "var(--amber)" : "var(--green)"} bg={s.plan - s.actual > 0 ? "var(--amber-soft)" : "var(--green-soft)"}>ขาด {s.plan - s.actual}</Pill>
+              </div>
+            </Panel>
+          ))}
+        </div>
+        <Panel title="กำลังคนสายการผลิตตามหน่วยงาน" icon="factory" sub="ฝ่ายผลิต · QC · คลังสินค้า · ซ่อมบำรุง">
+          <HBars data={[{ name: "ฝ่ายผลิต (Operator/หัวหน้ากะ)", v: 171, color: "#2f6fd6" },{ name: "คลังสินค้า (Warehouse)", v: 44, color: "#1f9d63" },{ name: "ประกันคุณภาพ (QC)", v: 30, color: "#128a9c" },{ name: "ช่างซ่อมบำรุง (Maintenance)", v: 21, color: "#d98a16" },{ name: "วิศวกรรม (Engineering)", v: 16, color: "#6b4fd1" }]} suffix=" คน" />
+        </Panel>
+      </>}
+      {tab === "org" && <Panel title="โครงสร้างองค์กร (Organization Chart)" sub="เชื่อมกับระบบ HRIS — แสดงอัตรากำลังแต่ละหน่วย" icon="layers"><OrgChart /></Panel>}
+    </div>
+  );
+};
+
+/* ============================================================
+   Module: Requisition Request + Approval
+   ============================================================ */
+const ApprovalFlow = ({ status }) => {
+  const order = ["draft", "pending_hr", "pending_dir", "approved"];
+  const steps = [{ key: "draft", label: "ผู้จัดการแผนก", sub: "สร้างคำขอ", icon: "doc" },{ key: "pending_hr", label: "HR Manager", sub: "ตรวจสอบ", icon: "users" },{ key: "pending_dir", label: "กรรมการผู้จัดการ", sub: "อนุมัติ", icon: "award" },{ key: "approved", label: "เปิดรับสมัคร", sub: "Open Position", icon: "check" }];
+  const rejected = status === "rejected";
+  const curIdx = status === "closed" ? 4 : order.indexOf(status);
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 0, flexWrap: "wrap" }}>
+      {steps.map((s, i) => {
+        const done = i < curIdx || status === "approved" || status === "closed";
+        const active = i === curIdx && !rejected;
+        const isRej = rejected && i === curIdx;
+        const c = isRej ? "var(--red)" : done ? "var(--green)" : active ? "var(--accent)" : "var(--ink-3)";
+        const bg = isRej ? "var(--red-soft)" : done ? "var(--green-soft)" : active ? "var(--accent-soft)" : "var(--surface-2)";
+        return (
+          <React.Fragment key={s.key}>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, minWidth: 90 }}>
+              <div style={{ width: 42, height: 42, borderRadius: 12, background: bg, color: c, display: "grid", placeItems: "center", border: `1.5px solid ${active || isRej ? c : "transparent"}` }}><Icon name={isRej ? "x" : done ? "check" : s.icon} size={20} /></div>
+              <div style={{ textAlign: "center" }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: active || done ? "var(--ink)" : "var(--ink-3)" }}>{s.label}</div>
+                <div style={{ fontSize: 10.5, color: "var(--ink-3)" }}>{s.sub}</div>
+              </div>
+            </div>
+            {i < steps.length - 1 && <div style={{ flex: 1, height: 2, minWidth: 24, background: i < curIdx ? "var(--green)" : "var(--line-strong)", marginTop: -24 }} />}
+          </React.Fragment>
+        );
+      })}
+    </div>
+  );
+};
+
+const Toast = ({ msg }) => (
+  <div className="anim-up" style={{ position: "fixed", bottom: 26, left: "50%", transform: "translateX(-50%)", zIndex: 300, background: "var(--navy-800)", color: "#fff", padding: "13px 20px", borderRadius: 12, boxShadow: "var(--shadow-lg)", display: "flex", alignItems: "center", gap: 10, fontSize: 13.5, fontWeight: 500 }}>
+    <span style={{ width: 22, height: 22, borderRadius: 99, background: "var(--green)", display: "grid", placeItems: "center" }}><Icon name="check" size={15} /></span>
+    {msg}
+  </div>
+);
+
+const RequisitionModule = ({ role }) => {
+  const [filter, setFilter] = useState("all");
+  const [sel, setSel] = useState(null);
+  const [showNew, setShowNew] = useState(false);
+  const [toast, setToast] = useState(null);
+  const canApprove = ["md", "hr_manager", "super_admin"].includes(role);
+  const filtered = filter === "all" ? BWP.requisitions : BWP.requisitions.filter(r => r.status === filter);
+  const counts = { all: BWP.requisitions.length, pending_hr: BWP.requisitions.filter(r => r.status === "pending_hr").length, pending_dir: BWP.requisitions.filter(r => r.status === "pending_dir").length, approved: BWP.requisitions.filter(r => r.status === "approved").length };
+  const act = (msg) => { setToast(msg); setSel(null); setTimeout(() => setToast(null), 2600); };
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          {[["all", "ทั้งหมด"], ["pending_hr", "รอ HR"], ["pending_dir", "รอ MD"], ["approved", "อนุมัติแล้ว"], ["draft", "ร่าง"], ["rejected", "ไม่อนุมัติ"]].map(([k, l]) => (
+            <button key={k} onClick={() => setFilter(k)} className="focusable" style={{ padding: "7px 14px", borderRadius: 9, fontSize: 13, fontWeight: 600, cursor: "pointer", transition: "all .14s", border: `1px solid ${filter === k ? "var(--navy-800)" : "var(--line-strong)"}`, background: filter === k ? "var(--navy-800)" : "var(--surface)", color: filter === k ? "#fff" : "var(--ink-2)" }}>{l}{counts[k] !== undefined && <span className="tnum" style={{ marginLeft: 6, opacity: .7 }}>{counts[k]}</span>}</button>
+          ))}
+        </div>
+        <Btn variant="accent" icon="plus" onClick={() => setShowNew(true)}>เปิดคำขอใหม่</Btn>
+      </div>
+      <div className="card" style={{ overflow: "hidden" }}>
+        <div style={{ overflowX: "auto" }}>
+          <table className="dt">
+            <thead><tr><th>รหัส / ตำแหน่ง</th><th>แผนก</th><th style={{ textAlign: "center" }}>จำนวน</th><th>เงินเดือน</th><th style={{ textAlign: "center" }}>ความเร่งด่วน</th><th>สถานะ</th><th></th></tr></thead>
+            <tbody>{filtered.map(r => { const st = BWP.reqStatus[r.status]; const ug = { "สูง": "var(--red)", "กลาง": "var(--amber)", "ต่ำ": "var(--ink-3)" }[r.urgency]; return (
+              <tr key={r.id} onClick={() => setSel(r)} style={{ cursor: "pointer" }}>
+                <td><div style={{ fontSize: 13.5, fontWeight: 600, color: "var(--ink)" }}>{r.pos}</div><div className="mono" style={{ fontSize: 11, color: "var(--ink-3)" }}>{r.id} · {r.reason}</div></td>
+                <td>{r.dept}</td><td className="tnum" style={{ textAlign: "center", fontWeight: 700 }}>{r.count}</td><td className="tnum">{r.salary}</td>
+                <td style={{ textAlign: "center" }}><Pill color={ug} bg="transparent" dot>{r.urgency}</Pill></td>
+                <td><Pill color={st.color} bg={st.bg} dot>{st.th}</Pill></td>
+                <td><Icon name="chevron" size={16} style={{ color: "var(--ink-3)" }} /></td>
+              </tr>); })}</tbody>
+          </table>
+        </div>
+      </div>
+      <Modal open={!!sel} onClose={() => setSel(null)} title={sel?.pos} sub={sel ? `${sel.id} · ขอโดย ${sel.by}` : ""} icon="flow" width={680}>
+        {sel && <>
+          <div style={{ background: "var(--surface-2)", borderRadius: 12, padding: "20px 18px", marginBottom: 18 }}>
+            <div className="eyebrow" style={{ marginBottom: 16 }}>ขั้นตอนการอนุมัติ (Approval Workflow)</div>
+            <ApprovalFlow status={sel.status} />
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14, marginBottom: 18 }}>
+            {[["แผนก", sel.dept], ["จำนวน", sel.count + " อัตรา"], ["ประเภทพนักงาน", sel.type], ["สาเหตุการเปิด", sel.reason], ["เงินเดือนที่ขอ", sel.salary], ["ความเร่งด่วน", sel.urgency], ["วันที่ต้องการเริ่ม", sel.start], ["วันที่ขอ", sel.date]].map(([k, v], i) => (
+              <div key={i}><div className="eyebrow">{k}</div><div style={{ fontSize: 13.5, fontWeight: 600, color: "var(--ink)", marginTop: 4 }}>{v}</div></div>
+            ))}
+          </div>
+          {(sel.status === "pending_hr" || sel.status === "pending_dir") && canApprove ? (
+            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", borderTop: "1px solid var(--line)", paddingTop: 16 }}>
+              <Btn variant="danger" icon="x" onClick={() => act("ไม่อนุมัติคำขอ " + sel.id + " แล้ว")}>ไม่อนุมัติ</Btn>
+              <Btn variant="accent" icon="check" onClick={() => act("อนุมัติคำขอ " + sel.id + " แล้ว — แจ้งเตือนผ่าน LINE & Email")}>{sel.status === "pending_dir" ? "อนุมัติ (MD)" : "อนุมัติ & ส่งต่อ MD"}</Btn>
+            </div>
+          ) : (
+            <div style={{ borderTop: "1px solid var(--line)", paddingTop: 14, fontSize: 12.5, color: "var(--ink-3)", display: "flex", alignItems: "center", gap: 8 }}>
+              <Icon name="eye" size={15} /> {canApprove ? "คำขอนี้ไม่อยู่ในขั้นที่ต้องดำเนินการ" : "บทบาทของคุณดูข้อมูลได้อย่างเดียว (RBAC)"}
+            </div>
+          )}
+        </>}
+      </Modal>
+      <Modal open={showNew} onClose={() => setShowNew(false)} title="เปิดคำขออัตรากำลังใหม่" sub="กรอกข้อมูลเพื่อส่งให้ HR Manager" icon="plus" width={620}>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 14 }}>
+          <Field label="ตำแหน่ง" required half><TextInput placeholder="เช่น วิศวกรกระบวนการผลิต" /></Field>
+          <Field label="แผนก" required half><Select options={["ฝ่ายผลิต", "ประกันคุณภาพ", "คลังสินค้า", "ซ่อมบำรุง", "วิศวกรรม", "ฝ่ายขาย", "บัญชีการเงิน", "ทรัพยากรบุคคล"]} /></Field>
+          <Field label="จำนวน" required half><TextInput type="number" defaultValue={1} /></Field>
+          <Field label="ประเภทพนักงาน" half><Select options={["ประจำ", "รายวัน", "สัญญาจ้าง", "Part-time"]} /></Field>
+          <Field label="สาเหตุการเปิด" half><Select options={["ทดแทน", "ขยายกำลังคน", "โครงการใหม่"]} /></Field>
+          <Field label="ความเร่งด่วน" half><Select options={["สูง", "กลาง", "ต่ำ"]} /></Field>
+          <Field label="ช่วงเงินเดือน" half><TextInput placeholder="เช่น 18,000–24,000" /></Field>
+          <Field label="วันที่ต้องการเริ่มงาน" half><TextInput type="date" /></Field>
+          <Field label="รายละเอียดเพิ่มเติม"><textarea rows={3} style={{ ...inputStyle, resize: "vertical" }} placeholder="เหตุผล / คุณสมบัติพิเศษ…" /></Field>
+        </div>
+        <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 20 }}>
+          <Btn variant="ghost" onClick={() => setShowNew(false)}>บันทึกร่าง</Btn>
+          <Btn variant="accent" icon="check" onClick={() => { setShowNew(false); act("ส่งคำขอเปิดอัตราให้ HR Manager แล้ว"); }}>ส่งคำขอ</Btn>
+        </div>
+      </Modal>
+      {toast && <Toast msg={toast} />}
+    </div>
+  );
+};
+
+/* ============================================================
+   Module: Recruitment Pipeline (Kanban)
+   ============================================================ */
+const sourceColor = (s) => ({ "แนะนำพนักงาน": "var(--green)", "JobThai": "var(--accent)", "LinkedIn": "var(--teal)", "Walk-in": "var(--amber)", "จัดหางานจังหวัด": "var(--violet)", "Agency": "var(--red)" }[s] || "var(--ink-3)");
+
+const CandidateCard = ({ c, onClick, dragging, onDragStart, onDragEnd }) => (
+  <div draggable onDragStart={onDragStart} onDragEnd={onDragEnd} onClick={onClick}
+    style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 11, padding: 12, cursor: "grab", boxShadow: dragging ? "var(--shadow-lg)" : "var(--shadow-xs)", marginBottom: 9, opacity: dragging ? 0.5 : 1, transition: "box-shadow .15s, transform .15s", userSelect: "none" }}
+    onMouseEnter={e => { if (!dragging) e.currentTarget.style.transform = "translateY(-2px)"; }} onMouseLeave={e => e.currentTarget.style.transform = ""}>
+    <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 9 }}>
+      <Avatar name={c.name} color={sourceColor(c.source)} size={34} />
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: "var(--ink)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{c.name}</div>
+        <div style={{ fontSize: 11, color: "var(--ink-3)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{c.pos}</div>
+      </div>
+    </div>
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+      <span className="mono" style={{ fontSize: 10.5, color: "var(--ink-3)" }}>{c.id}</span>
+      <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 700, color: c.match >= 85 ? "var(--green)" : c.match >= 75 ? "var(--accent)" : "var(--amber)" }}><Icon name="spark" size={12} /> {c.match}%</span>
+    </div>
+    <div style={{ display: "flex", gap: 6, fontSize: 10.5, color: "var(--ink-3)", flexWrap: "wrap" }}>
+      <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}><Icon name="money" size={11} />{(c.salary / 1000).toFixed(0)}K</span>
+      <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}><Icon name="clock" size={11} />{c.exp} ปี</span>
+      <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}><Icon name="pin" size={11} />{c.prov}</span>
+    </div>
+    <div style={{ marginTop: 8, paddingTop: 8, borderTop: "1px solid var(--line)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 10.5, color: sourceColor(c.source), fontWeight: 600 }}><span style={{ width: 6, height: 6, borderRadius: 99, background: sourceColor(c.source) }} />{c.source}</span>
+      <span style={{ fontSize: 10.5, color: "var(--ink-3)" }}>{c.applied}</span>
+    </div>
+  </div>
+);
+
+const PipelineModule = ({ onOpenCandidate }) => {
+  const [cards, setCards] = useState(() => BWP.candidates.map(c => ({ ...c })));
+  const [drag, setDrag] = useState(null);
+  const [over, setOver] = useState(null);
+  const move = (stageId) => { if (!drag) return; setCards(cs => cs.map(c => c.id === drag ? { ...c, stage: stageId } : c)); setDrag(null); setOver(null); };
+  return (
+    <div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12, marginBottom: 14 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 13, color: "var(--ink-3)" }}>
+          <Icon name="board" size={17} style={{ color: "var(--accent)" }} />
+          ลากการ์ดเพื่อเปลี่ยนสถานะ · ผู้สมัครทั้งหมด <b className="tnum" style={{ color: "var(--ink)" }}>{cards.length}</b> คน
+        </div>
+        <div style={{ display: "flex", gap: 8 }}><Btn variant="ghost" size="sm" icon="filter">ตัวกรอง</Btn><Btn variant="accent" size="sm" icon="plus">เพิ่มผู้สมัคร</Btn></div>
+      </div>
+      <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: 14 }} className="noscroll">
+        {BWP.stages.map(stage => {
+          const items = cards.filter(c => c.stage === stage.id);
+          const isOver = over === stage.id;
+          return (
+            <div key={stage.id} onDragOver={e => { e.preventDefault(); setOver(stage.id); }} onDragLeave={() => setOver(o => o === stage.id ? null : o)} onDrop={() => move(stage.id)}
+              style={{ width: 248, flexShrink: 0, background: isOver ? "var(--accent-soft)" : "var(--bg-soft)", border: `1.5px solid ${isOver ? "var(--accent)" : "var(--line)"}`, borderRadius: 13, padding: 10, transition: "all .15s", display: "flex", flexDirection: "column" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "4px 6px 12px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ width: 9, height: 9, borderRadius: 3, background: stage.color }} />
+                  <span style={{ fontSize: 12.5, fontWeight: 700, color: "var(--ink)" }}>{stage.th}</span>
+                </div>
+                <span className="tnum" style={{ fontSize: 11.5, fontWeight: 700, color: "var(--ink-3)", background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 99, minWidth: 22, textAlign: "center", padding: "1px 6px" }}>{items.length}</span>
+              </div>
+              <div style={{ flex: 1, minHeight: 60 }}>
+                {items.map(c => (<CandidateCard key={c.id} c={c} dragging={drag === c.id} onDragStart={() => setDrag(c.id)} onDragEnd={() => { setDrag(null); setOver(null); }} onClick={() => onOpenCandidate(c)} />))}
+                {!items.length && <div style={{ textAlign: "center", padding: "18px 0", fontSize: 11.5, color: "var(--ink-3)", border: "1.5px dashed var(--line-strong)", borderRadius: 9 }}>วางการ์ดที่นี่</div>}
+              </div>
+            </div>
+          );
+        })}
+        <div style={{ width: 200, flexShrink: 0, background: "var(--red-soft)", border: "1.5px solid #f0c9c7", borderRadius: 13, padding: 10 }}
+          onDragOver={e => { e.preventDefault(); setOver("rejected"); }} onDrop={() => move("rejected")}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "4px 6px 12px" }}><Icon name="x" size={14} style={{ color: "var(--red)" }} /><span style={{ fontSize: 12.5, fontWeight: 700, color: "var(--red)" }}>ไม่ผ่าน / ปฏิเสธ</span></div>
+          <div style={{ minHeight: 60 }}>
+            {cards.filter(c => c.stage === "rejected").map(c => (<CandidateCard key={c.id} c={c} dragging={drag === c.id} onDragStart={() => setDrag(c.id)} onDragEnd={() => setDrag(null)} onClick={() => onOpenCandidate(c)} />))}
+            {!cards.filter(c => c.stage === "rejected").length && <div style={{ textAlign: "center", padding: "18px 0", fontSize: 11.5, color: "#c98b87" }}>—</div>}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ============================================================
+   Module: Candidate Database + AI Matching
+   ============================================================ */
+const matchColor = (m) => m >= 85 ? "var(--green)" : m >= 75 ? "var(--accent)" : m >= 65 ? "var(--amber)" : "var(--red)";
+
+const CandidateDetail = ({ c, onClose }) => {
+  const [tab, setTab] = useState("profile");
+  if (!c) return null;
+  const jdSkills = ["Extrusion", "Lean", "ควบคุมกะ", "TPM", "ความปลอดภัย", "5ส"];
+  const have = c.skills;
+  const gap = jdSkills.filter(s => !have.includes(s));
+  return (
+    <Modal open={!!c} onClose={onClose} width={720} title={c.name} sub={`${c.id} · ${c.pos}`} icon="idcard">
+      <div style={{ display: "flex", gap: 18, marginBottom: 18, flexWrap: "wrap" }}>
+        <Avatar name={c.name} color={sourceColor(c.source)} size={68} />
+        <div style={{ flex: 1, minWidth: 200, display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(110px,1fr))", gap: 12 }}>
+          {[["ตำแหน่งที่สมัคร", c.pos], ["ประสบการณ์", c.exp + " ปี"], ["เงินเดือนคาดหวัง", c.salary.toLocaleString() + " ฿"], ["จังหวัด", c.prov], ["ช่องทาง", c.source], ["วุฒิการศึกษา", c.edu]].map(([k, v], i) => (
+            <div key={i}><div className="eyebrow">{k}</div><div style={{ fontSize: 13, fontWeight: 600, color: "var(--ink)", marginTop: 3 }}>{v}</div></div>
+          ))}
+        </div>
+        <div style={{ textAlign: "center", background: matchColor(c.match) + "12", borderRadius: 12, padding: "12px 16px", alignSelf: "flex-start" }}>
+          <Donut value={c.match} size={78} stroke={9} color={matchColor(c.match)} />
+          <div style={{ fontSize: 10.5, color: "var(--ink-3)", marginTop: 6, fontWeight: 600 }}>AI Match Score</div>
+        </div>
+      </div>
+      <Tabs tabs={[{ id: "profile", label: "โปรไฟล์", icon: "idcard" }, { id: "ai", label: "AI Matching", icon: "spark" }, { id: "docs", label: "เอกสาร", icon: "doc" }]} active={tab} onChange={setTab} style={{ marginBottom: 16 }} />
+      {tab === "profile" && <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        <div><div className="eyebrow" style={{ marginBottom: 8 }}>ทักษะ (Skills)</div><div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>{have.map(s => <SkillTag key={s} active>{s}</SkillTag>)}</div></div>
+        <div><div className="eyebrow" style={{ marginBottom: 8 }}>ประวัติการทำงาน</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {[["2565–ปัจจุบัน", "หัวหน้าทีมผลิต", "บจก. แพ็คเกจจิ้ง อินดัสทรี"], ["2562–2565", "ผู้ควบคุมเครื่องจักร", "บจก. พลาสติกไทย"]].map(([y, t, co], i) => (
+              <div key={i} style={{ display: "flex", gap: 12 }}>
+                <div className="mono" style={{ fontSize: 11.5, color: "var(--ink-3)", width: 110, flexShrink: 0, paddingTop: 2 }}>{y}</div>
+                <div style={{ borderLeft: "2px solid var(--line-strong)", paddingLeft: 12 }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: "var(--ink)" }}>{t}</div>
+                  <div style={{ fontSize: 12, color: "var(--ink-3)" }}>{co}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>}
+      {tab === "ai" && <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        <div style={{ background: "linear-gradient(120deg,var(--accent-soft),#f0f6ff)", border: "1px solid #cadcf6", borderRadius: 12, padding: 16, display: "flex", gap: 14, alignItems: "center" }}>
+          <Donut value={c.match} size={84} stroke={10} color={matchColor(c.match)} />
+          <div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: "var(--ink)", display: "flex", alignItems: "center", gap: 7 }}><Icon name="spark" size={17} style={{ color: "var(--accent)" }} />ผลวิเคราะห์ความเหมาะสมกับ JD</div>
+            <div style={{ fontSize: 12.5, color: "var(--ink-2)", marginTop: 5, maxWidth: 420 }}>ผู้สมัคร{c.match >= 85 ? "เหมาะสมสูง" : c.match >= 75 ? "เหมาะสมดี" : "เหมาะสมปานกลาง"}กับตำแหน่ง {c.pos} — ประสบการณ์ตรงสายงาน {c.exp} ปี</div>
+          </div>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+          <div className="card" style={{ padding: 15 }}>
+            <div style={{ fontSize: 12.5, fontWeight: 700, color: "var(--green)", display: "flex", alignItems: "center", gap: 7, marginBottom: 10 }}><Icon name="check" size={16} />จุดแข็ง (Strength)</div>
+            {["ประสบการณ์ตรงในอุตสาหกรรมการผลิต", "ทักษะการควบคุมกะและทีมงาน", "เงินเดือนคาดหวังอยู่ในงบที่ตั้งไว้"].map((t, i) => <div key={i} style={{ fontSize: 12.5, color: "var(--ink-2)", padding: "4px 0", display: "flex", gap: 7 }}><span style={{ color: "var(--green)" }}>•</span>{t}</div>)}
+          </div>
+          <div className="card" style={{ padding: 15 }}>
+            <div style={{ fontSize: 12.5, fontWeight: 700, color: "var(--amber)", display: "flex", alignItems: "center", gap: 7, marginBottom: 10 }}><Icon name="alert" size={16} />จุดที่ควรพิจารณา (Weakness)</div>
+            {["ยังไม่มีประสบการณ์ TPM โดยตรง", "ต้องประเมินทักษะภาษาอังกฤษเชิงเทคนิค"].map((t, i) => <div key={i} style={{ fontSize: 12.5, color: "var(--ink-2)", padding: "4px 0", display: "flex", gap: 7 }}><span style={{ color: "var(--amber)" }}>•</span>{t}</div>)}
+          </div>
+        </div>
+        <div><div className="eyebrow" style={{ marginBottom: 9 }}>Skill Gap เทียบ JD</div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
+            {have.map(s => <SkillTag key={s} active>✓ {s}</SkillTag>)}
+            {gap.map(s => <span key={s} style={{ fontSize: 11.5, fontWeight: 600, padding: "3px 9px", borderRadius: 6, background: "var(--red-soft)", color: "var(--red)", border: "1px solid #f0c9c7" }}>✕ {s}</span>)}
+          </div>
+        </div>
+      </div>}
+      {tab === "docs" && <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}><Placeholder label="Resume.pdf" height={160} icon="doc" /><Placeholder label="Portfolio.pdf" height={160} icon="doc" /></div>}
+      <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 20, borderTop: "1px solid var(--line)", paddingTop: 16 }}>
+        <Btn variant="ghost" icon="calendar">นัดสัมภาษณ์</Btn>
+        <Btn variant="accent" icon="chevron">เลื่อนสถานะถัดไป</Btn>
+      </div>
+    </Modal>
+  );
+};
+
+const CandidatesModule = ({ onOpenCandidate }) => {
+  const [q, setQ] = useState("");
+  const [dept, setDept] = useState("all");
+  const [view, setView] = useState("grid");
+  const list = BWP.candidates.filter(c => (dept === "all" || c.dept === dept) && (!q || c.name.includes(q) || c.pos.includes(q) || c.skills.some(s => s.includes(q))));
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      <div className="card" style={{ padding: 16, display: "flex", gap: 12, flexWrap: "wrap", alignItems: "center" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 9, background: "var(--surface-2)", border: "1px solid var(--line-strong)", borderRadius: 10, padding: "9px 13px", flex: "1 1 240px", color: "var(--ink-3)" }}>
+          <Icon name="search" size={17} />
+          <input value={q} onChange={e => setQ(e.target.value)} placeholder="ค้นหาด้วยชื่อ, ตำแหน่ง, Skill…" style={{ border: "none", background: "transparent", outline: "none", fontSize: 13.5, width: "100%", color: "var(--ink)" }} />
+        </div>
+        <Select value={dept} onChange={e => setDept(e.target.value)} options={[{ value: "all", label: "ทุกฝ่าย" }, ...BWP.departments.map(d => d.name)]} style={{ width: 160, flex: "0 0 auto" }} />
+        <Select options={["ทุกจังหวัด", "ระยอง", "ชลบุรี", "กรุงเทพฯ"]} style={{ width: 140, flex: "0 0 auto" }} />
+        <Select options={["ประสบการณ์ทั้งหมด", "0–2 ปี", "3–5 ปี", "6+ ปี"]} style={{ width: 170, flex: "0 0 auto" }} />
+        <Tabs tabs={[{ id: "grid", label: "", icon: "grid" }, { id: "list", label: "", icon: "bars" }]} active={view} onChange={setView} />
+      </div>
+      <div style={{ fontSize: 13, color: "var(--ink-3)" }}>พบ <b className="tnum" style={{ color: "var(--ink)" }}>{list.length}</b> ผู้สมัคร · เรียงตาม AI Match Score</div>
+      {view === "grid" ? (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(248px,1fr))", gap: 14 }}>
+          {[...list].sort((a, b) => b.match - a.match).map(c => (
+            <div key={c.id} className="card anim-up" onClick={() => onOpenCandidate(c)} style={{ padding: 16, cursor: "pointer", transition: "all .15s" }}
+              onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-3px)"; e.currentTarget.style.boxShadow = "var(--shadow)"; }}
+              onMouseLeave={e => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = "var(--shadow-sm)"; }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 11, marginBottom: 12 }}>
+                <Avatar name={c.name} color={sourceColor(c.source)} size={44} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: "var(--ink)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{c.name}</div>
+                  <div style={{ fontSize: 12, color: "var(--ink-3)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{c.pos}</div>
+                </div>
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 11 }}>
+                <Pill color={matchColor(c.match)} bg={matchColor(c.match) + "16"}><Icon name="spark" size={12} /> Match {c.match}%</Pill>
+                <span className="tnum" style={{ fontSize: 12.5, color: "var(--ink-2)", fontWeight: 600 }}>{c.salary.toLocaleString()} ฿</span>
+              </div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>{c.skills.slice(0, 3).map(s => <SkillTag key={s}>{s}</SkillTag>)}{c.skills.length > 3 && <SkillTag>+{c.skills.length - 3}</SkillTag>}</div>
+              <div style={{ marginTop: 11, paddingTop: 11, borderTop: "1px solid var(--line)", display: "flex", justifyContent: "space-between", fontSize: 11.5, color: "var(--ink-3)" }}>
+                <span style={{ display: "inline-flex", gap: 4, alignItems: "center" }}><Icon name="pin" size={12} />{c.prov}</span>
+                <span style={{ display: "inline-flex", gap: 4, alignItems: "center" }}><Icon name="clock" size={12} />{c.exp} ปี</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="card" style={{ overflow: "hidden" }}>
+          <div style={{ overflowX: "auto" }}>
+            <table className="dt">
+              <thead><tr><th>ผู้สมัคร</th><th>ตำแหน่ง</th><th>จังหวัด</th><th style={{ textAlign: "right" }}>เงินเดือน</th><th style={{ textAlign: "center" }}>ปสก.</th><th style={{ textAlign: "center" }}>Match</th><th></th></tr></thead>
+              <tbody>{[...list].sort((a, b) => b.match - a.match).map(c => (
+                <tr key={c.id} onClick={() => onOpenCandidate(c)} style={{ cursor: "pointer" }}>
+                  <td><div style={{ display: "flex", alignItems: "center", gap: 9 }}><Avatar name={c.name} color={sourceColor(c.source)} size={32} /><b style={{ color: "var(--ink)", fontWeight: 600 }}>{c.name}</b></div></td>
+                  <td>{c.pos}</td><td>{c.prov}</td>
+                  <td className="tnum" style={{ textAlign: "right" }}>{c.salary.toLocaleString()}</td>
+                  <td className="tnum" style={{ textAlign: "center" }}>{c.exp} ปี</td>
+                  <td style={{ textAlign: "center" }}><Pill color={matchColor(c.match)} bg={matchColor(c.match) + "16"}>{c.match}%</Pill></td>
+                  <td><Icon name="chevron" size={16} style={{ color: "var(--ink-3)" }} /></td>
+                </tr>))}</tbody>
+            </table>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+/* ============================================================
+   Module: Interview Management + Scoring
+   ============================================================ */
+const ScoreRow = ({ label, value, onChange }) => (
+  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: "11px 0", borderBottom: "1px solid var(--line)" }}>
+    <span style={{ fontSize: 13.5, color: "var(--ink-2)", flex: 1 }}>{label}</span>
+    <div style={{ display: "flex", gap: 6 }}>
+      {[1, 2, 3, 4, 5].map(n => (
+        <button key={n} onClick={() => onChange(n)} className="focusable" style={{ width: 34, height: 34, borderRadius: 8, fontSize: 13.5, fontWeight: 700, cursor: "pointer", transition: "all .12s", border: `1px solid ${value >= n ? "var(--accent)" : "var(--line-strong)"}`, background: value >= n ? "var(--accent)" : "var(--surface)", color: value >= n ? "#fff" : "var(--ink-3)" }}>{n}</button>
+      ))}
+    </div>
+  </div>
+);
+
+const InterviewForm = ({ iv, onClose, onSubmit }) => {
+  const [scores, setScores] = useState(() => Object.fromEntries(BWP.interviewCriteria.map(c => [c.id, 0])));
+  const [note, setNote] = useState("");
+  const [rec, setRec] = useState("");
+  const filled = Object.values(scores).filter(v => v > 0).length;
+  const avg = filled ? (Object.values(scores).reduce((a, b) => a + b, 0) / filled) : 0;
+  return (
+    <Modal open={!!iv} onClose={onClose} width={620} title={`ประเมินผลสัมภาษณ์ · ${iv?.cand}`} sub={iv ? `${iv.round} · ${iv.pos}` : ""} icon="star">
+      {iv && <>
+        <div style={{ display: "flex", gap: 12, marginBottom: 18, flexWrap: "wrap" }}>
+          <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+            {BWP.interviewCriteria.map(c => <ScoreRow key={c.id} label={c.th} value={scores[c.id]} onChange={v => setScores(s => ({ ...s, [c.id]: v }))} />)}
+          </div>
+          <div style={{ width: 150, flexShrink: 0, background: "var(--surface-2)", borderRadius: 12, padding: 16, display: "flex", flexDirection: "column", alignItems: "center", gap: 8, alignSelf: "flex-start" }}>
+            <div className="eyebrow">คะแนนเฉลี่ย</div>
+            <Donut value={avg / 5 * 100} size={92} color={avg >= 4 ? "var(--green)" : avg >= 3 ? "var(--accent)" : avg > 0 ? "var(--amber)" : "#e8edf3"} label={avg ? avg.toFixed(1) : "–"} sub="/ 5.0" />
+            <div style={{ fontSize: 11, color: "var(--ink-3)", textAlign: "center" }}>ประเมินแล้ว {filled}/6 หัวข้อ</div>
+          </div>
+        </div>
+        <Field label="ความเห็นเพิ่มเติม"><textarea rows={2} value={note} onChange={e => setNote(e.target.value)} style={{ ...inputStyle, resize: "vertical" }} placeholder="จุดเด่น จุดที่ควรพัฒนา ความเหมาะสมกับวัฒนธรรมองค์กร…" /></Field>
+        <div style={{ marginTop: 14 }}>
+          <div style={{ fontSize: 12.5, fontWeight: 600, color: "var(--ink-2)", marginBottom: 8 }}>ข้อเสนอแนะ</div>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            {[["pass", "ผ่าน — ไปขั้นถัดไป", "var(--green)"], ["hold", "พิจารณาเพิ่มเติม", "var(--amber)"], ["reject", "ไม่ผ่าน", "var(--red)"]].map(([k, l, col]) => (
+              <button key={k} onClick={() => setRec(k)} style={{ padding: "8px 14px", borderRadius: 9, fontSize: 13, fontWeight: 600, cursor: "pointer", border: `1.5px solid ${rec === k ? col : "var(--line-strong)"}`, background: rec === k ? col + "14" : "var(--surface)", color: rec === k ? col : "var(--ink-2)" }}>{l}</button>
+            ))}
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 20 }}>
+          <Btn variant="ghost" onClick={onClose}>ยกเลิก</Btn>
+          <Btn variant="accent" icon="check" onClick={() => onSubmit(`บันทึกผลสัมภาษณ์ ${iv.cand} (เฉลี่ย ${avg.toFixed(1)}/5) แล้ว`)}>บันทึกผลประเมิน</Btn>
+        </div>
+      </>}
+    </Modal>
+  );
+};
+
+const InterviewModule = ({ pushToast }) => {
+  const [evalIv, setEvalIv] = useState(null);
+  const scheduled = BWP.interviews.filter(i => i.status === "scheduled");
+  const done = BWP.interviews.filter(i => i.status === "done");
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(170px,1fr))", gap: 14 }}>
+        <StatCard label="นัดสัมภาษณ์สัปดาห์นี้" value={BWP.interviews.length} unit="นัด" icon="calendar" accent="var(--accent)" />
+        <StatCard label="รอสัมภาษณ์" value={scheduled.length} unit="นัด" icon="clock" accent="var(--amber)" />
+        <StatCard label="ประเมินแล้ว" value={done.length} unit="นัด" icon="check" accent="var(--green)" />
+        <StatCard label="คะแนนเฉลี่ยรวม" value="3.95" unit="/ 5" icon="star" accent="var(--teal)" />
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1.3fr 1fr", gap: 16 }} className="dash-grid">
+        <Panel title="ตารางสัมภาษณ์" sub="รออัปเดตผลประเมิน" icon="calendar" right={<Btn variant="accent" size="sm" icon="plus">สร้างนัด</Btn>}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {BWP.interviews.map(iv => (
+              <div key={iv.id} style={{ display: "flex", alignItems: "center", gap: 13, padding: "12px 13px", borderRadius: 11, border: "1px solid var(--line)", background: "var(--surface-2)" }}>
+                <div style={{ textAlign: "center", flexShrink: 0, width: 52 }}>
+                  <div className="tnum" style={{ fontSize: 15, fontWeight: 700, color: "var(--ink)" }}>{iv.time}</div>
+                  <div style={{ fontSize: 10.5, color: "var(--ink-3)" }}>{iv.date.split(" ").slice(0, 2).join(" ")}</div>
+                </div>
+                <div style={{ width: 1, alignSelf: "stretch", background: "var(--line)" }} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 13.5, fontWeight: 700, color: "var(--ink)" }}>{iv.cand}</div>
+                  <div style={{ fontSize: 11.5, color: "var(--ink-3)" }}>{iv.round} · {iv.pos}</div>
+                  <div style={{ display: "flex", gap: 8, marginTop: 5, alignItems: "center", flexWrap: "wrap" }}>
+                    <Pill color={iv.type === "online" ? "var(--violet)" : "var(--accent)"} bg={iv.type === "online" ? "var(--violet-soft)" : "var(--accent-soft)"}><Icon name={iv.type === "online" ? "video" : "pin"} size={12} />{iv.type === "online" ? "Online" : "Onsite"}</Pill>
+                    <span style={{ fontSize: 11, color: "var(--ink-3)" }}>กรรมการ: {iv.panel.join(", ")}</span>
+                  </div>
+                </div>
+                {iv.status === "done" ? <Pill color="var(--green)" bg="var(--green-soft)"><Icon name="star" size={12} />{iv.score}/5</Pill> : <Btn variant="soft" size="sm" icon="star" onClick={() => setEvalIv(iv)}>ประเมิน</Btn>}
+              </div>
+            ))}
+          </div>
+        </Panel>
+        <Panel title="แบบประเมินมาตรฐาน" sub="6 หัวข้อ · คะแนน 1–5" icon="checklist">
+          <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
+            {BWP.interviewCriteria.map((c, i) => (
+              <div key={c.id} style={{ display: "flex", alignItems: "center", gap: 11, padding: "9px 12px", borderRadius: 9, background: "var(--surface-2)" }}>
+                <span style={{ width: 24, height: 24, borderRadius: 7, background: "var(--accent-soft)", color: "var(--accent)", display: "grid", placeItems: "center", fontSize: 12, fontWeight: 700, flexShrink: 0 }}>{i + 1}</span>
+                <span style={{ fontSize: 13, color: "var(--ink-2)" }}>{c.th}</span>
+              </div>
+            ))}
+          </div>
+          <div style={{ marginTop: 14, padding: 13, borderRadius: 10, background: "var(--accent-soft)", border: "1px solid #cadcf6", fontSize: 12, color: "var(--accent-700)", display: "flex", gap: 9 }}>
+            <Icon name="spark" size={16} style={{ flexShrink: 0, marginTop: 1 }} />
+            <span>ระบบสรุปคะแนนเฉลี่ยอัตโนมัติ และ <b>AI Interview Summary</b> สรุปจุดเด่น/จุดด้อยจากความเห็นกรรมการทุกท่าน</span>
+          </div>
+        </Panel>
+      </div>
+      <InterviewForm iv={evalIv} onClose={() => setEvalIv(null)} onSubmit={(m) => { setEvalIv(null); pushToast(m); }} />
+    </div>
+  );
+};
+
+/* ============================================================
+   Modules: Offer Management + Onboarding
+   ============================================================ */
+const ApprovalFlowOffer = ({ status }) => {
+  const steps = [["HR จัดทำ", "doc"], ["กรรมการผู้จัดการ", "award"], ["ส่งผู้สมัคร", "mail"], ["ตอบรับ", "check"]];
+  const map = { draft: 0, pending_dir: 1, sent: 2, accepted: 3 };
+  const cur = map[status] ?? 0;
+  return (
+    <div style={{ display: "flex", alignItems: "center" }}>
+      {steps.map(([l, ic], i) => {
+        const done = i <= cur, active = i === cur;
+        const c = done ? "var(--green)" : "var(--ink-3)";
+        return <React.Fragment key={i}>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5, minWidth: 80 }}>
+            <div style={{ width: 38, height: 38, borderRadius: 11, background: done ? "var(--green-soft)" : "var(--surface)", color: c, display: "grid", placeItems: "center", border: active ? "1.5px solid var(--green)" : "1px solid var(--line)" }}><Icon name={done && i < cur ? "check" : ic} size={18} /></div>
+            <span style={{ fontSize: 11.5, color: done ? "var(--ink)" : "var(--ink-3)", fontWeight: active ? 700 : 500, textAlign: "center" }}>{l}</span>
+          </div>
+          {i < steps.length - 1 && <div style={{ flex: 1, height: 2, background: i < cur ? "var(--green)" : "var(--line-strong)", marginTop: -20 }} />}
+        </React.Fragment>;
+      })}
+    </div>
+  );
+};
+
+const OfferModule = ({ role, pushToast }) => {
+  const [sel, setSel] = useState(null);
+  const canApprove = ["md", "super_admin"].includes(role);
+  const total = (o) => o.base + o.position_allow + o.travel + o.attend;
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(170px,1fr))", gap: 14 }}>
+        <StatCard label="Offer ที่ส่งแล้ว" value={BWP.offers.length} unit="ฉบับ" icon="handshake" accent="var(--accent)" />
+        <StatCard label="รออนุมัติ (MD)" value={BWP.offers.filter(o => o.status === "pending_dir").length} unit="ฉบับ" icon="clock" accent="var(--violet)" />
+        <StatCard label="ตอบรับแล้ว" value={BWP.offers.filter(o => o.status === "accepted").length} unit="ฉบับ" icon="check" accent="var(--green)" />
+        <StatCard label="Offer Acceptance" value="86" unit="%" icon="target" accent="var(--teal)" trend={3} />
+      </div>
+      <Panel title="รายการ Offer" icon="handshake" right={<Btn variant="accent" size="sm" icon="plus">สร้าง Offer</Btn>}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 11 }}>
+          {BWP.offers.map(o => { const st = BWP.offerStatus[o.status]; return (
+            <div key={o.id} onClick={() => setSel(o)} style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 15px", borderRadius: 12, border: "1px solid var(--line)", cursor: "pointer", transition: "all .14s" }}
+              onMouseEnter={e => e.currentTarget.style.borderColor = "var(--accent)"} onMouseLeave={e => e.currentTarget.style.borderColor = "var(--line)"}>
+              <Avatar name={o.cand} color="var(--navy-700)" size={42} />
+              <div style={{ flex: 1, minWidth: 0 }}><div style={{ fontSize: 14, fontWeight: 700, color: "var(--ink)" }}>{o.cand}</div><div className="mono" style={{ fontSize: 11.5, color: "var(--ink-3)" }}>{o.id} · {o.pos}</div></div>
+              <div style={{ textAlign: "right" }}><div className="tnum" style={{ fontSize: 15, fontWeight: 700, color: "var(--ink)" }}>{total(o).toLocaleString()} ฿</div><div style={{ fontSize: 11, color: "var(--ink-3)" }}>รวมต่อเดือน</div></div>
+              <Pill color={st.color} bg={st.bg} dot>{st.th}</Pill>
+            </div>); })}
+        </div>
+      </Panel>
+      <Modal open={!!sel} onClose={() => setSel(null)} width={620} title={`Offer · ${sel?.cand}`} sub={sel ? `${sel.id} · ${sel.pos}` : ""} icon="handshake">
+        {sel && <>
+          <div style={{ background: "var(--surface-2)", borderRadius: 12, padding: "18px 20px", marginBottom: 16 }}>
+            <div className="eyebrow" style={{ marginBottom: 14 }}>โครงสร้างค่าตอบแทน (Compensation)</div>
+            {[["เงินเดือนพื้นฐาน", sel.base], ["ค่าตำแหน่ง", sel.position_allow], ["ค่าเดินทาง", sel.travel], ["เบี้ยขยัน", sel.attend]].map(([k, v], i) => v > 0 && (
+              <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "7px 0", fontSize: 13.5, color: "var(--ink-2)", borderBottom: "1px solid var(--line)" }}><span>{k}</span><span className="tnum" style={{ fontWeight: 600, color: "var(--ink)" }}>{v.toLocaleString()} ฿</span></div>
+            ))}
+            <div style={{ display: "flex", justifyContent: "space-between", padding: "12px 0 2px", fontSize: 15, fontWeight: 700, color: "var(--ink)" }}><span>รวมต่อเดือน</span><span className="tnum" style={{ color: "var(--accent)" }}>{total(sel).toLocaleString()} ฿</span></div>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginBottom: 16 }}>
+            {[["โบนัส", sel.bonus], ["กองทุนสำรองเลี้ยงชีพ", sel.pf], ["วันที่สร้าง", sel.date]].map(([k, v], i) => (
+              <div key={i} style={{ background: "var(--surface-2)", borderRadius: 10, padding: "11px 13px" }}><div className="eyebrow">{k}</div><div style={{ fontSize: 13.5, fontWeight: 700, color: "var(--ink)", marginTop: 3 }}>{v}</div></div>
+            ))}
+          </div>
+          <div style={{ background: "var(--surface-2)", borderRadius: 12, padding: 16 }}>
+            <div className="eyebrow" style={{ marginBottom: 12 }}>ขั้นตอนอนุมัติ Offer</div>
+            <ApprovalFlowOffer status={sel.status} />
+          </div>
+          {sel.status === "pending_dir" && canApprove ? (
+            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 18 }}>
+              <Btn variant="danger" icon="x" onClick={() => { setSel(null); pushToast("ตีกลับ Offer " + sel.id); }}>ตีกลับ</Btn>
+              <Btn variant="accent" icon="check" onClick={() => { setSel(null); pushToast("อนุมัติ Offer " + sel.id + " — ส่งให้ผู้สมัครทาง Email"); }}>อนุมัติ & ส่งให้ผู้สมัคร</Btn>
+            </div>
+          ) : <div style={{ marginTop: 16, fontSize: 12.5, color: "var(--ink-3)", display: "flex", gap: 8, alignItems: "center" }}><Icon name="eye" size={15} />{canApprove ? "ไม่อยู่ในขั้นที่ต้องอนุมัติ" : "เฉพาะกรรมการผู้จัดการอนุมัติได้ (RBAC)"}</div>}
+        </>}
+      </Modal>
+    </div>
+  );
+};
+
+const OnboardingModule = ({ pushToast }) => {
+  const [active, setActive] = useState(0);
+  const [tasks, setTasks] = useState(() => BWP.onboardTasks.map(t => ({ ...t })));
+  const toggle = (id) => setTasks(ts => ts.map(t => t.id === id ? { ...t, done: !t.done } : t));
+  const done = tasks.filter(t => t.done).length;
+  const pct = Math.round((done / tasks.length) * 100);
+  const groups = [...new Set(tasks.map(t => t.group))];
+  const person = BWP.onboarding[active];
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "300px 1fr", gap: 16 }} className="dash-grid">
+      <div className="card" style={{ padding: 14, height: "fit-content" }}>
+        <div className="eyebrow" style={{ padding: "4px 6px 10px" }}>พนักงานใหม่ที่กำลัง Onboard</div>
+        {BWP.onboarding.map((p, i) => { const ppct = Math.round((p.done / p.total) * 100); return (
+          <button key={i} onClick={() => setActive(i)} className="focusable" style={{ width: "100%", display: "flex", alignItems: "center", gap: 11, padding: 11, borderRadius: 11, border: "none", marginBottom: 4, cursor: "pointer", textAlign: "left", background: active === i ? "var(--accent-soft)" : "transparent", transition: "all .14s" }}>
+            <Avatar name={p.name} color={active === i ? "var(--accent)" : "var(--navy-700)"} size={40} />
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "var(--ink)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.name}</div>
+              <div style={{ fontSize: 11, color: "var(--ink-3)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", marginBottom: 5 }}>{p.pos}</div>
+              <Bar value={ppct} color={ppct === 100 ? "var(--green)" : "var(--accent)"} height={5} />
+            </div>
+            <span className="tnum" style={{ fontSize: 12, fontWeight: 700, color: ppct === 100 ? "var(--green)" : "var(--ink-2)" }}>{ppct}%</span>
+          </button>); })}
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        <div className="card" style={{ padding: 20, display: "flex", alignItems: "center", gap: 18, flexWrap: "wrap" }}>
+          <Avatar name={person.name} color="var(--navy-700)" size={56} />
+          <div style={{ flex: 1, minWidth: 180 }}>
+            <div style={{ fontSize: 17, fontWeight: 700, color: "var(--ink)" }}>{person.name}</div>
+            <div style={{ fontSize: 13, color: "var(--ink-3)" }}>{person.pos} · เริ่มงาน {person.start}</div>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+            <Donut value={active === 0 ? pct : Math.round((person.done / person.total) * 100)} size={72} color="var(--accent)" />
+            <div>
+              <div style={{ fontSize: 12, color: "var(--ink-3)" }}>ความคืบหน้า</div>
+              <div className="tnum" style={{ fontSize: 15, fontWeight: 700, color: "var(--ink)" }}>{active === 0 ? done : person.done}/{tasks.length} งาน</div>
+              <Pill color="var(--teal)" bg="var(--teal-soft)" style={{ marginTop: 5 }}>ส่งต่อระบบประเมินทดลองงาน</Pill>
+            </div>
+          </div>
+        </div>
+        <Panel title="เช็กลิสต์ Onboarding" sub="ก่อนเริ่มงาน — คลิกเพื่อทำเครื่องหมาย" icon="checklist">
+          {groups.map(g => (
+            <div key={g} style={{ marginBottom: 16 }}>
+              <div style={{ fontSize: 11.5, fontWeight: 700, color: "var(--ink-3)", textTransform: "uppercase", letterSpacing: ".05em", marginBottom: 8 }}>{g}</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+                {tasks.filter(t => t.group === g).map(t => (
+                  <button key={t.id} onClick={() => active === 0 && toggle(t.id)} className="focusable" style={{ display: "flex", alignItems: "center", gap: 12, padding: "11px 13px", borderRadius: 10, border: `1px solid ${t.done ? "#bfe6cf" : "var(--line)"}`, background: t.done ? "var(--green-soft)" : "var(--surface)", cursor: active === 0 ? "pointer" : "default", textAlign: "left", width: "100%", transition: "all .14s" }}>
+                    <span style={{ width: 24, height: 24, borderRadius: 7, flexShrink: 0, display: "grid", placeItems: "center", background: t.done ? "var(--green)" : "var(--surface-2)", color: "#fff", border: t.done ? "none" : "1.5px solid var(--line-strong)" }}>{t.done && <Icon name="check" size={15} />}</span>
+                    <span style={{ fontSize: 13.5, color: t.done ? "var(--ink-2)" : "var(--ink)", textDecoration: t.done ? "line-through" : "none", flex: 1 }}>{t.th}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
+          {active === 0 && pct === 100 && <div style={{ padding: 14, borderRadius: 10, background: "var(--green-soft)", color: "var(--green)", fontWeight: 600, fontSize: 13, display: "flex", gap: 8, alignItems: "center" }}><Icon name="check" size={17} />Onboarding ครบถ้วน! พร้อมส่งข้อมูลเข้าระบบประเมินทดลองงาน</div>}
+        </Panel>
+      </div>
+    </div>
+  );
+};
+
+/* ============================================================
+   Modules: JD, Reports, Notifications, AI, Settings
+   ============================================================ */
+const jdStatus = { approved: ["อนุมัติ", "var(--green)", "var(--green-soft)"], review: ["รอตรวจ", "var(--amber)", "var(--amber-soft)"], draft: ["ร่าง", "var(--ink-3)", "#eef1f5"] };
+const JDModule = () => {
+  const [sel, setSel] = useState(null);
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+        <div style={{ fontSize: 13, color: "var(--ink-3)" }}>คลัง JD กลาง <b className="tnum" style={{ color: "var(--ink)" }}>{BWP.jds.length}</b> ตำแหน่ง · รองรับ Version Control & Compare</div>
+        <div style={{ display: "flex", gap: 8 }}><Btn variant="ghost" size="sm" icon="download">อัปโหลด PDF</Btn><Btn variant="accent" size="sm" icon="plus">สร้าง JD</Btn></div>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(280px,1fr))", gap: 14 }}>
+        {BWP.jds.map(jd => { const [l, c, bg] = jdStatus[jd.status]; return (
+          <div key={jd.code} className="card anim-up" onClick={() => setSel(jd)} style={{ padding: 16, cursor: "pointer", transition: "all .15s" }}
+            onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-3px)"; e.currentTarget.style.boxShadow = "var(--shadow)"; }} onMouseLeave={e => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = "var(--shadow-sm)"; }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
+              <div style={{ width: 40, height: 40, borderRadius: 10, background: "var(--accent-soft)", color: "var(--accent)", display: "grid", placeItems: "center" }}><Icon name="doc" size={21} /></div>
+              <Pill color={c} bg={bg}>{l}</Pill>
+            </div>
+            <div style={{ fontSize: 14.5, fontWeight: 700, color: "var(--ink)" }}>{jd.title}</div>
+            <div className="mono" style={{ fontSize: 11, color: "var(--ink-3)", marginTop: 2 }}>{jd.code} · {jd.rev}</div>
+            <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid var(--line)", display: "flex", justifyContent: "space-between", fontSize: 12, color: "var(--ink-3)" }}><span>{jd.dept}</span><span>แก้ไข {jd.date}</span></div>
+          </div>); })}
+      </div>
+      <Modal open={!!sel} onClose={() => setSel(null)} width={680} title={sel?.title} sub={sel ? `${sel.code} · ${sel.rev}` : ""} icon="doc">
+        {sel && <>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 18 }}>
+            {[["แผนก", sel.dept], ["รายงานต่อ", sel.reports], ["เวอร์ชันล่าสุด", sel.rev], ["แก้ไขล่าสุด", sel.date]].map(([k, v], i) => <div key={i}><div className="eyebrow">{k}</div><div style={{ fontSize: 13.5, fontWeight: 600, color: "var(--ink)", marginTop: 3 }}>{v}</div></div>)}
+          </div>
+          {[["หน้าที่ความรับผิดชอบ (Responsibility)", ["ควบคุมกระบวนการผลิตฟิล์มหด PE ให้ได้คุณภาพตามมาตรฐาน", "บริหารกำลังคนและมอบหมายงานภายในกะ", "ตรวจสอบและบันทึกค่าพารามิเตอร์เครื่องจักร"]], ["คุณสมบัติ (Qualification)", ["วุฒิ ปวส.–ปริญญาตรี สาขาที่เกี่ยวข้อง", "ประสบการณ์ในสายการผลิต 3 ปีขึ้นไป", "ผ่านการอบรมความปลอดภัยในการทำงาน"]], ["KPI", ["ผลผลิต (Yield) ≥ 95%", "อัตราของเสีย ≤ 2%", "อุบัติเหตุเป็นศูนย์"]]].map(([title, items], i) => (
+            <div key={i} style={{ marginBottom: 16 }}>
+              <div className="eyebrow" style={{ marginBottom: 8 }}>{title}</div>
+              {items.map((t, j) => <div key={j} style={{ fontSize: 13, color: "var(--ink-2)", padding: "4px 0", display: "flex", gap: 8 }}><span style={{ color: "var(--accent)" }}>•</span>{t}</div>)}
+            </div>
+          ))}
+          <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", borderTop: "1px solid var(--line)", paddingTop: 16 }}>
+            <Btn variant="ghost" icon="layers">เทียบเวอร์ชัน</Btn><Btn variant="ghost" icon="download">ดาวน์โหลด PDF</Btn>
+          </div>
+        </>}
+      </Modal>
+    </div>
+  );
+};
+
+const ReportsModule = ({ pushToast }) => {
+  const reports = [["Open Position Report", "ตำแหน่งที่เปิดรับและสถานะ", "flow", "var(--accent)"],["Candidate Status Report", "สถานะผู้สมัครทั้งหมดใน Pipeline", "idcard", "var(--teal)"],["Interview Result Report", "สรุปผลการสัมภาษณ์", "star", "var(--amber)"],["Hiring Report", "การจ้างงานแยกตามฝ่าย/ช่วงเวลา", "check", "var(--green)"],["Turnover Report", "อัตราการลาออก", "trend", "var(--red)"],["Probation Report", "ผลประเมินช่วงทดลองงาน", "award", "var(--violet)"]];
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      <div style={{ background: "var(--accent-soft)", border: "1px solid #cadcf6", borderRadius: 12, padding: "14px 18px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+        <div style={{ fontSize: 13.5, color: "var(--accent-700)", display: "flex", gap: 9, alignItems: "center" }}><Icon name="report" size={18} />เลือกรายงานเพื่อส่งออกเป็น Excel หรือ PDF · กำหนดช่วงเวลาและตัวกรองได้</div>
+        <Select options={["ช่วงเวลา: ไตรมาสนี้", "เดือนนี้", "ปีนี้", "กำหนดเอง"]} style={{ width: 180 }} />
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(300px,1fr))", gap: 14 }}>
+        {reports.map(([t, d, ic, col], i) => (
+          <div key={i} className="card" style={{ padding: 18, display: "flex", flexDirection: "column", gap: 14 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <div style={{ width: 44, height: 44, borderRadius: 11, background: col + "16", color: col, display: "grid", placeItems: "center" }}><Icon name={ic} size={22} /></div>
+              <div><div style={{ fontSize: 14.5, fontWeight: 700, color: "var(--ink)" }}>{t}</div><div style={{ fontSize: 12, color: "var(--ink-3)", marginTop: 1 }}>{d}</div></div>
+            </div>
+            <div style={{ display: "flex", gap: 8 }}>
+              <Btn variant="soft" size="sm" icon="download" style={{ flex: 1 }} onClick={() => pushToast("กำลังส่งออก " + t + " (Excel)")}>Excel</Btn>
+              <Btn variant="soft" size="sm" icon="download" style={{ flex: 1 }} onClick={() => pushToast("กำลังส่งออก " + t + " (PDF)")}>PDF</Btn>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const notifColor = { approve: ["var(--green)", "var(--green-soft)"], interview: ["var(--accent)", "var(--accent-soft)"], offer: ["var(--teal)", "var(--teal-soft)"], result: ["var(--amber)", "var(--amber-soft)"], warn: ["var(--red)", "var(--red-soft)"] };
+const NotificationsModule = () => (
+  <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 16 }} className="dash-grid">
+    <Panel title="การแจ้งเตือนล่าสุด" icon="bell" right={<Btn variant="subtle" size="sm">ทำเครื่องหมายว่าอ่านแล้ว</Btn>}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+        {BWP.notifications.map(n => { const [c, bg] = notifColor[n.type]; return (
+          <div key={n.id} style={{ display: "flex", gap: 13, padding: "13px 11px", borderRadius: 11, background: n.read ? "transparent" : "var(--surface-2)", border: n.read ? "1px solid transparent" : "1px solid var(--line)" }}>
+            <div style={{ width: 40, height: 40, borderRadius: 10, background: bg, color: c, display: "grid", placeItems: "center", flexShrink: 0 }}><Icon name={n.icon} size={19} /></div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 13.5, fontWeight: n.read ? 500 : 600, color: "var(--ink)" }}>{n.th}</div>
+              <div style={{ fontSize: 11.5, color: "var(--ink-3)", marginTop: 3, display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+                <span>{n.who} · {n.time}</span>
+                {n.ch.map(ch => <span key={ch} style={{ display: "inline-flex", alignItems: "center", gap: 3, color: ch === "line" ? "var(--green)" : "var(--accent)" }}><Icon name={ch === "line" ? "line" : "mail"} size={13} />{ch === "line" ? "LINE" : "Email"}</span>)}
+              </div>
+            </div>
+            {!n.read && <span style={{ width: 8, height: 8, borderRadius: 99, background: "var(--accent)", flexShrink: 0, marginTop: 6 }} />}
+          </div>); })}
+      </div>
+    </Panel>
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      <Panel title="ช่องทางแจ้งเตือน" icon="settings">
+        {[["LINE Notify", "line", "var(--green)", true], ["LINE OA API", "line", "var(--green)", true], ["Email (SMTP)", "mail", "var(--accent)", true]].map(([t, ic, col, on], i) => (
+          <div key={i} style={{ display: "flex", alignItems: "center", gap: 11, padding: "10px 0", borderBottom: i < 2 ? "1px solid var(--line)" : "none" }}>
+            <div style={{ width: 34, height: 34, borderRadius: 9, background: col + "16", color: col, display: "grid", placeItems: "center" }}><Icon name={ic} size={17} /></div>
+            <span style={{ flex: 1, fontSize: 13, fontWeight: 600, color: "var(--ink)" }}>{t}</span>
+            <span style={{ width: 38, height: 22, borderRadius: 99, background: on ? "var(--green)" : "var(--line-strong)", position: "relative", transition: "all .2s" }}><span style={{ position: "absolute", top: 2, left: on ? 18 : 2, width: 18, height: 18, borderRadius: 99, background: "#fff", transition: "all .2s" }} /></span>
+          </div>
+        ))}
+      </Panel>
+      <Panel title="เหตุการณ์ที่แจ้งเตือน" icon="bell">
+        {["อนุมัติเปิดอัตรา", "นัดสัมภาษณ์", "แจ้งผลสัมภาษณ์", "ส่ง Offer", "เตือนเอกสารขาด"].map((t, i) => (
+          <div key={i} style={{ display: "flex", alignItems: "center", gap: 9, padding: "8px 0", fontSize: 13, color: "var(--ink-2)" }}><Icon name="check" size={15} style={{ color: "var(--green)" }} />{t}</div>
+        ))}
+      </Panel>
+    </div>
+  </div>
+);
+
+const aiTone = { amber: ["var(--amber)", "var(--amber-soft)"], red: ["var(--red)", "var(--red-soft)"], violet: ["var(--violet)", "var(--violet-soft)"], green: ["var(--green)", "var(--green-soft)"] };
+const AIModule = () => (
+  <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+    <div style={{ background: "linear-gradient(120deg, var(--navy-800), var(--navy-600))", borderRadius: 16, padding: "22px 26px", color: "#fff", display: "flex", gap: 16, alignItems: "center", flexWrap: "wrap" }}>
+      <div style={{ width: 52, height: 52, borderRadius: 14, background: "rgba(255,255,255,.12)", display: "grid", placeItems: "center", flexShrink: 0 }}><Icon name="spark" size={28} /></div>
+      <div style={{ flex: 1, minWidth: 220 }}>
+        <div style={{ fontSize: 20, fontWeight: 700 }}>AI Recruitment Analytics</div>
+        <div style={{ fontSize: 13, color: "#bcd0ee", marginTop: 4 }}>วิเคราะห์การสรรหาเชิงลึก · Resume Screening · Interview Summary · Matching</div>
+      </div>
+    </div>
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(160px,1fr))", gap: 14 }}>
+      <StatCard label="Resume คัดกรองอัตโนมัติ" value="312" unit="ใบ" icon="search" accent="var(--accent)" sub="เดือนนี้" />
+      <StatCard label="Avg Matching Score" value="78" unit="%" icon="spark" accent="var(--teal)" trend={4} />
+      <StatCard label="ประหยัดเวลาคัดกรอง" value="64" unit="%" icon="clock" accent="var(--green)" />
+      <StatCard label="Interview Summary สร้าง" value="48" unit="ฉบับ" icon="star" accent="var(--violet)" />
+    </div>
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }} className="dash-grid">
+      {BWP.aiInsights.map((ai, i) => { const [c, bg] = aiTone[ai.tone]; return (
+        <div key={i} className="card" style={{ padding: 18, borderLeft: `3px solid ${c}` }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+            <div style={{ width: 36, height: 36, borderRadius: 9, background: bg, color: c, display: "grid", placeItems: "center" }}><Icon name={ai.icon} size={18} /></div>
+            <div style={{ fontSize: 14.5, fontWeight: 700, color: "var(--ink)" }}>{ai.title}</div>
+          </div>
+          <div style={{ fontSize: 13, color: "var(--ink-2)", lineHeight: 1.6 }}>{ai.body}</div>
+        </div>); })}
+    </div>
+  </div>
+);
+
+const SettingsModule = () => {
+  const cols = [["super_admin", "Super Admin"], ["hr_manager", "HR Mgr"], ["hr_officer", "HR Officer"], ["dept_manager", "Dept Mgr"], ["interviewer", "Interviewer"], ["md", "MD"]];
+  const cellColor = { F: ["var(--green)", "var(--green-soft)"], A: ["var(--violet)", "var(--violet-soft)"], E: ["var(--accent)", "var(--accent-soft)"], C: ["var(--teal)", "var(--teal-soft)"], V: ["var(--ink-3)", "#eef1f5"], "–": ["#c4cdd9", "transparent"] };
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      <Panel title="Permission Matrix (RBAC)" sub="สิทธิ์การเข้าถึงแต่ละโมดูลตามบทบาท" icon="settings">
+        <div style={{ overflowX: "auto" }}>
+          <table className="dt" style={{ minWidth: 720 }}>
+            <thead><tr><th>โมดูล</th>{cols.map(([k, l]) => <th key={k} style={{ textAlign: "center" }}>{l}</th>)}</tr></thead>
+            <tbody>{BWP.permMatrix.map((row, i) => (
+              <tr key={i}>
+                <td style={{ fontWeight: 600, color: "var(--ink)" }}>{row.module}</td>
+                {cols.map(([k]) => { const v = row[k]; const [c, bg] = cellColor[v]; return <td key={k} style={{ textAlign: "center" }}><span style={{ display: "inline-grid", placeItems: "center", width: 26, height: 26, borderRadius: 7, background: bg, color: c, fontSize: 12, fontWeight: 700 }}>{v}</span></td>; })}
+              </tr>))}</tbody>
+          </table>
+        </div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 14, marginTop: 16, paddingTop: 14, borderTop: "1px solid var(--line)" }}>
+          {Object.entries(BWP.permLegend).map(([k, v]) => { const [c, bg] = cellColor[k]; return <span key={k} style={{ display: "inline-flex", alignItems: "center", gap: 7, fontSize: 12, color: "var(--ink-2)" }}><span style={{ display: "inline-grid", placeItems: "center", width: 22, height: 22, borderRadius: 6, background: bg, color: c, fontSize: 11, fontWeight: 700 }}>{k}</span>{v}</span>; })}
+        </div>
+      </Panel>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(200px,1fr))", gap: 14 }}>
+        {BWP.roles.map(r => (
+          <div key={r.id} className="card" style={{ padding: 16, display: "flex", alignItems: "center", gap: 12 }}>
+            <Avatar initials={r.initials} color={r.color} size={42} />
+            <div><div style={{ fontSize: 13.5, fontWeight: 700, color: "var(--ink)" }}>{r.name}</div><div style={{ fontSize: 12, color: "var(--ink-3)" }}>{r.th}</div></div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+/* ============================================================
+   Main App — routing + state
+   ============================================================ */
+const DeviceToggle = ({ device, setDevice }) => (
+  <div style={{ display: "inline-flex", background: "var(--surface-2)", border: "1px solid var(--line)", borderRadius: 9, padding: 3, gap: 2 }}>
+    {[["desktop", "grid"], ["mobile", "idcard"]].map(([d, ic]) => (
+      <button key={d} onClick={() => setDevice(d)} className="focusable" title={d === "desktop" ? "เดสก์ท็อป" : "มือถือ"} style={{
+        width: 34, height: 30, borderRadius: 7, border: "none", display: "grid", placeItems: "center", cursor: "pointer", transition: "all .15s",
+        background: device === d ? "var(--surface)" : "transparent", color: device === d ? "var(--navy-800)" : "var(--ink-3)",
+        boxShadow: device === d ? "var(--shadow-xs)" : "none",
+      }}><Icon name={d === "desktop" ? "grid" : "idcard"} size={16} /></button>
+    ))}
+  </div>
+);
+
+const ModuleRenderer = ({ active, role, goto, openCandidate, pushToast }) => {
+  switch (active) {
+    case "dashboard": return <DashboardModule goto={goto} />;
+    case "exec": return <ExecModule />;
+    case "manpower": return <ManpowerModule />;
+    case "requisition": return <RequisitionModule role={role} />;
+    case "jd": return <JDModule />;
+    case "pipeline": return <PipelineModule onOpenCandidate={openCandidate} />;
+    case "candidates": return <CandidatesModule onOpenCandidate={openCandidate} />;
+    case "interview": return <InterviewModule pushToast={pushToast} />;
+    case "offer": return <OfferModule role={role} pushToast={pushToast} />;
+    case "onboarding": return <OnboardingModule pushToast={pushToast} />;
+    case "reports": return <ReportsModule pushToast={pushToast} />;
+    case "ai": return <AIModule />;
+    case "notifications": return <NotificationsModule />;
+    case "settings": return <SettingsModule />;
+    default: return <DashboardModule goto={goto} />;
+  }
+};
+
+const App = () => {
+  const [role, setRole] = useState("hr_manager");
+  const [active, setActive] = useState("dashboard");
+  const [device, setDevice] = useState("desktop");
+  const [drawer, setDrawer] = useState(false);
+  const [candidate, setCandidate] = useState(null);
+  const [toast, setToast] = useState(null);
+
+  const allowed = useMemo(() => Object.keys(BWP.permissions).filter(m => BWP.permissions[m].includes(role)), [role]);
+  useEffect(() => { if (!allowed.includes(active)) setActive("dashboard"); }, [role]);
+
+  const pushToast = (m) => { setToast(m); setTimeout(() => setToast(null), 2800); };
+  const goto = (id) => { setActive(id); setDrawer(false); };
+  const mobile = device === "mobile";
+
+  const shell = (
+    <div className={"app" + (mobile ? " mobile-mode" : "")} style={{ position: "relative" }}>
+      {!mobile && <div style={{ position: "sticky", top: 0, height: "100vh" }}><Sidebar active={active} setActive={setActive} role={role} allowed={allowed} onNav={goto} /></div>}
+      {mobile && drawer && (
+        <div style={{ position: "absolute", inset: 0, zIndex: 150 }}>
+          <div onClick={() => setDrawer(false)} style={{ position: "absolute", inset: 0, background: "rgba(11,31,58,.5)" }} className="anim-fade" />
+          <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: "var(--sidebar-w)", boxShadow: "var(--shadow-lg)" }} className="anim-fade">
+            <Sidebar active={active} setActive={setActive} role={role} allowed={allowed} onNav={goto} mobile />
+          </div>
+        </div>
+      )}
+      <div style={{ minWidth: 0, display: "flex", flexDirection: "column" }}>
+        <Topbar active={active} role={role} setRole={setRole} mobile={mobile} onMenu={() => setDrawer(true)}
+          deviceToggle={!mobile && <DeviceToggle device={device} setDevice={setDevice} />}
+          notifClick={() => goto("notifications")} notifCount={2} />
+        {mobile && (
+          <div style={{ padding: "10px 14px", borderBottom: "1px solid var(--line)", display: "flex", justifyContent: "space-between", alignItems: "center", background: "var(--surface)" }}>
+            <RoleSwitcher role={role} setRole={setRole} />
+            <DeviceToggle device={device} setDevice={setDevice} />
+          </div>
+        )}
+        <main key={active} className="anim-fade" style={{ padding: mobile ? "16px 14px 40px" : "24px 26px 48px", flex: 1 }}>
+          <ModuleRenderer active={active} role={role} goto={goto} openCandidate={setCandidate} pushToast={pushToast} />
+        </main>
+      </div>
+      <CandidateDetail c={candidate} onClose={() => setCandidate(null)} />
+      {toast && <Toast msg={toast} />}
+    </div>
+  );
+
+  if (mobile) {
+    return (
+      <div style={{ minHeight: "100vh", background: "radial-gradient(circle at 50% 0%, #1a3358, var(--navy-900))", display: "grid", placeItems: "center", padding: "28px 16px" }}>
+        <div style={{ width: 390, maxWidth: "100%", height: 800, maxHeight: "92vh", background: "var(--bg)", borderRadius: 40, overflow: "hidden", boxShadow: "0 40px 90px rgba(0,0,0,.5), 0 0 0 11px #0a1526, 0 0 0 13px #223450", position: "relative" }}>
+          <div style={{ position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)", width: 130, height: 26, background: "#0a1526", borderRadius: "0 0 16px 16px", zIndex: 100 }} />
+          <div style={{ height: "100%", overflowY: "auto", position: "relative" }}>{shell}</div>
+        </div>
+      </div>
+    );
+  }
+  return shell;
+};
+
+// Boot: load data from API, then render
+loadBWP().then(() => {
+  ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+});
+</script>
+</body>
+</html>
