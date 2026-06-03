@@ -2166,11 +2166,20 @@ const ReportsModule = ({ pushToast }) => {
 };
 
 const notifColor = { approve: ["var(--green)", "var(--green-soft)"], interview: ["var(--accent)", "var(--accent-soft)"], offer: ["var(--teal)", "var(--teal-soft)"], result: ["var(--amber)", "var(--amber-soft)"], warn: ["var(--red)", "var(--red-soft)"] };
-const NotificationsModule = () => (
+const NotificationsModule = () => {
+  const [channels, setChannels] = useState({ line_notify: true, line_oa: true, email: true });
+  const [events, setEvents] = useState({ approve: true, interview: true, result: true, offer: true, doc_warn: true });
+  const [notifs, setNotifs] = useState(() => BWP.notifications.map(n => ({ ...n })));
+  const toggleCh = (key) => setChannels(prev => ({ ...prev, [key]: !prev[key] }));
+  const toggleEv = (key) => setEvents(prev => ({ ...prev, [key]: !prev[key] }));
+  const markAllRead = () => setNotifs(prev => prev.map(n => ({ ...n, read: true })));
+  const chList = [["LINE Notify", "line", "var(--green)", "line_notify"], ["LINE OA API", "line", "var(--green)", "line_oa"], ["Email (SMTP)", "mail", "var(--accent)", "email"]];
+  const evList = [["อนุมัติเปิดอัตรา", "approve"], ["นัดสัมภาษณ์", "interview"], ["แจ้งผลสัมภาษณ์", "result"], ["ส่ง Offer", "offer"], ["เตือนเอกสารขาด", "doc_warn"]];
+  return (
   <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 16 }} className="dash-grid">
-    <Panel title="การแจ้งเตือนล่าสุด" icon="bell" right={<Btn variant="subtle" size="sm">ทำเครื่องหมายว่าอ่านแล้ว</Btn>}>
+    <Panel title="การแจ้งเตือนล่าสุด" icon="bell" right={<Btn variant="subtle" size="sm" onClick={markAllRead}>ทำเครื่องหมายว่าอ่านแล้ว</Btn>}>
       <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-        {BWP.notifications.map(n => { const [c, bg] = notifColor[n.type]; return (
+        {notifs.map(n => { const [c, bg] = notifColor[n.type]; return (
           <div key={n.id} style={{ display: "flex", gap: 13, padding: "13px 11px", borderRadius: 11, background: n.read ? "transparent" : "var(--surface-2)", border: n.read ? "1px solid transparent" : "1px solid var(--line)" }}>
             <div style={{ width: 40, height: 40, borderRadius: 10, background: bg, color: c, display: "grid", placeItems: "center", flexShrink: 0 }}><Icon name={n.icon} size={19} /></div>
             <div style={{ flex: 1, minWidth: 0 }}>
@@ -2186,22 +2195,24 @@ const NotificationsModule = () => (
     </Panel>
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <Panel title="ช่องทางแจ้งเตือน" icon="settings">
-        {[["LINE Notify", "line", "var(--green)", true], ["LINE OA API", "line", "var(--green)", true], ["Email (SMTP)", "mail", "var(--accent)", true]].map(([t, ic, col, on], i) => (
-          <div key={i} style={{ display: "flex", alignItems: "center", gap: 11, padding: "10px 0", borderBottom: i < 2 ? "1px solid var(--line)" : "none" }}>
+        {chList.map(([t, ic, col, key], i) => { const on = channels[key]; return (
+          <div key={key} style={{ display: "flex", alignItems: "center", gap: 11, padding: "10px 0", borderBottom: i < 2 ? "1px solid var(--line)" : "none" }}>
             <div style={{ width: 34, height: 34, borderRadius: 9, background: col + "16", color: col, display: "grid", placeItems: "center" }}><Icon name={ic} size={17} /></div>
             <span style={{ flex: 1, fontSize: 13, fontWeight: 600, color: "var(--ink)" }}>{t}</span>
-            <span style={{ width: 38, height: 22, borderRadius: 99, background: on ? "var(--green)" : "var(--line-strong)", position: "relative", transition: "all .2s" }}><span style={{ position: "absolute", top: 2, left: on ? 18 : 2, width: 18, height: 18, borderRadius: 99, background: "#fff", transition: "all .2s" }} /></span>
-          </div>
-        ))}
+            <button onClick={() => toggleCh(key)} style={{ width: 38, height: 22, borderRadius: 99, background: on ? "var(--green)" : "var(--line-strong)", position: "relative", transition: "all .2s", border: "none", cursor: "pointer", padding: 0 }}><span style={{ position: "absolute", top: 2, left: on ? 18 : 2, width: 18, height: 18, borderRadius: 99, background: "#fff", transition: "all .2s", boxShadow: "0 1px 3px rgba(0,0,0,.15)" }} /></button>
+          </div>); })}
       </Panel>
       <Panel title="เหตุการณ์ที่แจ้งเตือน" icon="bell">
-        {["อนุมัติเปิดอัตรา", "นัดสัมภาษณ์", "แจ้งผลสัมภาษณ์", "ส่ง Offer", "เตือนเอกสารขาด"].map((t, i) => (
-          <div key={i} style={{ display: "flex", alignItems: "center", gap: 9, padding: "8px 0", fontSize: 13, color: "var(--ink-2)" }}><Icon name="check" size={15} style={{ color: "var(--green)" }} />{t}</div>
-        ))}
+        {evList.map(([t, key]) => { const on = events[key]; return (
+          <div key={key} onClick={() => toggleEv(key)} style={{ display: "flex", alignItems: "center", gap: 9, padding: "8px 0", fontSize: 13, color: on ? "var(--ink-2)" : "var(--ink-3)", cursor: "pointer", transition: "all .15s" }}>
+            <span style={{ width: 20, height: 20, borderRadius: 6, border: on ? "none" : "1.5px solid var(--line-strong)", background: on ? "var(--green)" : "transparent", display: "grid", placeItems: "center", flexShrink: 0, transition: "all .15s" }}>{on && <Icon name="check" size={14} style={{ color: "#fff" }} />}</span>
+            <span style={{ textDecoration: on ? "none" : "line-through", opacity: on ? 1 : 0.5 }}>{t}</span>
+          </div>); })}
       </Panel>
     </div>
   </div>
-);
+  );
+};
 
 const aiTone = { amber: ["var(--amber)", "var(--amber-soft)"], red: ["var(--red)", "var(--red-soft)"], violet: ["var(--violet)", "var(--violet-soft)"], green: ["var(--green)", "var(--green-soft)"] };
 const AIModule = () => (
