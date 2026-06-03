@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<title>คู่มือการใช้งาน BWP Recruitment Management System</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&display=swap');
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'IBM Plex Sans Thai', sans-serif; font-size: 13px; color: #1a2233; line-height: 1.7; padding: 48px 56px; }
+h1 { font-size: 28px; font-weight: 700; color: #0b1f3a; margin-bottom: 8px; }
+h2 { font-size: 20px; font-weight: 700; color: #0f2747; margin-top: 40px; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 2px solid #2f6fd6; }
+h3 { font-size: 15px; font-weight: 700; color: #16335c; margin-top: 22px; margin-bottom: 8px; }
+h4 { font-size: 13px; font-weight: 700; color: #2a5288; margin-top: 14px; margin-bottom: 6px; }
+p { margin-bottom: 10px; }
+ul, ol { margin-left: 20px; margin-bottom: 12px; }
+li { margin-bottom: 5px; }
+table { width: 100%; border-collapse: collapse; margin: 12px 0 18px; font-size: 12px; }
+th, td { border: 1px solid #d2dae4; padding: 8px 10px; text-align: left; }
+th { background: #0f2747; color: #fff; font-weight: 600; }
+tr:nth-child(even) { background: #f5f7fa; }
+.cover { text-align: center; padding: 120px 40px 80px; page-break-after: always; }
+.cover h1 { font-size: 36px; margin-bottom: 12px; }
+.cover .sub { font-size: 16px; color: #44505f; margin-bottom: 40px; }
+.cover .logo { width: 80px; height: 80px; background: #0f2747; border-radius: 18px; display: inline-grid; place-items: center; color: #fff; font-size: 28px; font-weight: 700; margin-bottom: 24px; }
+.cover .meta { font-size: 12px; color: #6b7686; margin-top: 60px; }
+.toc { page-break-after: always; }
+.toc h2 { border: none; margin-top: 20px; }
+.toc ul { list-style: none; margin-left: 0; }
+.toc li { padding: 6px 0; border-bottom: 1px dotted #d2dae4; display: flex; justify-content: space-between; }
+.toc .indent { margin-left: 20px; }
+.note { background: #e8f0fc; border-left: 3px solid #2f6fd6; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 12px; }
+.warn { background: #fbf0db; border-left: 3px solid #d98a16; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 12px; }
+.step { background: #f5f7fa; border-radius: 8px; padding: 12px 16px; margin: 10px 0; }
+.step-num { display: inline-block; width: 24px; height: 24px; background: #2f6fd6; color: #fff; border-radius: 50%; text-align: center; line-height: 24px; font-size: 12px; font-weight: 700; margin-right: 8px; }
+code { background: #eef1f5; padding: 2px 6px; border-radius: 4px; font-size: 11.5px; font-family: monospace; }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+.badge-green { background: #e3f5ec; color: #1f9d63; }
+.badge-amber { background: #fbf0db; color: #d98a16; }
+.badge-red { background: #fbe6e5; color: #d6453d; }
+.badge-blue { background: #e8f0fc; color: #2f6fd6; }
+.page-break { page-break-before: always; }
+img { max-width: 100%; }
+.screenshot { border: 1px solid #d2dae4; border-radius: 8px; padding: 8px; margin: 12px 0; background: #f8fafc; text-align: center; font-size: 11px; color: #6b7686; }
+</style>
+</head>
+<body>
+
+<!-- Cover Page -->
+<div class="cover">
+  <div class="logo">BWP</div>
+  <h1>คู่มือการใช้งาน<br>ระบบบริหารงานสรรหา</h1>
+  <div class="sub">BWP Recruitment Management System<br>User Manual v1.0</div>
+  <div class="meta">
+    <p>จัดทำโดย: ฝ่ายทรัพยากรบุคคล บริษัท BWP</p>
+    <p>วันที่: มิถุนายน 2569</p>
+    <p>เวอร์ชัน: 1.0</p>
+  </div>
+</div>
+
+<!-- Table of Contents -->
+<div class="toc">
+  <h2>สารบัญ</h2>
+  <ul>
+    <li><span>1. ภาพรวมระบบ</span></li>
+    <li><span>2. การเข้าสู่ระบบ (Login)</span></li>
+    <li><span>3. บทบาทผู้ใช้และสิทธิ์การเข้าถึง (RBAC)</span></li>
+    <li><span>4. แดชบอร์ด (Dashboard)</span></li>
+    <li><span>5. บริหารอัตรากำลัง (Manpower)</span></li>
+    <li><span>6. คำขอเปิดอัตรา (Requisition)</span></li>
+    <li><span>7. Job Description (JD)</span></li>
+    <li><span>8. Pipeline สรรหา (Recruitment Pipeline)</span></li>
+    <li><span>9. ฐานข้อมูลผู้สมัคร (Candidates)</span></li>
+    <li><span>10. การสัมภาษณ์ (Interview)</span></li>
+    <li><span>11. Offer Management</span></li>
+    <li><span>12. Onboarding</span></li>
+    <li><span>13. รายงาน (Reports)</span></li>
+    <li><span>14. AI Analytics</span></li>
+    <li><span>15. การแจ้งเตือน (Notifications)</span></li>
+    <li><span>16. ตั้งค่าระบบ (Settings)</span></li>
+    <li><span>17. การจัดการผู้ใช้</span></li>
+    <li><span>ภาคผนวก: บัญชีผู้ใช้เริ่มต้น</span></li>
+  </ul>
+</div>
+
+<!-- Chapter 1 -->
+<h2>1. ภาพรวมระบบ</h2>
+
+<h3>1.1 จุดประสงค์</h3>
+<p>BWP Recruitment Management System เป็นระบบบริหารงานสรรหาบุคลากรแบบครบวงจร ครอบคลุมตั้งแต่การวางแผนอัตรากำลัง การเปิดคำขอตำแหน่ง การคัดกรองผู้สมัคร การนัดสัมภาษณ์ การจัดทำ Offer จนถึงกระบวนการ Onboarding พนักงานใหม่</p>
+
+<h3>1.2 คุณสมบัติหลัก</h3>
+<ul>
+  <li><b>Dashboard</b> — แสดงภาพรวมข้อมูลสรรหาแบบ Real-time (3 รูปแบบ Layout)</li>
+  <li><b>Manpower Planning</b> — วางแผนอัตรากำลังแต่ละแผนก (แผน vs จริง)</li>
+  <li><b>Requisition Workflow</b> — เปิดคำขอพร้อมขั้นตอนอนุมัติ 4 ระดับ</li>
+  <li><b>Recruitment Pipeline</b> — ติดตามผู้สมัครแบบ Kanban 8 สเตจ</li>
+  <li><b>Interview Management</b> — นัดสัมภาษณ์ + ประเมินคะแนน 6 หัวข้อ</li>
+  <li><b>Offer Management</b> — จัดทำและอนุมัติ Offer พร้อม Approval Flow</li>
+  <li><b>Onboarding</b> — Checklist งาน Onboard พนักงานใหม่</li>
+  <li><b>AI Analytics</b> — วิเคราะห์เชิงลึกด้วย AI (Matching, Screening, Insights)</li>
+  <li><b>RBAC</b> — ระบบสิทธิ์ตามบทบาท 6 ระดับ, 14 โมดูล</li>
+  <li><b>Multi-channel Notifications</b> — แจ้งเตือนผ่าน LINE และ Email</li>
+</ul>
+
+<h3>1.3 ความต้องการระบบ</h3>
+<table>
+  <tr><th>รายการ</th><th>ข้อกำหนด</th></tr>
+  <tr><td>เว็บเบราว์เซอร์</td><td>Chrome 90+, Firefox 88+, Safari 14+, Edge 90+</td></tr>
+  <tr><td>ความละเอียดหน้าจอ</td><td>แนะนำ 1366×768 ขึ้นไป (รองรับ Responsive)</td></tr>
+  <tr><td>อินเทอร์เน็ต</td><td>ความเร็วขั้นต่ำ 5 Mbps</td></tr>
+</table>
+
+<!-- Chapter 2 -->
+<h2 class="page-break">2. การเข้าสู่ระบบ (Login)</h2>
+
+<h3>2.1 ขั้นตอนการเข้าสู่ระบบ</h3>
+<div class="step">
+  <span class="step-num">1</span> เปิดเว็บเบราว์เซอร์ แล้วไปที่ URL ของระบบ
+</div>
+<div class="step">
+  <span class="step-num">2</span> กรอก <b>ชื่อผู้ใช้ (Username)</b> และ <b>รหัสผ่าน (Password)</b>
+</div>
+<div class="step">
+  <span class="step-num">3</span> คลิกปุ่ม <b>"เข้าสู่ระบบ"</b>
+</div>
+<div class="step">
+  <span class="step-num">4</span> ระบบจะพาเข้าสู่หน้า Dashboard ตามสิทธิ์ของบทบาทที่ได้รับ
+</div>
+
+<div class="note">
+  <b>หมายเหตุ:</b> Session จะหมดอายุหลัง 24 ชั่วโมง — ต้องเข้าสู่ระบบใหม่
+</div>
+
+<h3>2.2 การเปลี่ยนรหัสผ่าน</h3>
+<ol>
+  <li>คลิกที่ชื่อผู้ใช้ (มุมขวาบน) หรือไปที่เมนู <b>ตั้งค่า</b></li>
+  <li>เลือก <b>"เปลี่ยนรหัสผ่าน"</b></li>
+  <li>กรอกรหัสผ่านเดิม แล้วตั้งรหัสผ่านใหม่ (ขั้นต่ำ 8 ตัวอักษร)</li>
+  <li>คลิก <b>"บันทึก"</b></li>
+</ol>
+
+<div class="warn">
+  <b>ข้อควรระวัง:</b> หากลืมรหัสผ่าน ให้แจ้ง Super Admin เพื่อรีเซ็ตรหัสผ่านให้
+</div>
+
+<h3>2.3 การออกจากระบบ (Logout)</h3>
+<p>คลิกปุ่ม <b>"ออกจากระบบ"</b> ที่แถบด้านซ้ายมือล่างสุด ระบบจะลบ Session และกลับไปหน้า Login</p>
+
+<!-- Chapter 3 -->
+<h2 class="page-break">3. บทบาทผู้ใช้และสิทธิ์การเข้าถึง (RBAC)</h2>
+
+<h3>3.1 บทบาทในระบบ</h3>
+<table>
+  <tr><th>บทบาท</th><th>ชื่อภาษาไทย</th><th>หน้าที่หลัก</th></tr>
+  <tr><td><code>super_admin</code></td><td>ผู้ดูแลระบบ</td><td>เข้าถึงทุกโมดูล จัดการผู้ใช้ ตั้งค่าสิทธิ์</td></tr>
+  <tr><td><code>md</code></td><td>กรรมการผู้จัดการ</td><td>อนุมัติ Requisition + Offer, ดู Dashboard ผู้บริหาร</td></tr>
+  <tr><td><code>hr_manager</code></td><td>ผู้จัดการฝ่ายบุคคล</td><td>บริหารกระบวนการสรรหาทั้งหมด, อนุมัติคำขอ</td></tr>
+  <tr><td><code>hr_officer</code></td><td>เจ้าหน้าที่สรรหา</td><td>สร้างคำขอ, คัดกรองผู้สมัคร, นัดสัมภาษณ์, จัดทำ Offer</td></tr>
+  <tr><td><code>dept_head</code></td><td>หัวหน้าแผนก</td><td>เปิดคำขอ, ดู Pipeline, ประเมินสัมภาษณ์</td></tr>
+  <tr><td><code>viewer</code></td><td>ผู้ดูข้อมูล</td><td>ดูข้อมูลอย่างเดียว ไม่สามารถแก้ไข</td></tr>
+</table>
+
+<h3>3.2 ระดับสิทธิ์ (Permission Level)</h3>
+<table>
+  <tr><th>ระดับ</th><th>รหัส</th><th>คำอธิบาย</th></tr>
+  <tr><td>Full Access</td><td><span class="badge badge-blue">F</span></td><td>เข้าถึงทุกฟังก์ชันในโมดูล</td></tr>
+  <tr><td>Approve</td><td><span class="badge badge-green">A</span></td><td>อนุมัติ + แก้ไข + ดู</td></tr>
+  <tr><td>Edit</td><td><span class="badge badge-amber">E</span></td><td>แก้ไข + ดู</td></tr>
+  <tr><td>Create</td><td><span class="badge badge-amber">C</span></td><td>สร้างใหม่ + ดู</td></tr>
+  <tr><td>View Only</td><td><span class="badge badge-green">V</span></td><td>ดูข้อมูลอย่างเดียว</td></tr>
+  <tr><td>No Access</td><td><span class="badge badge-red">–</span></td><td>ไม่มีสิทธิ์เข้าถึง</td></tr>
+</table>
+
+<h3>3.3 ตารางสิทธิ์ (Permission Matrix)</h3>
+<table>
+  <tr><th>โมดูล</th><th>Super Admin</th><th>MD</th><th>HR Manager</th><th>HR Officer</th><th>Dept Head</th><th>Viewer</th></tr>
+  <tr><td>Dashboard</td><td>F</td><td>F</td><td>F</td><td>V</td><td>V</td><td>V</td></tr>
+  <tr><td>Executive</td><td>F</td><td>F</td><td>V</td><td>–</td><td>–</td><td>–</td></tr>
+  <tr><td>Manpower</td><td>F</td><td>A</td><td>E</td><td>V</td><td>V</td><td>V</td></tr>
+  <tr><td>Requisition</td><td>F</td><td>A</td><td>A</td><td>C</td><td>C</td><td>V</td></tr>
+  <tr><td>JD</td><td>F</td><td>A</td><td>E</td><td>E</td><td>V</td><td>V</td></tr>
+  <tr><td>Pipeline</td><td>F</td><td>V</td><td>F</td><td>E</td><td>V</td><td>V</td></tr>
+  <tr><td>Candidates</td><td>F</td><td>V</td><td>F</td><td>E</td><td>V</td><td>V</td></tr>
+  <tr><td>Interview</td><td>F</td><td>V</td><td>F</td><td>E</td><td>E</td><td>V</td></tr>
+  <tr><td>Offer</td><td>F</td><td>A</td><td>E</td><td>C</td><td>V</td><td>–</td></tr>
+  <tr><td>Onboarding</td><td>F</td><td>V</td><td>F</td><td>E</td><td>V</td><td>–</td></tr>
+  <tr><td>Reports</td><td>F</td><td>F</td><td>F</td><td>V</td><td>V</td><td>V</td></tr>
+  <tr><td>AI Analytics</td><td>F</td><td>F</td><td>F</td><td>V</td><td>–</td><td>–</td></tr>
+  <tr><td>Notifications</td><td>F</td><td>V</td><td>F</td><td>E</td><td>V</td><td>V</td></tr>
+  <tr><td>Settings</td><td>F</td><td>–</td><td>V</td><td>–</td><td>–</td><td>–</td></tr>
+</table>
+
+<!-- Chapter 4 -->
+<h2 class="page-break">4. แดชบอร์ด (Dashboard)</h2>
+
+<h3>4.1 ภาพรวม</h3>
+<p>หน้า Dashboard แสดงข้อมูลสำคัญทั้งหมดในมุมมองเดียว เพื่อให้ผู้บริหารและทีม HR ติดตามสถานะงานสรรหาได้ทันที</p>
+
+<h3>4.2 ข้อมูลสรุป (KPI Cards)</h3>
+<ul>
+  <li><b>พนักงานปัจจุบัน</b> — จำนวนพนักงานทั้งหมดในองค์กร</li>
+  <li><b>ตำแหน่งเปิดรับ</b> — จำนวนตำแหน่งที่กำลังสรรหาอยู่</li>
+  <li><b>ผู้สมัคร Active</b> — จำนวนผู้สมัครที่อยู่ในกระบวนการ</li>
+  <li><b>สัมภาษณ์สัปดาห์นี้</b> — จำนวนนัดสัมภาษณ์ที่มีกำหนดในสัปดาห์นี้</li>
+  <li><b>Offer ที่ส่ง</b> — จำนวน Offer ที่ส่งให้ผู้สมัครแล้ว</li>
+  <li><b>ทดลองงาน</b> — จำนวนพนักงานใหม่ที่อยู่ในช่วงทดลองงาน</li>
+</ul>
+
+<h3>4.3 รูปแบบ Layout (3 แบบ)</h3>
+<ol>
+  <li><b>Standard</b> — กราฟ + ตารางสัมภาษณ์ + Requisition ล่าสุด</li>
+  <li><b>Chart Focus</b> — เน้นกราฟ Headcount, Recruitment Trend, Time-to-Hire</li>
+  <li><b>Compact</b> — แสดงข้อมูลกระชับสำหรับจอเล็ก</li>
+</ol>
+<p>เปลี่ยน Layout ได้โดยคลิกที่ปุ่มเลือก Layout มุมขวาบนของ Dashboard</p>
+
+<h3>4.4 กราฟและแผนภูมิ</h3>
+<ul>
+  <li><b>Headcount Trend</b> — กราฟเส้นแสดงแนวโน้มจำนวนพนักงาน 6 เดือน</li>
+  <li><b>Recruitment Funnel</b> — Funnel Chart แสดงอัตราส่วนผู้สมัครแต่ละขั้นตอน</li>
+  <li><b>Open vs Hired</b> — กราฟแท่งเปรียบเทียบตำแหน่งเปิด vs จ้างได้</li>
+  <li><b>Time-to-Hire</b> — กราฟเส้นแสดงจำนวนวันเฉลี่ยในการสรรหา</li>
+</ul>
+
+<!-- Chapter 5 -->
+<h2 class="page-break">5. บริหารอัตรากำลัง (Manpower Planning)</h2>
+
+<h3>5.1 จุดประสงค์</h3>
+<p>โมดูลนี้ใช้วางแผนและติดตามอัตรากำลังคนของแต่ละแผนก เทียบจำนวนที่วางแผนไว้ (Plan) กับจำนวนจริง (Actual)</p>
+
+<h3>5.2 ข้อมูลที่แสดง</h3>
+<ul>
+  <li><b>แผนก</b> — ชื่อแผนก/ฝ่าย</li>
+  <li><b>Plan</b> — จำนวนอัตราที่วางแผนไว้</li>
+  <li><b>Actual</b> — จำนวนพนักงานปัจจุบัน</li>
+  <li><b>Gap</b> — ส่วนต่างระหว่าง Plan กับ Actual (สีแดง = ขาด, สีเขียว = ครบ)</li>
+  <li><b>แผนภูมิกะ</b> — แสดงตารางกะ A/B/C พร้อมจำนวนคน</li>
+</ul>
+
+<h3>5.3 การใช้งาน</h3>
+<ol>
+  <li>เลือกเมนู <b>"อัตรากำลัง"</b> จาก Sidebar</li>
+  <li>ดูภาพรวมอัตรากำลังแต่ละแผนก</li>
+  <li>คลิกที่แผนกเพื่อดูรายละเอียดกะ</li>
+  <li>ผู้ที่มีสิทธิ์ Edit สามารถแก้ไขจำนวน Plan/Actual ได้</li>
+</ol>
+
+<!-- Chapter 6 -->
+<h2 class="page-break">6. คำขอเปิดอัตรา (Requisition)</h2>
+
+<h3>6.1 ภาพรวม</h3>
+<p>ระบบ Requisition ใช้สำหรับเปิดคำขออัตรากำลังใหม่ พร้อมขั้นตอนการอนุมัติ 4 ระดับ:</p>
+<ol>
+  <li><b>ร่าง (Draft)</b> — ผู้ขอจัดทำคำขอ</li>
+  <li><b>รอ HR Manager อนุมัติ</b> — ส่งให้ HR ตรวจสอบ</li>
+  <li><b>รอกรรมการผู้จัดการอนุมัติ</b> — ส่งให้ MD อนุมัติ</li>
+  <li><b>อนุมัติแล้ว / ไม่อนุมัติ</b> — ผลการพิจารณา</li>
+</ol>
+
+<h3>6.2 การเปิดคำขอใหม่</h3>
+<div class="step">
+  <span class="step-num">1</span> ไปที่เมนู <b>"คำขอเปิดอัตรา"</b>
+</div>
+<div class="step">
+  <span class="step-num">2</span> คลิกปุ่ม <b>"เปิดคำขอใหม่"</b> (มุมขวาบน)
+</div>
+<div class="step">
+  <span class="step-num">3</span> กรอกข้อมูล:
+  <ul style="margin-top:6px">
+    <li>ตำแหน่งที่ต้องการ (จำเป็น)</li>
+    <li>แผนก</li>
+    <li>จำนวนอัตรา</li>
+    <li>ประเภทพนักงาน (ประจำ / รายวัน / สัญญาจ้าง / ชั่วคราว)</li>
+    <li>สาเหตุ (ทดแทน / ขยายกำลังคน / โครงการใหม่ / ปรับโครงสร้าง)</li>
+    <li>ความเร่งด่วน (สูง / กลาง / ต่ำ)</li>
+    <li>เงินเดือนที่ขอ</li>
+    <li>วันที่ต้องการเริ่มงาน</li>
+  </ul>
+</div>
+<div class="step">
+  <span class="step-num">4</span> คลิก <b>"ส่งคำขอ"</b> — ระบบจะส่งคำขอให้ HR Manager อนุมัติ
+</div>
+
+<h3>6.3 การอนุมัติคำขอ</h3>
+<p>ผู้มีสิทธิ์อนุมัติ (HR Manager / MD) จะเห็นปุ่ม:</p>
+<ul>
+  <li><span class="badge badge-green">อนุมัติ</span> — อนุมัติและส่งต่อขั้นตอนถัดไป</li>
+  <li><span class="badge badge-red">ไม่อนุมัติ</span> — ปฏิเสธคำขอ พร้อมเหตุผล</li>
+</ul>
+
+<h3>6.4 สถานะคำขอ</h3>
+<table>
+  <tr><th>สถานะ</th><th>ความหมาย</th></tr>
+  <tr><td><span class="badge" style="background:#eef1f5;color:#7a8694">ร่าง</span></td><td>ยังไม่ได้ส่ง กำลังจัดทำ</td></tr>
+  <tr><td><span class="badge badge-amber">รอ HR</span></td><td>ส่งให้ HR Manager พิจารณาแล้ว</td></tr>
+  <tr><td><span class="badge" style="background:#ece7fb;color:#6b4fd1">รอ MD</span></td><td>HR อนุมัติแล้ว รอกรรมการผู้จัดการ</td></tr>
+  <tr><td><span class="badge badge-green">อนุมัติแล้ว</span></td><td>ได้รับอนุมัติ พร้อมเริ่มสรรหา</td></tr>
+  <tr><td><span class="badge badge-red">ไม่อนุมัติ</span></td><td>ถูกปฏิเสธ</td></tr>
+  <tr><td><span class="badge badge-blue">ปิดงาน</span></td><td>สรรหาครบแล้ว ปิดคำขอ</td></tr>
+</table>
+
+<!-- Chapter 7 -->
+<h2 class="page-break">7. Job Description (JD)</h2>
+
+<h3>7.1 ภาพรวม</h3>
+<p>คลัง JD กลางขององค์กร — รวบรวม Job Description ทุกตำแหน่ง รองรับ Version Control เพื่อติดตามการเปลี่ยนแปลง</p>
+
+<h3>7.2 การสร้าง JD ใหม่</h3>
+<div class="step">
+  <span class="step-num">1</span> ไปที่เมนู <b>"Job Description"</b>
+</div>
+<div class="step">
+  <span class="step-num">2</span> คลิกปุ่ม <b>"สร้าง JD"</b>
+</div>
+<div class="step">
+  <span class="step-num">3</span> กรอกข้อมูล:
+  <ul style="margin-top:6px">
+    <li>ชื่อตำแหน่ง (จำเป็น)</li>
+    <li>แผนก</li>
+    <li>รายงานต่อ (หัวหน้างาน)</li>
+    <li>สถานะ (ร่าง / รอตรวจ / อนุมัติ)</li>
+  </ul>
+</div>
+<div class="step">
+  <span class="step-num">4</span> คลิก <b>"สร้าง JD"</b>
+</div>
+
+<h3>7.3 การดู JD</h3>
+<p>คลิกที่การ์ด JD เพื่อดูรายละเอียด:</p>
+<ul>
+  <li>หน้าที่ความรับผิดชอบ (Responsibilities)</li>
+  <li>คุณสมบัติ (Qualifications)</li>
+  <li>KPI</li>
+  <li>ข้อมูลเวอร์ชัน</li>
+</ul>
+
+<h3>7.4 สถานะ JD</h3>
+<table>
+  <tr><th>สถานะ</th><th>ความหมาย</th></tr>
+  <tr><td><span class="badge badge-green">อนุมัติ</span></td><td>ใช้งานได้ เป็นเวอร์ชันปัจจุบัน</td></tr>
+  <tr><td><span class="badge badge-amber">รอตรวจ</span></td><td>กำลังรอตรวจสอบ/อัปเดต</td></tr>
+  <tr><td><span class="badge" style="background:#eef1f5;color:#7a8694">ร่าง</span></td><td>ยังไม่เสร็จ กำลังจัดทำ</td></tr>
+</table>
+
+<!-- Chapter 8 -->
+<h2 class="page-break">8. Pipeline สรรหา (Recruitment Pipeline)</h2>
+
+<h3>8.1 ภาพรวม</h3>
+<p>แสดงผู้สมัครทั้งหมดในรูปแบบ Kanban Board แบ่งเป็น 8 สเตจ ผู้ใช้สามารถลากย้าย (Drag & Drop) ผู้สมัครระหว่างสเตจได้</p>
+
+<h3>8.2 สเตจ (Stages)</h3>
+<table>
+  <tr><th>#</th><th>สเตจ</th><th>คำอธิบาย</th></tr>
+  <tr><td>1</td><td>ผู้สมัครใหม่</td><td>สมัครเข้ามา ยังไม่ได้คัดกรอง</td></tr>
+  <tr><td>2</td><td>คัดกรอง</td><td>ตรวจสอบคุณสมบัติเบื้องต้น</td></tr>
+  <tr><td>3</td><td>สัมภาษณ์ทางโทรศัพท์</td><td>สัมภาษณ์คัดกรองเบื้องต้น</td></tr>
+  <tr><td>4</td><td>สัมภาษณ์ครั้งที่ 1</td><td>สัมภาษณ์กับหัวหน้างาน</td></tr>
+  <tr><td>5</td><td>สัมภาษณ์ครั้งที่ 2</td><td>สัมภาษณ์เชิงลึก</td></tr>
+  <tr><td>6</td><td>สัมภาษณ์ผู้บริหาร</td><td>สัมภาษณ์กับ MD</td></tr>
+  <tr><td>7</td><td>เสนอ Offer</td><td>จัดทำ Offer Letter</td></tr>
+  <tr><td>8</td><td>รับเข้าทำงาน</td><td>ตอบรับ Offer เริ่มงาน</td></tr>
+</table>
+
+<h3>8.3 การเพิ่มผู้สมัครใหม่</h3>
+<div class="step">
+  <span class="step-num">1</span> คลิกปุ่ม <b>"เพิ่มผู้สมัคร"</b> ที่มุมขวาบน
+</div>
+<div class="step">
+  <span class="step-num">2</span> กรอกข้อมูลผู้สมัคร:
+  <ul style="margin-top:6px">
+    <li>ชื่อ-นามสกุล (จำเป็น)</li>
+    <li>ตำแหน่งที่สมัคร (จำเป็น)</li>
+    <li>แผนก</li>
+    <li>ช่องทางสมัคร (JobThai / LinkedIn / Walk-in / แนะนำพนักงาน / จัดหางานจังหวัด / Agency)</li>
+    <li>ประสบการณ์ (ปี)</li>
+    <li>เงินเดือนคาดหวัง</li>
+    <li>จังหวัด</li>
+    <li>วุฒิการศึกษา</li>
+    <li>ทักษะ (คั่นด้วยคอมม่า)</li>
+  </ul>
+</div>
+<div class="step">
+  <span class="step-num">3</span> คลิก <b>"เพิ่มผู้สมัคร"</b> — ระบบจะเพิ่มเข้า Pipeline ที่สเตจ "ผู้สมัครใหม่"
+</div>
+
+<h3>8.4 การย้ายสเตจ (Drag & Drop)</h3>
+<ol>
+  <li>คลิกค้างที่การ์ดผู้สมัคร</li>
+  <li>ลากไปวางที่คอลัมน์สเตจที่ต้องการ</li>
+  <li>ระบบจะอัปเดตสถานะอัตโนมัติ</li>
+</ol>
+
+<!-- Chapter 9 -->
+<h2 class="page-break">9. ฐานข้อมูลผู้สมัคร (Candidates)</h2>
+
+<h3>9.1 ภาพรวม</h3>
+<p>แสดงข้อมูลผู้สมัครทั้งหมดในรูปแบบตาราง พร้อมฟิลเตอร์และค้นหา</p>
+
+<h3>9.2 การค้นหาและกรอง</h3>
+<ul>
+  <li><b>ค้นหา</b> — พิมพ์ชื่อ ตำแหน่ง หรือทักษะ ในช่องค้นหา</li>
+  <li><b>กรองตามแผนก</b> — เลือกแผนกจาก Dropdown</li>
+  <li><b>กรองตามสเตจ</b> — เลือกสเตจปัจจุบัน</li>
+</ul>
+
+<h3>9.3 รายละเอียดผู้สมัคร</h3>
+<p>คลิกที่แถวผู้สมัครเพื่อดูรายละเอียด:</p>
+<ul>
+  <li><b>โปรไฟล์</b> — ข้อมูลส่วนตัว ทักษะ ประวัติการทำงาน</li>
+  <li><b>AI Matching</b> — คะแนนความเหมาะสมกับ JD, จุดแข็ง/จุดอ่อน, Skill Gap</li>
+  <li><b>เอกสาร</b> — เอกสารที่แนบมา (Resume, สำเนาบัตร ฯลฯ)</li>
+</ul>
+
+<h3>9.4 AI Match Score</h3>
+<p>ระบบ AI จะให้คะแนนความเหมาะสม (0-100%) โดยพิจารณาจาก:</p>
+<ul>
+  <li>ทักษะที่ตรงกับ JD</li>
+  <li>ประสบการณ์ที่เกี่ยวข้อง</li>
+  <li>วุฒิการศึกษา</li>
+  <li>เงินเดือนคาดหวัง vs งบที่ตั้งไว้</li>
+</ul>
+<table>
+  <tr><th>คะแนน</th><th>ระดับ</th><th>สี</th></tr>
+  <tr><td>85–100%</td><td>เหมาะสมสูง</td><td><span class="badge badge-green">เขียว</span></td></tr>
+  <tr><td>75–84%</td><td>เหมาะสมดี</td><td><span class="badge badge-blue">น้ำเงิน</span></td></tr>
+  <tr><td>65–74%</td><td>เหมาะสมปานกลาง</td><td><span class="badge badge-amber">เหลือง</span></td></tr>
+  <tr><td>ต่ำกว่า 65%</td><td>ไม่ค่อยเหมาะ</td><td><span class="badge badge-red">แดง</span></td></tr>
+</table>
+
+<!-- Chapter 10 -->
+<h2 class="page-break">10. การสัมภาษณ์ (Interview)</h2>
+
+<h3>10.1 ภาพรวม</h3>
+<p>โมดูลจัดการนัดสัมภาษณ์ ตารางนัดหมาย และแบบประเมินคะแนนมาตรฐาน 6 หัวข้อ</p>
+
+<h3>10.2 การสร้างนัดสัมภาษณ์ใหม่</h3>
+<div class="step">
+  <span class="step-num">1</span> คลิกปุ่ม <b>"สร้างนัด"</b>
+</div>
+<div class="step">
+  <span class="step-num">2</span> กรอกข้อมูล:
+  <ul style="margin-top:6px">
+    <li>ชื่อผู้สมัคร (จำเป็น)</li>
+    <li>ตำแหน่ง</li>
+    <li>ประเภท (Onsite / Online)</li>
+    <li>รอบสัมภาษณ์ (ครั้งที่ 1 / ครั้งที่ 2 / ผู้บริหาร)</li>
+    <li>วันที่ (จำเป็น)</li>
+    <li>เวลา (จำเป็น)</li>
+    <li>กรรมการสัมภาษณ์ (คั่นด้วยคอมม่า)</li>
+  </ul>
+</div>
+<div class="step">
+  <span class="step-num">3</span> คลิก <b>"สร้างนัด"</b>
+</div>
+
+<h3>10.3 การประเมินผลสัมภาษณ์</h3>
+<div class="step">
+  <span class="step-num">1</span> ที่รายการนัดสัมภาษณ์ คลิกปุ่ม <b>"ประเมิน"</b>
+</div>
+<div class="step">
+  <span class="step-num">2</span> ให้คะแนน 1–5 ใน 6 หัวข้อ:
+  <ul style="margin-top:6px">
+    <li>ทักษะเฉพาะตำแหน่ง (Technical)</li>
+    <li>ประสบการณ์ (Experience)</li>
+    <li>บุคลิกภาพ / ทัศนคติ (Personality)</li>
+    <li>ภาวะผู้นำ (Leadership)</li>
+    <li>การสื่อสาร (Communication)</li>
+    <li>การแก้ปัญหา (Problem Solving)</li>
+  </ul>
+</div>
+<div class="step">
+  <span class="step-num">3</span> คลิก <b>"บันทึกผลประเมิน"</b> — ระบบคำนวณคะแนนเฉลี่ยอัตโนมัติ
+</div>
+
+<h3>10.4 สถานะสัมภาษณ์</h3>
+<table>
+  <tr><th>สถานะ</th><th>ความหมาย</th></tr>
+  <tr><td><span class="badge badge-amber">Scheduled</span></td><td>มีนัดหมาย รอสัมภาษณ์</td></tr>
+  <tr><td><span class="badge badge-green">Done</span></td><td>สัมภาษณ์แล้ว มีคะแนนประเมิน</td></tr>
+</table>
+
+<!-- Chapter 11 -->
+<h2 class="page-break">11. Offer Management</h2>
+
+<h3>11.1 ภาพรวม</h3>
+<p>จัดทำ Offer Letter พร้อมโครงสร้างค่าตอบแทน และขั้นตอนอนุมัติก่อนส่งผู้สมัคร</p>
+
+<h3>11.2 ขั้นตอนอนุมัติ Offer</h3>
+<ol>
+  <li><b>HR จัดทำ</b> — เจ้าหน้าที่สรรหาสร้าง Offer</li>
+  <li><b>กรรมการผู้จัดการอนุมัติ</b> — MD พิจารณาอนุมัติ</li>
+  <li><b>ส่งผู้สมัคร</b> — ส่ง Offer Letter ทาง Email</li>
+  <li><b>ตอบรับ</b> — ผู้สมัครตอบรับ/ปฏิเสธ</li>
+</ol>
+
+<h3>11.3 การสร้าง Offer ใหม่</h3>
+<div class="step">
+  <span class="step-num">1</span> คลิกปุ่ม <b>"สร้าง Offer"</b>
+</div>
+<div class="step">
+  <span class="step-num">2</span> กรอกโครงสร้างค่าตอบแทน:
+  <ul style="margin-top:6px">
+    <li>ชื่อผู้สมัคร (จำเป็น)</li>
+    <li>ตำแหน่ง (จำเป็น)</li>
+    <li>เงินเดือนพื้นฐาน (฿)</li>
+    <li>ค่าตำแหน่ง (฿)</li>
+    <li>ค่าเดินทาง (฿)</li>
+    <li>เบี้ยขยัน (฿)</li>
+    <li>โบนัส (เช่น "2 เดือน/ปี")</li>
+    <li>กองทุนสำรองเลี้ยงชีพ (เช่น "5%")</li>
+  </ul>
+</div>
+<div class="step">
+  <span class="step-num">3</span> คลิก <b>"สร้าง Offer"</b>
+</div>
+
+<h3>11.4 การอนุมัติ Offer (MD)</h3>
+<p>กรรมการผู้จัดการ (MD) จะเห็นปุ่ม:</p>
+<ul>
+  <li><span class="badge badge-green">อนุมัติ & ส่งให้ผู้สมัคร</span> — อนุมัติพร้อมส่ง Email ถึงผู้สมัคร</li>
+  <li><span class="badge badge-red">ตีกลับ</span> — ส่งกลับให้ HR แก้ไข</li>
+</ul>
+
+<h3>11.5 สถานะ Offer</h3>
+<table>
+  <tr><th>สถานะ</th><th>ความหมาย</th></tr>
+  <tr><td><span class="badge" style="background:#eef1f5;color:#7a8694">ร่าง</span></td><td>กำลังจัดทำ</td></tr>
+  <tr><td><span class="badge" style="background:#ece7fb;color:#6b4fd1">รออนุมัติ (MD)</span></td><td>ส่งให้ MD พิจารณาแล้ว</td></tr>
+  <tr><td><span class="badge badge-amber">ส่งให้ผู้สมัครแล้ว</span></td><td>ส่ง Offer Letter แล้ว รอตอบ</td></tr>
+  <tr><td><span class="badge badge-green">ตอบรับแล้ว</span></td><td>ผู้สมัครตอบรับ Offer</td></tr>
+  <tr><td><span class="badge badge-red">ปฏิเสธ</span></td><td>ผู้สมัครปฏิเสธ Offer</td></tr>
+</table>
+
+<!-- Chapter 12 -->
+<h2 class="page-break">12. Onboarding</h2>
+
+<h3>12.1 ภาพรวม</h3>
+<p>ติดตามกระบวนการ Onboard พนักงานใหม่ ตั้งแต่เตรียมเอกสาร อุปกรณ์ ระบบ จนถึงอบรม</p>
+
+<h3>12.2 การใช้งาน</h3>
+<ol>
+  <li>เลือกพนักงานใหม่จากรายการด้านซ้าย</li>
+  <li>ดู Checklist งานที่ต้องดำเนินการ</li>
+  <li>คลิกที่ checkbox เพื่อทำเครื่องหมายว่าเสร็จแล้ว</li>
+  <li>แถบ Progress Bar จะอัปเดตอัตโนมัติ</li>
+</ol>
+
+<h3>12.3 กลุ่มงาน Onboarding</h3>
+<table>
+  <tr><th>กลุ่ม</th><th>ตัวอย่างงาน</th></tr>
+  <tr><td>เอกสาร</td><td>จัดเก็บสำเนาบัตร/ทะเบียนบ้าน/วุฒิ, ตรวจสุขภาพ</td></tr>
+  <tr><td>อุปกรณ์</td><td>ชุดยูนิฟอร์ม, รองเท้าเซฟตี้, บัตรพนักงาน, คีย์การ์ด</td></tr>
+  <tr><td>ระบบ</td><td>สร้าง Email บริษัท, สร้าง User Account (ERP/HRIS)</td></tr>
+  <tr><td>อบรม</td><td>Safety Induction, ปฐมนิเทศ (Orientation)</td></tr>
+</table>
+
+<!-- Chapter 13 -->
+<h2 class="page-break">13. รายงาน (Reports)</h2>
+
+<h3>13.1 รายงานที่มีให้</h3>
+<table>
+  <tr><th>รายงาน</th><th>คำอธิบาย</th></tr>
+  <tr><td>Open Position Report</td><td>ตำแหน่งที่เปิดรับทั้งหมดและสถานะปัจจุบัน</td></tr>
+  <tr><td>Candidate Status Report</td><td>สถานะผู้สมัครทั้งหมดใน Pipeline</td></tr>
+  <tr><td>Interview Result Report</td><td>สรุปผลการสัมภาษณ์ คะแนน ผู้ผ่าน/ไม่ผ่าน</td></tr>
+  <tr><td>Hiring Report</td><td>สถิติการจ้างงานแยกตามแผนก/ช่วงเวลา</td></tr>
+  <tr><td>Turnover Report</td><td>อัตราการลาออกแต่ละแผนก</td></tr>
+  <tr><td>Probation Report</td><td>ผลประเมินช่วงทดลองงาน</td></tr>
+</table>
+
+<h3>13.2 การส่งออกรายงาน</h3>
+<ol>
+  <li>เลือกช่วงเวลา (ไตรมาสนี้ / เดือนนี้ / ปีนี้ / กำหนดเอง)</li>
+  <li>คลิกปุ่ม <b>"Excel"</b> หรือ <b>"PDF"</b> ที่รายงานที่ต้องการ</li>
+  <li>ระบบจะดาวน์โหลดไฟล์อัตโนมัติ</li>
+</ol>
+
+<!-- Chapter 14 -->
+<h2 class="page-break">14. AI Analytics</h2>
+
+<h3>14.1 ภาพรวม</h3>
+<p>ระบบ AI วิเคราะห์ข้อมูลการสรรหาเชิงลึก ให้ข้อมูลเชิงกลยุทธ์เพื่อปรับปรุงกระบวนการ</p>
+
+<h3>14.2 ความสามารถ AI</h3>
+<ul>
+  <li><b>Resume Screening</b> — คัดกรอง Resume อัตโนมัติเทียบกับ JD</li>
+  <li><b>AI Matching Score</b> — ให้คะแนนความเหมาะสมผู้สมัครกับตำแหน่ง</li>
+  <li><b>Interview Summary</b> — สรุปจุดเด่น/จุดด้อยจากความเห็นกรรมการ</li>
+  <li><b>Recruitment Insights</b> — วิเคราะห์แนวโน้มและข้อเสนอแนะ</li>
+</ul>
+
+<h3>14.3 ตัวอย่าง AI Insights</h3>
+<ul>
+  <li><b>ตำแหน่งที่หายาก</b> — ระบบแจ้งเตือนตำแหน่งที่ใช้เวลาสรรหานาน พร้อมแนะนำช่องทางเพิ่มเติม</li>
+  <li><b>สาเหตุปฏิเสธ Offer</b> — วิเคราะห์เหตุผลที่ผู้สมัครปฏิเสธ แนะนำสวัสดิการเสริม</li>
+  <li><b>แนวโน้มลาออก</b> — ตรวจจับอัตราออกช่วงทดลองงานสูงผิดปกติ</li>
+  <li><b>ประสิทธิภาพช่องทาง</b> — เปรียบเทียบ Quality of Hire แต่ละช่องทาง</li>
+</ul>
+
+<!-- Chapter 15 -->
+<h2 class="page-break">15. การแจ้งเตือน (Notifications)</h2>
+
+<h3>15.1 ภาพรวม</h3>
+<p>ศูนย์รวมการแจ้งเตือนทั้งหมด สามารถกำหนดช่องทางและเหตุการณ์ที่ต้องการรับแจ้งเตือนได้</p>
+
+<h3>15.2 ช่องทางแจ้งเตือน</h3>
+<table>
+  <tr><th>ช่องทาง</th><th>คำอธิบาย</th><th>การตั้งค่า</th></tr>
+  <tr><td>LINE Notify</td><td>แจ้งเตือนผ่าน LINE กลุ่ม</td><td>เปิด/ปิดได้</td></tr>
+  <tr><td>LINE OA API</td><td>แจ้งเตือนผ่าน LINE Official Account</td><td>เปิด/ปิดได้</td></tr>
+  <tr><td>Email (SMTP)</td><td>ส่งอีเมลแจ้งเตือน</td><td>เปิด/ปิดได้</td></tr>
+</table>
+
+<h3>15.3 การเปิด/ปิดช่องทาง</h3>
+<ol>
+  <li>ไปที่เมนู <b>"การแจ้งเตือน"</b></li>
+  <li>ที่แผง <b>"ช่องทางแจ้งเตือน"</b> (ด้านขวา)</li>
+  <li>คลิกที่สวิตช์ของแต่ละช่องทางเพื่อเปิด (สีเขียว) หรือปิด (สีเทา)</li>
+</ol>
+
+<h3>15.4 เหตุการณ์ที่แจ้งเตือน</h3>
+<p>สามารถเลือกเปิด/ปิดการแจ้งเตือนแต่ละเหตุการณ์:</p>
+<ul>
+  <li>อนุมัติเปิดอัตรา</li>
+  <li>นัดสัมภาษณ์</li>
+  <li>แจ้งผลสัมภาษณ์</li>
+  <li>ส่ง Offer</li>
+  <li>เตือนเอกสารขาด</li>
+</ul>
+<p>คลิกที่ checkbox แต่ละเหตุการณ์เพื่อเปิด/ปิด (เครื่องหมายถูก = เปิดรับ, ขีดทับ = ปิด)</p>
+
+<h3>15.5 การอ่านแจ้งเตือน</h3>
+<ul>
+  <li>แจ้งเตือนที่ยังไม่อ่าน จะมีจุดสีน้ำเงินและพื้นหลังเน้น</li>
+  <li>คลิก <b>"ทำเครื่องหมายว่าอ่านแล้ว"</b> เพื่อทำเครื่องหมายทั้งหมด</li>
+</ul>
+
+<!-- Chapter 16 -->
+<h2 class="page-break">16. ตั้งค่าระบบ (Settings)</h2>
+
+<h3>16.1 การเข้าถึง</h3>
+<p>เฉพาะ <b>Super Admin</b> เท่านั้นที่จัดการตั้งค่าได้เต็มรูปแบบ HR Manager สามารถดูได้อย่างเดียว</p>
+
+<h3>16.2 ส่วนตั้งค่าที่มี</h3>
+
+<h4>16.2.1 ข้อมูลบริษัท</h4>
+<ul>
+  <li>ชื่อบริษัท</li>
+  <li>ที่อยู่</li>
+  <li>เลขทะเบียนนิติบุคคล</li>
+  <li>โทรศัพท์ / อีเมล</li>
+</ul>
+
+<h4>16.2.2 Permission Matrix</h4>
+<p>ตารางกำหนดสิทธิ์แต่ละบทบาทต่อแต่ละโมดูล สามารถแก้ไขได้โดยคลิกที่เซลล์แล้วเลือกระดับสิทธิ์ใหม่</p>
+
+<h4>16.2.3 การจัดการผู้ใช้</h4>
+<p>ดูรายละเอียดในบทที่ 17</p>
+
+<!-- Chapter 17 -->
+<h2 class="page-break">17. การจัดการผู้ใช้</h2>
+
+<h3>17.1 ผู้ที่จัดการได้</h3>
+<p>เฉพาะ <b>Super Admin</b> เท่านั้น</p>
+
+<h3>17.2 การเพิ่มผู้ใช้ใหม่</h3>
+<div class="step">
+  <span class="step-num">1</span> ไปที่ <b>ตั้งค่า → จัดการผู้ใช้</b>
+</div>
+<div class="step">
+  <span class="step-num">2</span> คลิก <b>"เพิ่มผู้ใช้"</b>
+</div>
+<div class="step">
+  <span class="step-num">3</span> กรอกข้อมูล:
+  <ul style="margin-top:6px">
+    <li>ชื่อผู้ใช้ (Username)</li>
+    <li>ชื่อที่แสดง (Display Name)</li>
+    <li>บทบาท (Role)</li>
+    <li>รหัสผ่าน (ขั้นต่ำ 8 ตัว)</li>
+  </ul>
+</div>
+<div class="step">
+  <span class="step-num">4</span> คลิก <b>"บันทึก"</b>
+</div>
+
+<h3>17.3 การแก้ไขผู้ใช้</h3>
+<ol>
+  <li>คลิกปุ่ม "แก้ไข" ที่แถวผู้ใช้</li>
+  <li>แก้ไขชื่อที่แสดง, บทบาท, หรือสถานะ (Active/Inactive)</li>
+  <li>คลิก "บันทึก"</li>
+</ol>
+
+<h3>17.4 การรีเซ็ตรหัสผ่าน</h3>
+<ol>
+  <li>คลิกปุ่ม "รีเซ็ตรหัสผ่าน" ที่แถวผู้ใช้</li>
+  <li>กรอกรหัสผ่านใหม่ (ขั้นต่ำ 8 ตัว)</li>
+  <li>คลิก "รีเซ็ต"</li>
+  <li>แจ้งรหัสผ่านใหม่ให้ผู้ใช้</li>
+</ol>
+
+<h3>17.5 การปิดการใช้งาน (Deactivate)</h3>
+<p>สามารถปิดการใช้งานผู้ใช้ได้โดยเปลี่ยนสถานะเป็น "Inactive" — ผู้ใช้จะไม่สามารถเข้าสู่ระบบได้</p>
+
+<!-- Appendix -->
+<h2 class="page-break">ภาคผนวก: บัญชีผู้ใช้เริ่มต้น</h2>
+
+<h3>รายชื่อผู้ใช้ที่ตั้งไว้ในระบบ</h3>
+<table>
+  <tr><th>Username</th><th>รหัสผ่าน</th><th>บทบาท</th><th>ชื่อที่แสดง</th></tr>
+  <tr><td><code>admin</code></td><td><code>Admin@1234</code></td><td>Super Admin</td><td>ผู้ดูแลระบบ</td></tr>
+  <tr><td><code>md</code></td><td><code>MD@1234</code></td><td>กรรมการผู้จัดการ</td><td>อนุชา เรืองศักดิ์</td></tr>
+  <tr><td><code>hr_mgr</code></td><td><code>HRmgr@1234</code></td><td>HR Manager</td><td>สุนิสา ภักดีงาม</td></tr>
+  <tr><td><code>hr_staff</code></td><td><code>HRstaff@1234</code></td><td>HR Officer</td><td>วิภาวดี ศรีสุข</td></tr>
+  <tr><td><code>dept_head</code></td><td><code>Dept@1234</code></td><td>หัวหน้าแผนก</td><td>ธนกฤต วงศ์ไพบูลย์</td></tr>
+  <tr><td><code>viewer</code></td><td><code>View@1234</code></td><td>ผู้ดูข้อมูล</td><td>ผู้ตรวจสอบ</td></tr>
+</table>
+
+<div class="warn">
+  <b>สำคัญ:</b> หลังจากใช้งานจริง ควรเปลี่ยนรหัสผ่านทั้งหมดทันที เพื่อความปลอดภัย
+</div>
+
+<h3>ข้อแนะนำด้านความปลอดภัย</h3>
+<ul>
+  <li>รหัสผ่านควรมีความยาวอย่างน้อย 8 ตัวอักษร</li>
+  <li>ควรมีตัวอักษรพิมพ์ใหญ่ พิมพ์เล็ก ตัวเลข และอักขระพิเศษ</li>
+  <li>เปลี่ยนรหัสผ่านอย่างน้อยทุก 90 วัน</li>
+  <li>ไม่ควรใช้รหัสผ่านเดียวกันกับระบบอื่น</li>
+  <li>ออกจากระบบเมื่อไม่ได้ใช้งาน (Session หมดอายุใน 24 ชม.)</li>
+</ul>
+
+<div style="margin-top: 60px; padding-top: 20px; border-top: 1px solid #d2dae4; text-align: center; font-size: 11px; color: #6b7686;">
+  <p>BWP Recruitment Management System — คู่มือการใช้งาน v1.0</p>
+  <p>จัดทำโดย ฝ่ายทรัพยากรบุคคล บริษัท BWP · มิถุนายน 2569</p>
+</div>
+
+</body>
+</html>
