@@ -303,6 +303,16 @@ module.exports = function(db) {
     res.json(iv);
   });
 
+  router.post('/interviews', (req, res) => {
+    const { id, cand_name, pos, type, date, time, panel, round, status } = req.body;
+    db.prepare(`INSERT INTO interviews (id, cand_name, pos, type, date, time, panel, round, status)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+      .run(id, cand_name, pos, type || 'onsite', date, time, JSON.stringify(panel || []), round, status || 'scheduled');
+    const iv = db.prepare('SELECT * FROM interviews WHERE id = ?').get(id);
+    iv.panel = JSON.parse(iv.panel || '[]');
+    res.status(201).json(iv);
+  });
+
   router.post('/interviews/:id/scores', (req, res) => {
     const { scores } = req.body;
     const stmt = db.prepare('INSERT OR REPLACE INTO interview_scores (interview_id, criteria_id, score) VALUES (?, ?, ?)');
@@ -366,6 +376,14 @@ module.exports = function(db) {
     db.prepare('UPDATE job_descriptions SET status = COALESCE(?, status), rev = COALESCE(?, rev) WHERE code = ?')
       .run(status, rev, req.params.code);
     res.json(db.prepare('SELECT * FROM job_descriptions WHERE code = ?').get(req.params.code));
+  });
+
+  router.post('/jds', (req, res) => {
+    const { code, title, dept, reports_to, rev, date, status } = req.body;
+    db.prepare(`INSERT INTO job_descriptions (code, title, dept, reports_to, rev, date, status)
+      VALUES (?, ?, ?, ?, ?, ?, ?)`)
+      .run(code, title, dept, reports_to, rev || 'v1.0', date, status || 'draft');
+    res.status(201).json(db.prepare('SELECT * FROM job_descriptions WHERE code = ?').get(code));
   });
 
   // ---------- Notifications ----------

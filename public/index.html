@@ -1327,9 +1327,10 @@ const RequisitionModule = ({ role }) => {
   const [sel, setSel] = useState(null);
   const [showNew, setShowNew] = useState(false);
   const [toast, setToast] = useState(null);
+  const [reqs, setReqs] = useState(() => BWP.requisitions.map(r => ({ ...r })));
   const canApprove = ["md", "hr_manager", "super_admin"].includes(role);
-  const filtered = filter === "all" ? BWP.requisitions : BWP.requisitions.filter(r => r.status === filter);
-  const counts = { all: BWP.requisitions.length, pending_hr: BWP.requisitions.filter(r => r.status === "pending_hr").length, pending_dir: BWP.requisitions.filter(r => r.status === "pending_dir").length, approved: BWP.requisitions.filter(r => r.status === "approved").length };
+  const filtered = filter === "all" ? reqs : reqs.filter(r => r.status === filter);
+  const counts = { all: reqs.length, pending_hr: reqs.filter(r => r.status === "pending_hr").length, pending_dir: reqs.filter(r => r.status === "pending_dir").length, approved: reqs.filter(r => r.status === "approved").length };
   const act = (msg) => { setToast(msg); setSel(null); setTimeout(() => setToast(null), 2600); };
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -1379,23 +1380,7 @@ const RequisitionModule = ({ role }) => {
           )}
         </>}
       </Modal>
-      <Modal open={showNew} onClose={() => setShowNew(false)} title="เปิดคำขออัตรากำลังใหม่" sub="กรอกข้อมูลเพื่อส่งให้ HR Manager" icon="plus" width={620}>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 14 }}>
-          <Field label="ตำแหน่ง" required half><TextInput placeholder="เช่น วิศวกรกระบวนการผลิต" /></Field>
-          <Field label="แผนก" required half><Select options={["ฝ่ายผลิต", "ประกันคุณภาพ", "คลังสินค้า", "ซ่อมบำรุง", "วิศวกรรม", "ฝ่ายขาย", "บัญชีการเงิน", "ทรัพยากรบุคคล"]} /></Field>
-          <Field label="จำนวน" required half><TextInput type="number" defaultValue={1} /></Field>
-          <Field label="ประเภทพนักงาน" half><Select options={["ประจำ", "รายวัน", "สัญญาจ้าง", "Part-time"]} /></Field>
-          <Field label="สาเหตุการเปิด" half><Select options={["ทดแทน", "ขยายกำลังคน", "โครงการใหม่"]} /></Field>
-          <Field label="ความเร่งด่วน" half><Select options={["สูง", "กลาง", "ต่ำ"]} /></Field>
-          <Field label="ช่วงเงินเดือน" half><TextInput placeholder="เช่น 18,000–24,000" /></Field>
-          <Field label="วันที่ต้องการเริ่มงาน" half><TextInput type="date" /></Field>
-          <Field label="รายละเอียดเพิ่มเติม"><textarea rows={3} style={{ ...inputStyle, resize: "vertical" }} placeholder="เหตุผล / คุณสมบัติพิเศษ…" /></Field>
-        </div>
-        <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 20 }}>
-          <Btn variant="ghost" onClick={() => setShowNew(false)}>บันทึกร่าง</Btn>
-          <Btn variant="accent" icon="check" onClick={() => { setShowNew(false); act("ส่งคำขอเปิดอัตราให้ HR Manager แล้ว"); }}>ส่งคำขอ</Btn>
-        </div>
-      </Modal>
+      <NewRequisitionModal open={showNew} onClose={() => setShowNew(false)} onSaved={(r) => { setReqs(prev => [r, ...prev]); BWP.requisitions.unshift(r); act('ส่งคำขอ ' + r.id + ' ให้ HR Manager แล้ว'); }} />
       {toast && <Toast msg={toast} />}
     </div>
   );
@@ -1437,7 +1422,24 @@ const PipelineModule = ({ onOpenCandidate }) => {
   const [cards, setCards] = useState(() => BWP.candidates.map(c => ({ ...c })));
   const [drag, setDrag] = useState(null);
   const [over, setOver] = useState(null);
+  const [showAdd, setShowAdd] = useState(false);
   const move = (stageId) => { if (!drag) return; setCards(cs => cs.map(c => c.id === drag ? { ...c, stage: stageId } : c)); setDrag(null); setOver(null); };
+
+  const handleAddCandidate = async (form) => {
+    const id = 'C-' + (2000 + Math.floor(Math.random() * 8000));
+    const body = { ...form, id, stage: 'applied', match_score: Math.floor(Math.random() * 30) + 60, skills: form.skills ? form.skills.split(',').map(s => s.trim()).filter(Boolean) : [] };
+    try {
+      const res = await fetch('/api/candidates', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      if (res.ok) {
+        const c = await res.json();
+        c.skills = c.skills || []; c.match = c.match_score;
+        setCards(cs => [...cs, c]);
+        BWP.candidates.push(c);
+        setShowAdd(false);
+      }
+    } catch(e) {}
+  };
+
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12, marginBottom: 14 }}>
@@ -1445,7 +1447,7 @@ const PipelineModule = ({ onOpenCandidate }) => {
           <Icon name="board" size={17} style={{ color: "var(--accent)" }} />
           ลากการ์ดเพื่อเปลี่ยนสถานะ · ผู้สมัครทั้งหมด <b className="tnum" style={{ color: "var(--ink)" }}>{cards.length}</b> คน
         </div>
-        <div style={{ display: "flex", gap: 8 }}><Btn variant="ghost" size="sm" icon="filter">ตัวกรอง</Btn><Btn variant="accent" size="sm" icon="plus">เพิ่มผู้สมัคร</Btn></div>
+        <div style={{ display: "flex", gap: 8 }}><Btn variant="ghost" size="sm" icon="filter">ตัวกรอง</Btn><Btn variant="accent" size="sm" icon="plus" onClick={() => setShowAdd(true)}>เพิ่มผู้สมัคร</Btn></div>
       </div>
       <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: 14 }} className="noscroll">
         {BWP.stages.map(stage => {
@@ -1477,13 +1479,230 @@ const PipelineModule = ({ onOpenCandidate }) => {
           </div>
         </div>
       </div>
+      <AddCandidateModal open={showAdd} onClose={() => setShowAdd(false)} onSubmit={handleAddCandidate} />
     </div>
   );
 };
 
 /* ============================================================
-   Module: Candidate Database + AI Matching
+   Shared: Add Candidate Modal
    ============================================================ */
+const AddCandidateModal = ({ open, onClose, onSubmit }) => {
+  const [form, setForm] = useState({ name: '', pos: '', dept: 'prod', dept_name: 'ฝ่ายผลิต', exp: 0, salary: 0, prov: '', source: 'JobThai', applied: '', edu: '', skills: '' });
+  const [loading, setLoading] = useState(false);
+  const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+  const deptMap = {};
+  BWP.departments.forEach(d => { deptMap[d.id] = d.name; });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!form.name || !form.pos) return;
+    setLoading(true);
+    await onSubmit({ ...form, dept_name: deptMap[form.dept] || form.dept });
+    setForm({ name: '', pos: '', dept: 'prod', dept_name: 'ฝ่ายผลิต', exp: 0, salary: 0, prov: '', source: 'JobThai', applied: '', edu: '', skills: '' });
+    setLoading(false);
+  };
+
+  return (
+    <Modal open={open} onClose={onClose} title="เพิ่มผู้สมัครใหม่" icon="plus" width={580}>
+      <form onSubmit={handleSubmit}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 14 }}>
+          <Field label="ชื่อ-นามสกุล" required half><TextInput value={form.name} onChange={e => set('name', e.target.value)} placeholder="เช่น สมชาย ใจดี" /></Field>
+          <Field label="ตำแหน่งที่สมัคร" required half><TextInput value={form.pos} onChange={e => set('pos', e.target.value)} placeholder="เช่น วิศวกรกระบวนการ" /></Field>
+          <Field label="แผนก" half><Select value={form.dept} onChange={e => set('dept', e.target.value)} options={BWP.departments.map(d => ({ value: d.id, label: d.name }))} /></Field>
+          <Field label="ช่องทาง" half><Select value={form.source} onChange={e => set('source', e.target.value)} options={['JobThai','LinkedIn','Walk-in','แนะนำพนักงาน','จัดหางานจังหวัด','Agency']} /></Field>
+          <Field label="ประสบการณ์ (ปี)" half><TextInput type="number" value={form.exp} onChange={e => set('exp', parseInt(e.target.value) || 0)} /></Field>
+          <Field label="เงินเดือนคาดหวัง (฿)" half><TextInput type="number" value={form.salary} onChange={e => set('salary', parseInt(e.target.value) || 0)} /></Field>
+          <Field label="จังหวัด" half><TextInput value={form.prov} onChange={e => set('prov', e.target.value)} placeholder="เช่น ระยอง" /></Field>
+          <Field label="วุฒิการศึกษา" half><TextInput value={form.edu} onChange={e => set('edu', e.target.value)} placeholder="เช่น วศ.บ. อุตสาหการ" /></Field>
+          <Field label="ทักษะ (คั่นด้วยคอมม่า)"><TextInput value={form.skills} onChange={e => set('skills', e.target.value)} placeholder="เช่น Lean, Six Sigma, AutoCAD" /></Field>
+        </div>
+        <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 20 }}>
+          <Btn variant="ghost" onClick={onClose}>ยกเลิก</Btn>
+          <Btn variant="accent" type="submit" icon="check">{loading ? 'กำลังบันทึก…' : 'เพิ่มผู้สมัคร'}</Btn>
+        </div>
+      </form>
+    </Modal>
+  );
+};
+const NewRequisitionModal = ({ open, onClose, onSaved }) => {
+  const [form, setForm] = useState({ pos: '', dept: 'ฝ่ายผลิต', count: 1, type: 'ประจำ', reason: 'ทดแทน', urgency: 'กลาง', salary: '', start_date: '' });
+  const [loading, setLoading] = useState(false);
+  const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!form.pos) return;
+    setLoading(true);
+    const now = new Date();
+    const thMonth = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+    const dateStr = `${now.getDate()} ${thMonth[now.getMonth()]} ${(now.getFullYear() + 543) % 100}`;
+    const id = 'REQ-' + String(now.getFullYear() + 543).slice(-2) + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(Math.floor(Math.random() * 900) + 100);
+    const body = { id, pos: form.pos, dept: form.dept, count: form.count, type: form.type, reason: form.reason, salary: form.salary, urgency: form.urgency, start_date: form.start_date, status: 'pending_hr', created_by: 'ผู้ใช้ปัจจุบัน', created_at: dateStr };
+    try {
+      const res = await fetch('/api/requisitions', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + localStorage.getItem('bwp_token') }, body: JSON.stringify(body) });
+      if (res.ok) {
+        const saved = { ...body, start: form.start_date, by: body.created_by, date: dateStr };
+        onSaved(saved);
+        setForm({ pos: '', dept: 'ฝ่ายผลิต', count: 1, type: 'ประจำ', reason: 'ทดแทน', urgency: 'กลาง', salary: '', start_date: '' });
+        onClose();
+      }
+    } catch (err) { console.error(err); }
+    setLoading(false);
+  };
+  return (
+    <Modal open={open} onClose={onClose} title="เปิดคำขออัตรากำลังใหม่" icon="flow" width={580}>
+      <form onSubmit={handleSubmit}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 14 }}>
+          <Field label="ตำแหน่ง" required half><TextInput value={form.pos} onChange={e => set('pos', e.target.value)} placeholder="เช่น วิศวกรกระบวนการ" /></Field>
+          <Field label="แผนก" half><Select value={form.dept} onChange={e => set('dept', e.target.value)} options={BWP.departments.map(d => d.name)} /></Field>
+          <Field label="จำนวน (อัตรา)" half><TextInput type="number" min="1" value={form.count} onChange={e => set('count', parseInt(e.target.value) || 1)} /></Field>
+          <Field label="ประเภทพนักงาน" half><Select value={form.type} onChange={e => set('type', e.target.value)} options={['ประจำ','รายวัน','สัญญาจ้าง','ชั่วคราว']} /></Field>
+          <Field label="สาเหตุการเปิด" half><Select value={form.reason} onChange={e => set('reason', e.target.value)} options={['ทดแทน','ขยายกำลังคน','โครงการใหม่','ปรับโครงสร้าง']} /></Field>
+          <Field label="ความเร่งด่วน" half><Select value={form.urgency} onChange={e => set('urgency', e.target.value)} options={['สูง','กลาง','ต่ำ']} /></Field>
+          <Field label="เงินเดือนที่ขอ" half><TextInput value={form.salary} onChange={e => set('salary', e.target.value)} placeholder="เช่น 25,000–32,000" /></Field>
+          <Field label="วันที่ต้องการเริ่ม" half><TextInput value={form.start_date} onChange={e => set('start_date', e.target.value)} placeholder="เช่น 1 ก.ค. 69" /></Field>
+        </div>
+        <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 20 }}>
+          <Btn variant="ghost" onClick={onClose}>ยกเลิก</Btn>
+          <Btn variant="accent" type="submit" icon="check">{loading ? 'กำลังบันทึก…' : 'ส่งคำขอ'}</Btn>
+        </div>
+      </form>
+    </Modal>
+  );
+};
+
+const NewInterviewModal = ({ open, onClose, onSaved }) => {
+  const [form, setForm] = useState({ cand_name: '', pos: '', type: 'onsite', date: '', time: '', panel: '', round: 'สัมภาษณ์ครั้งที่ 1' });
+  const [loading, setLoading] = useState(false);
+  const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!form.cand_name || !form.date || !form.time) return;
+    setLoading(true);
+    const id = 'IV-' + String(Math.floor(Math.random() * 900) + 100);
+    const panelArr = form.panel.split(',').map(s => s.trim()).filter(Boolean);
+    const body = { id, cand_name: form.cand_name, pos: form.pos, type: form.type, date: form.date, time: form.time, panel: panelArr, round: form.round, status: 'scheduled' };
+    try {
+      const res = await fetch('/api/interviews', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + localStorage.getItem('bwp_token') }, body: JSON.stringify(body) });
+      if (res.ok) {
+        const saved = { ...body, cand: form.cand_name };
+        onSaved(saved);
+        setForm({ cand_name: '', pos: '', type: 'onsite', date: '', time: '', panel: '', round: 'สัมภาษณ์ครั้งที่ 1' });
+        onClose();
+      }
+    } catch (err) { console.error(err); }
+    setLoading(false);
+  };
+  return (
+    <Modal open={open} onClose={onClose} title="สร้างนัดสัมภาษณ์ใหม่" icon="calendar" width={580}>
+      <form onSubmit={handleSubmit}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 14 }}>
+          <Field label="ชื่อผู้สมัคร" required half><TextInput value={form.cand_name} onChange={e => set('cand_name', e.target.value)} placeholder="เช่น สมชาย ใจดี" /></Field>
+          <Field label="ตำแหน่ง" half><TextInput value={form.pos} onChange={e => set('pos', e.target.value)} placeholder="เช่น วิศวกรกระบวนการ" /></Field>
+          <Field label="ประเภท" half><Select value={form.type} onChange={e => set('type', e.target.value)} options={[{value:'onsite',label:'Onsite'},{value:'online',label:'Online'}]} /></Field>
+          <Field label="รอบสัมภาษณ์" half><Select value={form.round} onChange={e => set('round', e.target.value)} options={['สัมภาษณ์ครั้งที่ 1','สัมภาษณ์ครั้งที่ 2','สัมภาษณ์ผู้บริหาร']} /></Field>
+          <Field label="วันที่" required half><TextInput value={form.date} onChange={e => set('date', e.target.value)} placeholder="เช่น 5 มิ.ย. 69" /></Field>
+          <Field label="เวลา" required half><TextInput value={form.time} onChange={e => set('time', e.target.value)} placeholder="เช่น 10:00" /></Field>
+          <Field label="กรรมการสัมภาษณ์ (คั่นด้วยคอมม่า)"><TextInput value={form.panel} onChange={e => set('panel', e.target.value)} placeholder="เช่น อนุชา เรืองศักดิ์, ธนกฤต วงศ์ไพบูลย์" /></Field>
+        </div>
+        <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 20 }}>
+          <Btn variant="ghost" onClick={onClose}>ยกเลิก</Btn>
+          <Btn variant="accent" type="submit" icon="check">{loading ? 'กำลังบันทึก…' : 'สร้างนัด'}</Btn>
+        </div>
+      </form>
+    </Modal>
+  );
+};
+
+const NewOfferModal = ({ open, onClose, onSaved }) => {
+  const [form, setForm] = useState({ cand_name: '', pos: '', base: 0, position_allow: 0, travel: 0, attend: 0, bonus: '', pf: '' });
+  const [loading, setLoading] = useState(false);
+  const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!form.cand_name || !form.pos) return;
+    setLoading(true);
+    const now = new Date();
+    const thMonth = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+    const dateStr = `${now.getDate()} ${thMonth[now.getMonth()]} ${(now.getFullYear() + 543) % 100}`;
+    const id = 'OF-' + String(Math.floor(Math.random() * 900) + 100);
+    const body = { id, cand_name: form.cand_name, pos: form.pos, base: form.base, position_allow: form.position_allow, travel: form.travel, attend: form.attend, bonus: form.bonus, pf: form.pf, status: 'draft', created_at: dateStr };
+    try {
+      const res = await fetch('/api/offers', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + localStorage.getItem('bwp_token') }, body: JSON.stringify(body) });
+      if (res.ok) {
+        const saved = { ...body, cand: form.cand_name, date: dateStr };
+        onSaved(saved);
+        setForm({ cand_name: '', pos: '', base: 0, position_allow: 0, travel: 0, attend: 0, bonus: '', pf: '' });
+        onClose();
+      }
+    } catch (err) { console.error(err); }
+    setLoading(false);
+  };
+  return (
+    <Modal open={open} onClose={onClose} title="สร้าง Offer ใหม่" icon="handshake" width={580}>
+      <form onSubmit={handleSubmit}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 14 }}>
+          <Field label="ชื่อผู้สมัคร" required half><TextInput value={form.cand_name} onChange={e => set('cand_name', e.target.value)} placeholder="เช่น สมชาย ใจดี" /></Field>
+          <Field label="ตำแหน่ง" required half><TextInput value={form.pos} onChange={e => set('pos', e.target.value)} placeholder="เช่น วิศวกรกระบวนการ" /></Field>
+          <Field label="เงินเดือนพื้นฐาน (฿)" half><TextInput type="number" value={form.base} onChange={e => set('base', parseInt(e.target.value) || 0)} /></Field>
+          <Field label="ค่าตำแหน่ง (฿)" half><TextInput type="number" value={form.position_allow} onChange={e => set('position_allow', parseInt(e.target.value) || 0)} /></Field>
+          <Field label="ค่าเดินทาง (฿)" half><TextInput type="number" value={form.travel} onChange={e => set('travel', parseInt(e.target.value) || 0)} /></Field>
+          <Field label="เบี้ยขยัน (฿)" half><TextInput type="number" value={form.attend} onChange={e => set('attend', parseInt(e.target.value) || 0)} /></Field>
+          <Field label="โบนัส" half><TextInput value={form.bonus} onChange={e => set('bonus', e.target.value)} placeholder="เช่น 2 เดือน/ปี" /></Field>
+          <Field label="กองทุนสำรองเลี้ยงชีพ" half><TextInput value={form.pf} onChange={e => set('pf', e.target.value)} placeholder="เช่น 5%" /></Field>
+        </div>
+        <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 20 }}>
+          <Btn variant="ghost" onClick={onClose}>ยกเลิก</Btn>
+          <Btn variant="accent" type="submit" icon="check">{loading ? 'กำลังบันทึก…' : 'สร้าง Offer'}</Btn>
+        </div>
+      </form>
+    </Modal>
+  );
+};
+
+const NewJDModal = ({ open, onClose, onSaved }) => {
+  const [form, setForm] = useState({ title: '', dept: 'ฝ่ายผลิต', reports: '', status: 'draft' });
+  const [loading, setLoading] = useState(false);
+  const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!form.title) return;
+    setLoading(true);
+    const now = new Date();
+    const thMonth = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+    const dateStr = `${now.getDate()} ${thMonth[now.getMonth()]} ${(now.getFullYear() + 543) % 100}`;
+    const deptCode = { 'ฝ่ายผลิต':'PR','วิศวกรรม':'EN','ประกันคุณภาพ':'QC','ซ่อมบำรุง':'MT','คลังสินค้า':'WH','ฝ่ายขาย':'SL','บัญชีการเงิน':'AC','บุคคล':'HR' }[form.dept] || 'XX';
+    const code = 'JD-' + deptCode + '-' + String(Math.floor(Math.random() * 900) + 100);
+    const body = { code, title: form.title, dept: form.dept, reports_to: form.reports, rev: 'v1.0', date: dateStr, status: form.status };
+    try {
+      const res = await fetch('/api/jds', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + localStorage.getItem('bwp_token') }, body: JSON.stringify(body) });
+      if (res.ok) {
+        const saved = { ...body, reports: form.reports };
+        onSaved(saved);
+        setForm({ title: '', dept: 'ฝ่ายผลิต', reports: '', status: 'draft' });
+        onClose();
+      }
+    } catch (err) { console.error(err); }
+    setLoading(false);
+  };
+  return (
+    <Modal open={open} onClose={onClose} title="สร้าง Job Description ใหม่" icon="doc" width={520}>
+      <form onSubmit={handleSubmit}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 14 }}>
+          <Field label="ชื่อตำแหน่ง" required><TextInput value={form.title} onChange={e => set('title', e.target.value)} placeholder="เช่น หัวหน้ากะฝ่ายผลิต" /></Field>
+          <Field label="แผนก" half><Select value={form.dept} onChange={e => set('dept', e.target.value)} options={BWP.departments.map(d => d.name)} /></Field>
+          <Field label="รายงานต่อ" half><TextInput value={form.reports} onChange={e => set('reports', e.target.value)} placeholder="เช่น ผู้จัดการฝ่ายผลิต" /></Field>
+          <Field label="สถานะ" half><Select value={form.status} onChange={e => set('status', e.target.value)} options={[{value:'draft',label:'ร่าง'},{value:'review',label:'รอตรวจ'},{value:'approved',label:'อนุมัติ'}]} /></Field>
+        </div>
+        <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 20 }}>
+          <Btn variant="ghost" onClick={onClose}>ยกเลิก</Btn>
+          <Btn variant="accent" type="submit" icon="check">{loading ? 'กำลังบันทึก…' : 'สร้าง JD'}</Btn>
+        </div>
+      </form>
+    </Modal>
+  );
+};
+
 const matchColor = (m) => m >= 85 ? "var(--green)" : m >= 75 ? "var(--accent)" : m >= 65 ? "var(--amber)" : "var(--red)";
 
 const CandidateDetail = ({ c, onClose }) => {
@@ -1675,8 +1894,10 @@ const InterviewForm = ({ iv, onClose, onSubmit }) => {
 
 const InterviewModule = ({ pushToast }) => {
   const [evalIv, setEvalIv] = useState(null);
-  const scheduled = BWP.interviews.filter(i => i.status === "scheduled");
-  const done = BWP.interviews.filter(i => i.status === "done");
+  const [showNewIv, setShowNewIv] = useState(false);
+  const [ivList, setIvList] = useState(() => BWP.interviews.map(i => ({ ...i })));
+  const scheduled = ivList.filter(i => i.status === "scheduled");
+  const done = ivList.filter(i => i.status === "done");
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(170px,1fr))", gap: 14 }}>
@@ -1686,9 +1907,9 @@ const InterviewModule = ({ pushToast }) => {
         <StatCard label="คะแนนเฉลี่ยรวม" value="3.95" unit="/ 5" icon="star" accent="var(--teal)" />
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1.3fr 1fr", gap: 16 }} className="dash-grid">
-        <Panel title="ตารางสัมภาษณ์" sub="รออัปเดตผลประเมิน" icon="calendar" right={<Btn variant="accent" size="sm" icon="plus">สร้างนัด</Btn>}>
+        <Panel title="ตารางสัมภาษณ์" sub="รออัปเดตผลประเมิน" icon="calendar" right={<Btn variant="accent" size="sm" icon="plus" onClick={() => setShowNewIv(true)}>สร้างนัด</Btn>}>
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {BWP.interviews.map(iv => (
+            {ivList.map(iv => (
               <div key={iv.id} style={{ display: "flex", alignItems: "center", gap: 13, padding: "12px 13px", borderRadius: 11, border: "1px solid var(--line)", background: "var(--surface-2)" }}>
                 <div style={{ textAlign: "center", flexShrink: 0, width: 52 }}>
                   <div className="tnum" style={{ fontSize: 15, fontWeight: 700, color: "var(--ink)" }}>{iv.time}</div>
@@ -1724,6 +1945,7 @@ const InterviewModule = ({ pushToast }) => {
         </Panel>
       </div>
       <InterviewForm iv={evalIv} onClose={() => setEvalIv(null)} onSubmit={(m) => { setEvalIv(null); pushToast(m); }} />
+      <NewInterviewModal open={showNewIv} onClose={() => setShowNewIv(false)} onSaved={(iv) => { setIvList(prev => [iv, ...prev]); BWP.interviews.unshift(iv); setShowNewIv(false); pushToast('สร้างนัดสัมภาษณ์ ' + iv.cand_name + ' แล้ว'); }} />
     </div>
   );
 };
@@ -1754,8 +1976,10 @@ const ApprovalFlowOffer = ({ status }) => {
 
 const OfferModule = ({ role, pushToast }) => {
   const [sel, setSel] = useState(null);
+  const [showNewOffer, setShowNewOffer] = useState(false);
+  const [offerList, setOfferList] = useState(() => BWP.offers.map(o => ({ ...o })));
   const canApprove = ["md", "super_admin"].includes(role);
-  const total = (o) => o.base + o.position_allow + o.travel + o.attend;
+  const total = (o) => (o.base || 0) + (o.position_allow || 0) + (o.travel || 0) + (o.attend || 0);
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(170px,1fr))", gap: 14 }}>
@@ -1764,9 +1988,9 @@ const OfferModule = ({ role, pushToast }) => {
         <StatCard label="ตอบรับแล้ว" value={BWP.offers.filter(o => o.status === "accepted").length} unit="ฉบับ" icon="check" accent="var(--green)" />
         <StatCard label="Offer Acceptance" value="86" unit="%" icon="target" accent="var(--teal)" trend={3} />
       </div>
-      <Panel title="รายการ Offer" icon="handshake" right={<Btn variant="accent" size="sm" icon="plus">สร้าง Offer</Btn>}>
+      <Panel title="รายการ Offer" icon="handshake" right={<Btn variant="accent" size="sm" icon="plus" onClick={() => setShowNewOffer(true)}>สร้าง Offer</Btn>}>
         <div style={{ display: "flex", flexDirection: "column", gap: 11 }}>
-          {BWP.offers.map(o => { const st = BWP.offerStatus[o.status]; return (
+          {offerList.map(o => { const st = BWP.offerStatus[o.status]; return (
             <div key={o.id} onClick={() => setSel(o)} style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 15px", borderRadius: 12, border: "1px solid var(--line)", cursor: "pointer", transition: "all .14s" }}
               onMouseEnter={e => e.currentTarget.style.borderColor = "var(--accent)"} onMouseLeave={e => e.currentTarget.style.borderColor = "var(--line)"}>
               <Avatar name={o.cand} color="var(--navy-700)" size={42} />
@@ -1802,6 +2026,7 @@ const OfferModule = ({ role, pushToast }) => {
           ) : <div style={{ marginTop: 16, fontSize: 12.5, color: "var(--ink-3)", display: "flex", gap: 8, alignItems: "center" }}><Icon name="eye" size={15} />{canApprove ? "ไม่อยู่ในขั้นที่ต้องอนุมัติ" : "เฉพาะกรรมการผู้จัดการอนุมัติได้ (RBAC)"}</div>}
         </>}
       </Modal>
+      <NewOfferModal open={showNewOffer} onClose={() => setShowNewOffer(false)} onSaved={(o) => { setOfferList(prev => [o, ...prev]); BWP.offers.unshift(o); setShowNewOffer(false); pushToast('สร้าง Offer ' + o.id + ' แล้ว'); }} />
     </div>
   );
 };
@@ -1872,14 +2097,16 @@ const OnboardingModule = ({ pushToast }) => {
 const jdStatus = { approved: ["อนุมัติ", "var(--green)", "var(--green-soft)"], review: ["รอตรวจ", "var(--amber)", "var(--amber-soft)"], draft: ["ร่าง", "var(--ink-3)", "#eef1f5"] };
 const JDModule = () => {
   const [sel, setSel] = useState(null);
+  const [showNewJD, setShowNewJD] = useState(false);
+  const [jdList, setJdList] = useState(() => BWP.jds.map(j => ({ ...j })));
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
-        <div style={{ fontSize: 13, color: "var(--ink-3)" }}>คลัง JD กลาง <b className="tnum" style={{ color: "var(--ink)" }}>{BWP.jds.length}</b> ตำแหน่ง · รองรับ Version Control & Compare</div>
-        <div style={{ display: "flex", gap: 8 }}><Btn variant="ghost" size="sm" icon="download">อัปโหลด PDF</Btn><Btn variant="accent" size="sm" icon="plus">สร้าง JD</Btn></div>
+        <div style={{ fontSize: 13, color: "var(--ink-3)" }}>คลัง JD กลาง <b className="tnum" style={{ color: "var(--ink)" }}>{jdList.length}</b> ตำแหน่ง · รองรับ Version Control & Compare</div>
+        <div style={{ display: "flex", gap: 8 }}><Btn variant="ghost" size="sm" icon="download">อัปโหลด PDF</Btn><Btn variant="accent" size="sm" icon="plus" onClick={() => setShowNewJD(true)}>สร้าง JD</Btn></div>
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(280px,1fr))", gap: 14 }}>
-        {BWP.jds.map(jd => { const [l, c, bg] = jdStatus[jd.status]; return (
+        {jdList.map(jd => { const [l, c, bg] = jdStatus[jd.status]; return (
           <div key={jd.code} className="card anim-up" onClick={() => setSel(jd)} style={{ padding: 16, cursor: "pointer", transition: "all .15s" }}
             onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-3px)"; e.currentTarget.style.boxShadow = "var(--shadow)"; }} onMouseLeave={e => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = "var(--shadow-sm)"; }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
@@ -1907,6 +2134,7 @@ const JDModule = () => {
           </div>
         </>}
       </Modal>
+      <NewJDModal open={showNewJD} onClose={() => setShowNewJD(false)} onSaved={(jd) => { setJdList(prev => [jd, ...prev]); BWP.jds.unshift(jd); setShowNewJD(false); }} />
     </div>
   );
 };
