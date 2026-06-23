@@ -156,8 +156,8 @@ img { max-width: 100%; }
   <tr><td><code>md</code></td><td>กรรมการผู้จัดการ</td><td>อนุมัติ Requisition + Offer, ดู Dashboard ผู้บริหาร</td></tr>
   <tr><td><code>hr_manager</code></td><td>ผู้จัดการฝ่ายบุคคล</td><td>บริหารกระบวนการสรรหาทั้งหมด, อนุมัติคำขอ</td></tr>
   <tr><td><code>hr_officer</code></td><td>เจ้าหน้าที่สรรหา</td><td>สร้างคำขอ, คัดกรองผู้สมัคร, นัดสัมภาษณ์, จัดทำ Offer</td></tr>
-  <tr><td><code>dept_head</code></td><td>หัวหน้าแผนก</td><td>เปิดคำขอ, ดู Pipeline, ประเมินสัมภาษณ์</td></tr>
-  <tr><td><code>viewer</code></td><td>ผู้ดูข้อมูล</td><td>ดูข้อมูลอย่างเดียว ไม่สามารถแก้ไข</td></tr>
+  <tr><td><code>dept_manager</code></td><td>ผู้จัดการแผนก</td><td>เปิดคำขอ, ดู Pipeline, ประเมินสัมภาษณ์</td></tr>
+  <tr><td><code>interviewer</code></td><td>ผู้สัมภาษณ์</td><td>ประเมินผลสัมภาษณ์, ดูข้อมูลผู้สมัคร</td></tr>
 </table>
 
 <h3>3.2 ระดับสิทธิ์ (Permission Level)</h3>
@@ -173,20 +173,20 @@ img { max-width: 100%; }
 
 <h3>3.3 ตารางสิทธิ์ (Permission Matrix)</h3>
 <table>
-  <tr><th>โมดูล</th><th>Super Admin</th><th>MD</th><th>HR Manager</th><th>HR Officer</th><th>Dept Head</th><th>Viewer</th></tr>
+  <tr><th>โมดูล</th><th>Super Admin</th><th>MD</th><th>HR Manager</th><th>HR Officer</th><th>Dept Manager</th><th>Interviewer</th></tr>
   <tr><td>Dashboard</td><td>F</td><td>F</td><td>F</td><td>V</td><td>V</td><td>V</td></tr>
   <tr><td>Executive</td><td>F</td><td>F</td><td>V</td><td>–</td><td>–</td><td>–</td></tr>
-  <tr><td>Manpower</td><td>F</td><td>A</td><td>E</td><td>V</td><td>V</td><td>V</td></tr>
-  <tr><td>Requisition</td><td>F</td><td>A</td><td>A</td><td>C</td><td>C</td><td>V</td></tr>
-  <tr><td>JD</td><td>F</td><td>A</td><td>E</td><td>E</td><td>V</td><td>V</td></tr>
-  <tr><td>Pipeline</td><td>F</td><td>V</td><td>F</td><td>E</td><td>V</td><td>V</td></tr>
-  <tr><td>Candidates</td><td>F</td><td>V</td><td>F</td><td>E</td><td>V</td><td>V</td></tr>
-  <tr><td>Interview</td><td>F</td><td>V</td><td>F</td><td>E</td><td>E</td><td>V</td></tr>
-  <tr><td>Offer</td><td>F</td><td>A</td><td>E</td><td>C</td><td>V</td><td>–</td></tr>
-  <tr><td>Onboarding</td><td>F</td><td>V</td><td>F</td><td>E</td><td>V</td><td>–</td></tr>
-  <tr><td>Reports</td><td>F</td><td>F</td><td>F</td><td>V</td><td>V</td><td>V</td></tr>
+  <tr><td>Manpower</td><td>F</td><td>A</td><td>E</td><td>V</td><td>V</td><td>–</td></tr>
+  <tr><td>Requisition</td><td>F</td><td>A</td><td>A</td><td>C</td><td>C</td><td>–</td></tr>
+  <tr><td>JD</td><td>F</td><td>A</td><td>E</td><td>E</td><td>V</td><td>–</td></tr>
+  <tr><td>Pipeline</td><td>F</td><td>V</td><td>F</td><td>E</td><td>V</td><td>–</td></tr>
+  <tr><td>Candidates</td><td>F</td><td>V</td><td>F</td><td>E</td><td>–</td><td>–</td></tr>
+  <tr><td>Interview</td><td>F</td><td>V</td><td>F</td><td>E</td><td>E</td><td>E</td></tr>
+  <tr><td>Offer</td><td>F</td><td>A</td><td>E</td><td>C</td><td>–</td><td>–</td></tr>
+  <tr><td>Onboarding</td><td>F</td><td>V</td><td>F</td><td>E</td><td>–</td><td>–</td></tr>
+  <tr><td>Reports</td><td>F</td><td>F</td><td>F</td><td>V</td><td>–</td><td>–</td></tr>
   <tr><td>AI Analytics</td><td>F</td><td>F</td><td>F</td><td>V</td><td>–</td><td>–</td></tr>
-  <tr><td>Notifications</td><td>F</td><td>V</td><td>F</td><td>E</td><td>V</td><td>V</td></tr>
+  <tr><td>Notifications</td><td>F</td><td>V</td><td>F</td><td>E</td><td>–</td><td>–</td></tr>
   <tr><td>Settings</td><td>F</td><td>–</td><td>V</td><td>–</td><td>–</td><td>–</td></tr>
 </table>
 
@@ -707,12 +707,12 @@ img { max-width: 100%; }
 <h3>รายชื่อผู้ใช้ที่ตั้งไว้ในระบบ</h3>
 <table>
   <tr><th>Username</th><th>รหัสผ่าน</th><th>บทบาท</th><th>ชื่อที่แสดง</th></tr>
-  <tr><td><code>admin</code></td><td><code>Admin@1234</code></td><td>Super Admin</td><td>ผู้ดูแลระบบ</td></tr>
-  <tr><td><code>md</code></td><td><code>MD@1234</code></td><td>กรรมการผู้จัดการ</td><td>อนุชา เรืองศักดิ์</td></tr>
-  <tr><td><code>hr_mgr</code></td><td><code>HRmgr@1234</code></td><td>HR Manager</td><td>สุนิสา ภักดีงาม</td></tr>
-  <tr><td><code>hr_staff</code></td><td><code>HRstaff@1234</code></td><td>HR Officer</td><td>วิภาวดี ศรีสุข</td></tr>
-  <tr><td><code>dept_head</code></td><td><code>Dept@1234</code></td><td>หัวหน้าแผนก</td><td>ธนกฤต วงศ์ไพบูลย์</td></tr>
-  <tr><td><code>viewer</code></td><td><code>View@1234</code></td><td>ผู้ดูข้อมูล</td><td>ผู้ตรวจสอบ</td></tr>
+  <tr><td><code>admin</code></td><td><code>BWPadmin@2569</code></td><td>Super Admin</td><td>ก. ระบบาธิป</td></tr>
+  <tr><td><code>md</code></td><td><code>MD@2569</code></td><td>กรรมการผู้จัดการ</td><td>วิเชียร บุญประเสริฐ</td></tr>
+  <tr><td><code>hr.manager</code></td><td><code>HRm@2569</code></td><td>HR Manager</td><td>สุนิสา ภักดีงาม</td></tr>
+  <tr><td><code>hr.officer</code></td><td><code>HRo@2569</code></td><td>HR Officer</td><td>พิมพ์ชนก ศรีสุข</td></tr>
+  <tr><td><code>dept.manager</code></td><td><code>DEPm@2569</code></td><td>ผู้จัดการแผนก</td><td>ธนกฤต วงศ์ไพบูลย์</td></tr>
+  <tr><td><code>interviewer</code></td><td><code>IVw@2569</code></td><td>ผู้สัมภาษณ์</td><td>อนุชา เรืองศักดิ์</td></tr>
 </table>
 
 <div class="warn">
